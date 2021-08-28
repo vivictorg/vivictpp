@@ -1,0 +1,64 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files: .gitignore
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: .gitattributes
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: .clang-format
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: subprojects/cli11.wrap
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: subprojects/spdlog.wrap
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: subprojects/catch2.wrap
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: subprojects/packagefiles/catch2-2.13.3-2.tar.gz
+Copyright: 2018 The Meson Development team
+License: MIT
+
+Files: testdata/*
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: snap/snapcraft.yaml
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: meson.build
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: dockerfiles/*
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: scripts/vivictpp.wrapper
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: *.md
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: *.yml
+Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: img/screenshot.png
+Copyright: 2021 Sveriges Television AB
+Copyright: 2012 Blender Foundation
+License: CC-BY-3.0
+
+# Third-party files.

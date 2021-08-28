@@ -1,0 +1,39 @@
+#
+# The purpose of this dockerfile is to test the build process. It is not
+# meant to be used to run vivictpp.
+#
+
+FROM ubuntu:20.04
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
+RUN apt-get --fix-missing install -y cmake \
+ python3-pip \
+ gcc \
+ python3-setuptools \
+ python3-wheel \
+ libsdl2-dev \
+ libsdl2-ttf-dev \
+ libfreetype6-dev \
+ libavformat-dev \
+ libavcodec-dev \
+ libswscale-dev \
+ libavfilter-dev \
+ git
+
+RUN pip3 install ninja 
+RUN pip3 install meson
+RUN apt-get install pkg-config
+
+RUN mkdir /vivictplusplus
+COPY meson.build /vivictplusplus/
+COPY src /vivictplusplus/src
+COPY include /vivictplusplus/include
+RUN mkdir /vivictplusplus/subprojects
+COPY subprojects/*.wrap /vivictplusplus/subprojects/
+
+WORKDIR /vivictplusplus
+RUN meson builddir
+WORKDIR /vivictplusplus/builddir
+RUN meson compile
+
