@@ -52,6 +52,8 @@ void vivictpp::ui::VmafGraph::initTexture(SDL_Renderer *renderer) {
 
 
   SDL_Color colors[] = { {255,0,0,255}, {0,0,255,255} };
+  int p0p = -1;
+  int p1p = -1;
   for (size_t j = 0; j < vmafLogs.size() ; j++) {
     const std::vector<float> &vmafValues = vmafLogs[j].getVmafValues();
     if (vmafValues.empty()) {
@@ -60,20 +62,32 @@ void vivictpp::ui::VmafGraph::initTexture(SDL_Renderer *renderer) {
 //  int p0(height - (int)(vmafValues[0] * height / 100)),p1(0);
     SDL_Color color = colors[j % 2];
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
     for (int i=0; i<textureW; i++) {
       int i0 = (int)(i * vmafValues.size() / textureW);
       int i1 = std::min((int)((i+1) * vmafValues.size() / textureW), (int) vmafValues.size());
       float vmin(100), vmax(0);
-      for (int j=i0; j<i1; j++) {
-        vmin = std::min(vmin, vmafValues[j]);
-        vmax = std::max(vmax, vmafValues[j]);
+      if (i1 == i0) {
+        vmin = vmax = vmafValues[i0];
+      } else {
+        for (int j=i0; j<i1; j++) {
+          vmin = std::min(vmin, vmafValues[j]);
+          vmax = std::max(vmax, vmafValues[j]);
+        }
       }
       int p0 = textureH - (int) (vmax * textureH / 100);
       int p1 = textureH - (int) (vmin * textureH / 100);
-      SDL_RenderDrawLine(renderer, i, p0, i, p1);
+      if (p0p < 0) {
+        SDL_RenderDrawPoint(renderer, i, p0);
+        SDL_RenderDrawPoint(renderer, i, p1);
+      } else {
+        SDL_RenderDrawLine(renderer, i-1, p0p, i, p0);
+        SDL_RenderDrawLine(renderer, i-1, p1p, i, p1);
+      }
+      p0p = p0;
+      p1p = p1;
     }
   }
-//  SDL_RenderSetClipRect(renderer, nullptr);
   SDL_SetRenderTarget(renderer, nullptr);
 }
 
@@ -93,11 +107,11 @@ void vivictpp::ui::VmafGraph::render(SDL_Renderer *renderer,
   if (!texture) {
     initTexture(renderer);
   }
-  
+
   SDL_Rect rect = {0, rendererHeight - textureH - 2, textureW, textureH};
 
   SDL_RenderCopy(renderer, texture, nullptr, &rect);
-  
+
   int timeLineX = (int) ((textureW-1) * (pts - startTime) / duration);
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
   SDL_RenderDrawLine(renderer, timeLineX, rendererHeight - textureH - 2, timeLineX, rendererHeight);
