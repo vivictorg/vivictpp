@@ -6,7 +6,6 @@
 
 #include "logging/Logging.hh"
 #include <bits/stdint-intn.h>
-#include <libavcodec/packet.h>
 #include <utility>
 
 
@@ -300,8 +299,16 @@ void VivictPP::mouseWheel(int x, int y) {
   eventLoop.scheduleRefreshDisplay(0);
 }
 
-void VivictPP::mouseClick() {
-  togglePlaying();
+void VivictPP::mouseClick(int x, int y) {
+  if (state.displayState.displayPlot && y > screenOutput.getHeight() * 0.7) {
+    float seekRel = x / (float) screenOutput.getWidth();
+    VideoMetadata &metadata = videoInputs.metadata()[0][0];
+    float pos = metadata.startTime + metadata.duration * seekRel;
+    seek(pos);
+    logger->debug("seeking to {}", pos);
+  } else {
+    togglePlaying();
+  }
 }
 
 void VivictPP::onQuit() {

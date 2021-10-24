@@ -60,7 +60,7 @@ public:
   void mouseDrag(int xrel, int yrel) override;
   void mouseMotion(int x, int y) override;
   void mouseWheel(int x, int y) override;
-  void mouseClick() override;
+  void mouseClick(int x, int y) override;
   void keyPressed(std::string key) override;
   void advanceFrame() override;
   void refreshDisplay() override;

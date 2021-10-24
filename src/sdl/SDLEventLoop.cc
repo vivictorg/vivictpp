@@ -106,8 +106,9 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
           scheduleEvent(checkMouseDragEventType, 200);
         } break;
         case SDL_MOUSEBUTTONUP: {
+          SDL_MouseButtonEvent mouseEvent = event.button;
           if (!mouseState.dragging) {
-            eventListener.mouseClick();
+            eventListener.mouseClick(mouseEvent.x, mouseEvent.y);
           } else {
             eventListener.mouseDragEnd();
           }

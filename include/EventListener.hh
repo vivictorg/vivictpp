@@ -15,7 +15,7 @@ class EventListener {
   virtual void mouseDrag(int xrel, int yrel) = 0;
   virtual void mouseMotion(int x, int y) = 0;
   virtual void mouseWheel(int x, int y) = 0;
-  virtual void mouseClick() = 0;
+  virtual void mouseClick(int x, int y) = 0;
   virtual void keyPressed(std::string key) = 0;
   virtual void advanceFrame() = 0;
   virtual void queueAudio() = 0;
