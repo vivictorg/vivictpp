@@ -4,6 +4,7 @@
 
 #include "ui/TextTexture.hh"
 #include "ui/Fonts.hh"
+#include <stdexcept>
 
 SDL_Surface *createSurface(std::string text,
                           int fontSize,

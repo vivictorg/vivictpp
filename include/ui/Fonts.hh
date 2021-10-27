@@ -12,6 +12,7 @@ extern "C" {
 }
 
 #include <map>
+#include <string>
 
 namespace vivictpp {
 namespace ui {
