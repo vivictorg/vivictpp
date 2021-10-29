@@ -39,6 +39,6 @@ private:
   std::vector<VideoMetadata> videoMetadata;
 
 };
-};  // namespace workers
-};  // namespace vivictpp
+}  // namespace workers
+}  // namespace vivictpp
 #endif  // PACKET_WORKER_HH_

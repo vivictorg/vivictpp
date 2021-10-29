@@ -29,7 +29,9 @@ private:
   int range;
   int value;
 };
-};  // namespace workers
-};  // namespace vivictpp
+
+std::ostream &operator<<(std::ostream &out, QueuePointer qp);
+}  // namespace workers
+}  // namespace vivictpp
 
 #endif // QUEUEPOINTER_HH_

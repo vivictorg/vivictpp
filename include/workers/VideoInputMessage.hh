@@ -156,7 +156,7 @@ void Queue<T>::pop() {
   }
 }
 
-};  // namespace workers
-};  // namespace vivictpp
+}  // namespace workers
+}  // namespace vivictpp
 
 #endif // VIDEOINPUTCOMMAND_HH_

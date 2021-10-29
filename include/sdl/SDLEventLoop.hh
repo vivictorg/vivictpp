@@ -41,7 +41,7 @@ class SDLEventLoop : EventLoop {
     std::shared_ptr<spdlog::logger> logger;
 };
 
-};  // ui
-};  // vivictpp
+}  // ui
+}  // vivictpp
 
 #endif  // SDL_EVENT_LOOP_H_

@@ -53,7 +53,7 @@ private:
   double seekPos;
 
 };
-};  // namespace workers
-};  // namespace workers
+}  // namespace workers
+}  // namespace workers
 
 #endif  // DECODER_WORKER_HH_

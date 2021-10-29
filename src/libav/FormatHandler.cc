@@ -40,7 +40,7 @@ vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile)
   }
 
   this->packet = av_packet_alloc();
-};
+}
 
 vivictpp::libav::FormatHandler::~FormatHandler() {
   if (formatContext) {
@@ -49,7 +49,7 @@ vivictpp::libav::FormatHandler::~FormatHandler() {
   if (packet) {
     av_packet_unref(packet);
   }
-};
+}
 
 void vivictpp::libav::FormatHandler::setActiveStreams(const std::set<int> &activeStreams) {
   for (unsigned int i = 0; i < this->formatContext->nb_streams; i++) {

@@ -31,7 +31,7 @@ vivictpp::sdl::createWindow(int width, int height) {
     throw SDLException("Failed to create window");
   }
   return window;
-};
+}
 
 std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>
 vivictpp::sdl::createRenderer(SDL_Window* window) {
@@ -42,7 +42,7 @@ vivictpp::sdl::createRenderer(SDL_Window* window) {
     throw SDLException("Failed to create renderer");
   }
   return renderer;
-};
+}
 
 std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
 vivictpp::sdl::createTexture(SDL_Renderer* renderer, int w, int h) {

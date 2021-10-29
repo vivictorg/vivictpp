@@ -51,8 +51,8 @@ private:
   int channels;
   int bytesPerSample;
 };
-};  // sdl
-};  // vivictpp
+}  // sdl
+}  // vivictpp
 
 
 #endif

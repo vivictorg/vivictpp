@@ -102,7 +102,7 @@ void setRectangle(SDL_Rect &rect, int x, int y, int w, int h);
 
 void debugRectangle(std::string msg, const SDL_Rect &rect);
 
-};  // ui
-};  // vivictpp
+}  // ui
+}  // vivictpp
 
 #endif // SCREENOUTPUT_HH_

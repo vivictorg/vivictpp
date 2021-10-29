@@ -26,7 +26,7 @@ private:
   std::shared_ptr<AVPacket> packet;
 };
 
-};  // namespace libav
-};  // namespace vivictpp
+}  // namespace libav
+}  // namespace vivictpp
 
 #endif  // PACKET_HH_

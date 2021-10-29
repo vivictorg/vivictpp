@@ -59,7 +59,7 @@ private:
   void initTexture(SDL_Renderer *renderer);
 };
 
-};  // ui
-};  // vivictpp
+}  // ui
+}  // vivictpp
 
 #endif // TEXTBOX_HH_

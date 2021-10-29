@@ -26,7 +26,7 @@ class VivictUI {
   virtual void setRightMetadata(const VideoMetadata &metadata) = 0;
 };
 
-};  // ui
-};  // vivictpp
+}  // ui
+}  // vivictpp
 
 #endif  // VIVICT_UI_HH_

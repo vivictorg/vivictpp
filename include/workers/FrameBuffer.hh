@@ -81,7 +81,7 @@ private:
   std::mutex mutex;
   std::condition_variable conditionVariable;
 };
-};  // namespace workers
-};  // namespace vivictpp
+}  // namespace workers
+}  // namespace vivictpp
 #endif // FRAMEBUFFER_HH_
 

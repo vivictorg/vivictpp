@@ -45,7 +45,7 @@ std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
   createHandCursor();
 
-};  // sdl
-};  // vivictpp
+}  // sdl
+}  // vivictpp
 
 #endif  // SDL_UTILS_H

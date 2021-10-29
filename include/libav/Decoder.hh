@@ -39,7 +39,7 @@ std::shared_ptr<AVCodecContext> createCodecContext(AVCodecParameters *codecParam
 
 void destroyCodecContext(AVCodecContext *codecContext);
 
-};  // namespace libav
-};  // namespace vivictpp
+}  // namespace libav
+}  // namespace vivictpp
 
 #endif // DECODER_HH_

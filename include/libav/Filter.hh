@@ -56,7 +56,7 @@ private:
              std::string definition);
 };
 
-};  // namespace libav
-};  // namespace vivictpp
+}  // namespace libav
+}  // namespace vivictpp
 
 #endif  // FILTER_H_

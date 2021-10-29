@@ -33,7 +33,7 @@ private:
 
 void freeFrame(AVFrame* avFrame);
 
-};  // namespace libav
-};  // namespace vivictpp
+}  // namespace libav
+}  // namespace vivictpp
 
 #endif  // FRAME_HH_

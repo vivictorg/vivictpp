@@ -22,7 +22,7 @@ template <class T>
 class InputWorker {
 
 public:
-    InputWorker(int queueDataLimit, std::string);
+  InputWorker(int queueDataLimit, std::string);
   virtual ~InputWorker();
 
   void sendCommand(vivictpp::workers::Command *cmd);
@@ -38,12 +38,18 @@ protected:
 private:
   void pollMessageQueue();
   void run();
-  virtual bool filterData(const vivictpp::workers::Data<T> &data) { return true; };
+  virtual bool filterData(const vivictpp::workers::Data<T> &data) {
+    (void) data;
+    return true;
+  };
   virtual void doWork(){}
-  virtual bool onData(const vivictpp::workers::Data<T> &data) { return true; }
+  virtual bool onData(const vivictpp::workers::Data<T> &data) {
+    (void) data;
+    return true;
+  }
 
 protected:
-    vivictpp::logging::Logger logger;
+  vivictpp::logging::Logger logger;
   InputWorkerState state;
   vivictpp::workers::Queue<T> messageQueue;
 
@@ -57,7 +63,7 @@ template<class T>
 InputWorker<T>::InputWorker(int queueDataLimit, std::string name):
     logger(vivictpp::logging::getOrCreateLogger(name)),
   state(InputWorkerState::INACTIVE),
-  messageQueue(250) {
+  messageQueue(queueDataLimit) {
 }
 
 template<class T>
@@ -87,6 +93,7 @@ void InputWorker<T>::start() {
   }
   InputWorker<T> *inputWorker(this);
   messageQueue.pushCommand(new vivictpp::workers::Command([=](uint64_t serialNo){
+                                                            (void) serialNo;
                                                             inputWorker->state = InputWorkerState::ACTIVE;
                                                             return true;
                                                           }, "start"));
@@ -96,6 +103,7 @@ template<class T>
 void InputWorker<T>::stop() {
   InputWorker<T> *inputWorker(this);
   messageQueue.pushCommand(new vivictpp::workers::Command([=](uint64_t serialNo){
+                                                            (void) serialNo;
         inputWorker->state = InputWorkerState::INACTIVE;
         return true;
       }, "stop"));
@@ -106,6 +114,7 @@ void InputWorker<T>::quit() {
   if (state != InputWorkerState::STOPPED) {
     InputWorker<T> *inputWorker(this);
     messageQueue.pushCommand(new vivictpp::workers::Command([=](uint64_t serialNo){
+                                                              (void)serialNo;
           inputWorker->state = InputWorkerState::STOPPED;
           return true;
         }, "quit"));
@@ -154,6 +163,6 @@ void InputWorker<T>::run() {
   }
 }
 
-};  // namespace workers
-};  // namespace vivictpp
+}  // namespace workers
+}  // namespace vivictpp
 #endif  // INPUT_WORKER_HH_

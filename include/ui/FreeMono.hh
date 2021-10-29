@@ -1,3 +1,4 @@
+
 // SPDX-FileCopyrightText: 2021 Sveriges Television AB
 // SPDX-FileCopyrightText: GNU FreeFont
 //
@@ -48720,7 +48721,7 @@ unsigned char FreeMono_ttf[] = {
     0xc3, 0xde, 0x59, 0xef, 0x00, 0x00, 0x00, 0x00, 0xcb, 0xc7, 0x3a, 0x86};
 unsigned int FreeMono_ttf_len = 584424;
 
-};  // ui
-};  // vivictpp
+}  // ui
+}  // vivictpp
 
 #endif // FREEMONO_HH_

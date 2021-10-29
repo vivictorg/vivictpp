@@ -18,12 +18,12 @@ namespace ui {
 class TextTexture {
 private:
   SDL_Surface* surface;
-  
+
 public:
   TextTexture(SDL_Renderer *renderer,
               std::string text,
               int fontSize,
-              SDL_Color color = {0,0,0},
+              SDL_Color color = {0,0,0,0},
               std::string font = "FreeMono");
   ~TextTexture() = default;
   std::shared_ptr<SDL_Texture> texture;

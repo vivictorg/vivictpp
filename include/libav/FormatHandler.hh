@@ -52,7 +52,7 @@ private:
   std::set<int> activeStreams;
 };
 
-};  // namespace libav
-};  // namespace vivictpp
+}  // namespace libav
+}  // namespace vivictpp
 
 #endif // FORMATHANDLER_HH_

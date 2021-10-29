@@ -36,7 +36,7 @@ private:
   int code;
 };
 
-};  // namespace libav
-};  // namespace vivictpp
+}  // namespace libav
+}  // namespace vivictpp
 
 #endif  // AV_ERROR_UTILS_HH_

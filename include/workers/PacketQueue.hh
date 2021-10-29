@@ -38,7 +38,7 @@ private:
   std::condition_variable conditionVariable;
 };
 
-};  // namespace workers
-};  // namespace vivictpp
+}  // namespace workers
+}  // namespace vivictpp
 
 #endif  // PACKET_QUEUE_HH_

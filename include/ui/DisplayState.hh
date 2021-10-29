@@ -54,7 +54,7 @@ struct DisplayState {
   double pts{0};
 };
 
-};  // ui
-};  // vivictpp
+}  // ui
+}  // vivictpp
 
 #endif // DISPLAYSTATE_HH_

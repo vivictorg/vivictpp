@@ -68,6 +68,7 @@ void vivictpp::workers::PacketWorker::unrefCurrentPacket() {
 void vivictpp::workers::PacketWorker::addDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker) {
   PacketWorker *pw(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
+        (void) serialNo;
         pw->decoderWorkers.push_back(decoderWorker);
         pw->setActiveStreams();
         return true;
@@ -77,6 +78,7 @@ void vivictpp::workers::PacketWorker::addDecoderWorker(const std::shared_ptr<Dec
 void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker) {
   PacketWorker *pw(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
+                                               (void) serialNo;
         pw->decoderWorkers.erase(std::remove(pw->decoderWorkers.begin(),
                                              pw->decoderWorkers.end(), decoderWorker),
                                  pw->decoderWorkers.end());
@@ -88,6 +90,7 @@ void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<
 void vivictpp::workers::PacketWorker::seek(double pos) {
   PacketWorker *packetWorker(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
+                                               (void) serialNo;
         packetWorker->formatHandler.seek(pos);
         packetWorker->unrefCurrentPacket();
         for (auto decoderWorker : packetWorker->decoderWorkers) {

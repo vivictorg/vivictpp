@@ -287,6 +287,7 @@ void VivictPP::mouseDrag(int xrel, int yrel) {
 }
 
 void VivictPP::mouseMotion(int x, int y) {
+  (void) y;
   state.displayState.splitPercent =
     x * 100.0 / screenOutput.getWidth();
   eventLoop.scheduleRefreshDisplay(0);
