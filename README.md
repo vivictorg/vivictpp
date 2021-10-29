@@ -25,7 +25,12 @@ the code is not as clean as one would wish etc. See [known issues](#known-issues
 
 ### Snap
 
-Coming soon...
+```
+sudo snap install --edge vivictpp
+```
+
+### Homebrew
+Not yet, but it is being worked on
 
 ## Building
 
