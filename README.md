@@ -30,7 +30,10 @@ sudo snap install --edge vivictpp
 ```
 
 ### Homebrew
-Not yet, but it is being worked on
+```
+brew tap grusell/vivictpp
+brew install vivictpp
+``
 
 ## Building
 
