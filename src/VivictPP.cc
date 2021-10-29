@@ -206,7 +206,11 @@ void VivictPP::seekNextFrame() {
 }
 
 void VivictPP::seekRelative(double deltaT) {
-  seek(state.pts + deltaT);
+  if (state.seeking) {
+    seek(state.nextPts + deltaT);
+  } else {
+    seek(state.pts + deltaT);
+  }
 }
 
 void VivictPP::seek(double nextPts) {
