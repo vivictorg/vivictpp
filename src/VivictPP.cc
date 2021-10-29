@@ -62,10 +62,10 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig)
   state.nextPts = state.pts;
   state.displayState.splitScreenDisabled = splitScreenDisabled;
   if (splitScreenDisabled) {
-    frameDuration =1.0d / metadata[0][0].frameRate;
+    frameDuration =1.0 / metadata[0][0].frameRate;
   } else {
     frameDuration =
-      1.0d / std::max(metadata[0][0].frameRate, metadata[1][0].frameRate);
+      1.0 / std::max(metadata[0][0].frameRate, metadata[1][0].frameRate);
   }
 }
 
