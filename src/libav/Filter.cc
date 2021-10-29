@@ -138,17 +138,10 @@ void vivictpp::libav::AudioFilter::configure(AVStream *audioStream, AVCodecConte
   spdlog::debug("Audiovivictpp::libav::Filter::configure  filter definition: {}", definition);
 
   char args[512];
-  AVRational timeBase = audioStream->time_base;
 
   graph.reset(avfilter_graph_alloc(), &freeFilterGraph);
 
   enum AVSampleFormat sample_fmts[] =  { AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE };
-
-  snprintf(args, sizeof(args),
-           "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-           codecContext->width, codecContext->height, codecContext->pix_fmt,
-           timeBase.num, timeBase.den,
-           codecContext->sample_aspect_ratio.num, codecContext->sample_aspect_ratio.den);
 
   snprintf(args, sizeof(args),
            "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d:channel_layout=0x%" PRIx64,
