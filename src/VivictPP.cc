@@ -171,6 +171,7 @@ void VivictPP::refreshDisplay() {
 void VivictPP::togglePlaying() {
   if (state.togglePlaying() == PlaybackState::PLAYING) {
     state.displayState.isPlaying = true;
+    audioSeek(state.pts);
     queueAudio();
     if (audioOutput) {
       audioOutput->start();
