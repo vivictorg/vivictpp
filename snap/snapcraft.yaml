@@ -21,6 +21,8 @@ apps:
       - pulseaudio
       - network
       - x11
+      - opengl
+      - home
   ffmpeg:
     command: usr/bin/ffmpeg
 
@@ -65,3 +67,15 @@ parts:
     source: /root/project
     source-type: local
     plugin: meson
+    after:
+      - desktop-glib-only
+
+  desktop-glib-only:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    plugin: make
+    build-packages:
+      - libglib2.0-dev
+    stage-packages:
+      - libglib2.0-bin
+
