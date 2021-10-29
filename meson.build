@@ -1,4 +1,4 @@
-project('vivict++', 'cpp')
+project('vivict++', 'cpp', default_options : ['cpp_std=c++11'])
 
 spdlog_proj = subproject('spdlog')
 cli11_proj = subproject('cli11')

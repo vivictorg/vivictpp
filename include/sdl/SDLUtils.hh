@@ -13,6 +13,8 @@ extern "C" {
 #include <exception>
 #include <memory>
 #include <atomic>
+#include <string>
+#include <stdexcept>
 
 namespace vivictpp {
 namespace sdl {

@@ -5,7 +5,7 @@
 #include "VivictPP.hh"
 
 #include "logging/Logging.hh"
-#include <bits/stdint-intn.h>
+#include <cstdint>
 #include <utility>
 
 

@@ -5,6 +5,8 @@
 #include "ui/Fonts.hh"
 #include "ui/FreeMono.hh"
 
+#include <stdexcept>
+
 vivictpp::ui::Fonts::Fonts() {
   TTF_Init();
 }
