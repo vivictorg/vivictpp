@@ -24,6 +24,7 @@ void free_frame(AVFrame* frame) {
 }
 
 double testSeek(std::string url, double pts) {
+  /*
     char *cwd = get_current_dir_name();
     printf("pwd: %s\n", cwd);
     free(cwd);
@@ -43,6 +44,7 @@ double testSeek(std::string url, double pts) {
         }
     }
     throw std::runtime_error("No package received");
+  */
 }
 
 bool closeEnough(double a, double b) {
