@@ -1,7 +1,7 @@
 name: vivictpp # you probably want to 'snapcraft register <name>'
 license: GPL-3.0
 base: core20 # the base snap is the execution environment for this snap
-version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
+version: git
 summary: Vivict video comparison tool++
 description: |
   Side-by-side/split-view video comparison tool. See also https://github.com/svt/vivictpp
@@ -65,7 +65,7 @@ parts:
       - libpulse0
     # See 'snapcraft plugins'
     source: /root/project
-    source-type: local
+    source-type: git
     plugin: meson
     after:
       - desktop-glib-only

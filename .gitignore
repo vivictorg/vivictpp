@@ -5,4 +5,4 @@ builddir
 subprojects/*
 !subprojects/*.wrap
 .#*
-vivictpp_0.1_amd64.snap
+vivictpp_*.snap
