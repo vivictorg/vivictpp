@@ -33,7 +33,7 @@ sudo snap install --edge vivictpp
 ```
 brew tap grusell/vivictpp
 brew install vivictpp
-``
+```
 
 ## Building
 
