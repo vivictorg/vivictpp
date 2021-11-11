@@ -15,7 +15,6 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include "ui/VivictUI.hh"
 #include "ui/DisplayState.hh"
 #include "ui/TextBox.hh"
 #include "ui/VmafGraph.hh"
@@ -35,7 +34,7 @@ extern "C" {
 namespace vivictpp {
 namespace ui {
 
-class ScreenOutput: vivictpp::ui::VivictUI {
+class ScreenOutput {
 public:
   ScreenOutput(VideoMetadata *leftVideoMetadataPtr,
                VideoMetadata *rightVideoMetadataPtr,
@@ -44,14 +43,14 @@ public:
   ScreenOutput& operator=(const ScreenOutput&) = delete;
   virtual ~ScreenOutput();
   void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                    const vivictpp::ui::DisplayState &displayState) override;
-  int getWidth() override { return width; }
-  int getHeight() override { return height; }
-  void setFullscreen(bool fullscreen) override;
-  void setCursorHand() override;
-  void setCursorDefault() override;
-  void setLeftMetadata(const VideoMetadata &metadata) override;
-  void setRightMetadata(const VideoMetadata &metadata) override;
+                    const vivictpp::ui::DisplayState &displayState);
+  int getWidth() { return width; }
+  int getHeight() { return height; }
+  void setFullscreen(bool fullscreen);
+  void setCursorHand();
+  void setCursorDefault();
+  void setLeftMetadata(const VideoMetadata &metadata);
+  void setRightMetadata(const VideoMetadata &metadata);
 
 private:
   std::unique_ptr<VideoMetadata> leftVideoMetadata;

@@ -20,7 +20,7 @@ struct MouseState {
 };
 
 
-class SDLEventLoop : EventLoop {
+class SDLEventLoop : public EventLoop {
  public:
   SDLEventLoop();
   ~SDLEventLoop() = default;

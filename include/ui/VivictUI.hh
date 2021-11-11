@@ -5,25 +5,40 @@
 #ifndef VIVICT_UI_HH_
 #define VIVICT_UI_HH_
 
-#include "VideoMetadata.hh"
 #include "ui/DisplayState.hh"
-#include "libav/Frame.hh"
+#include "EventListener.hh"
+#include "logging/Logging.hh"
+#include "VivictPP.hh"
 
 namespace vivictpp {
 namespace ui {
 
-class VivictUI {
- public:
-  virtual ~VivictUI() = default;
-  virtual void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                            const DisplayState &displayState) = 0;
-  virtual int getWidth() = 0;
-  virtual int getHeight() = 0;
-  virtual void setFullscreen(bool fullscreen) = 0;
-  virtual void setCursorHand() = 0;
-  virtual void setCursorDefault() = 0;
-  virtual void setLeftMetadata(const VideoMetadata &metadata) = 0;
-  virtual void setRightMetadata(const VideoMetadata &metadata) = 0;
+class VivictUI : EventListener {
+public:
+  VivictUI(VivictPPConfig vivictPPConfig);
+  int run();
+  void mouseDragStart() override;
+  void mouseDragEnd() override;
+  void mouseDrag(int xrel, int yrel) override;
+  void mouseMotion(int x, int y) override;
+  void mouseWheel(int x, int y) override;
+  void mouseClick(int x, int y) override;
+  void keyPressed(std::string key) override;
+  void advanceFrame() override;
+  void refreshDisplay() override;
+  void queueAudio() override;
+  void onQuit();
+
+private:
+  void togglePlaying();
+
+private:
+  vivictpp::sdl::SDLEventLoop eventLoop;
+  VivictPP vivictPP;
+  vivictpp::ui::DisplayState displayState;
+  vivictpp::ui::ScreenOutput screenOutput;
+  bool splitScreenDisabled;
+  vivictpp::logging::Logger logger;
 };
 
 }  // ui

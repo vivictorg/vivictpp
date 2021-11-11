@@ -11,6 +11,7 @@
 #include "spdlog/fmt/ostr.h"
 
 #include "VivictPP.hh"
+#include "ui/VivictUI.hh"
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
 
@@ -75,7 +76,7 @@ int main(int argc, char **argv) {
 
     spdlog::cfg::load_env_levels();
     spdlog::set_pattern("%H:%M:%S.%e %^%=8l%$ %-20n thread-%t  %v");
-    
+
     std::vector<SourceConfig> sourceConfigs;
     for (size_t i = 0; i<sources.size(); i++) {
         std::string filter = i < filters.size() ? filters[i] : "";
@@ -88,8 +89,8 @@ int main(int argc, char **argv) {
     }
 
     VivictPPConfig vivictPPConfig(sourceConfigs, disableAudio);
-    VivictPP vivictPP(vivictPPConfig);
-    return vivictPP.run();
+    vivictpp::ui::VivictUI vivictUI(vivictPPConfig);
+    return vivictUI.run();
   } catch (const std::exception &e) {
     std::cerr << "Vivict had an unexpected error: " << e.what() << std::endl;
     return 1;
