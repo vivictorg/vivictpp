@@ -27,6 +27,7 @@ class SDLEventLoop : EventLoop {
   void scheduleAdvanceFrame(int delay) override;
   void scheduleRefreshDisplay(int delay) override;
   void scheduleQueueAudio(int delay) override;
+  void scheduleFade(int delay) override;
   void start(EventListener &eventListener) override;
   void stop() override;
 
@@ -38,6 +39,7 @@ class SDLEventLoop : EventLoop {
   unsigned int advanceFrameEventType;
   unsigned int checkMouseDragEventType;
   unsigned int queueAudioEventType;
+  unsigned int fadeEventType;
     std::shared_ptr<spdlog::logger> logger;
 };
 

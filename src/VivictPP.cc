@@ -176,18 +176,25 @@ void VivictPP::refreshDisplay() {
   }
   state.displayState.pts = state.pts;
   state.displayState.seekBarRelativePos = state.pts / inputDuration;
-  if (state.displayState.hideSeekBar > 0) {
-    int remaining = state.displayState.hideSeekBar - vivictpp::util::relativeTimeMillis();
-    if (remaining <= 0 ) {
+  screenOutput.displayFrame(frames, state.displayState);
+}
+
+
+void VivictPP::fade() {
+  logger->info("fade");
+  if (state.displayState.hideSeekBar > 0 && state.displayState.seekBarVisible) {
+    state.displayState.seekBarOpacity = std::max(0, state.displayState.seekBarOpacity - 10);
+    if (state.displayState.seekBarOpacity == 0) {
       state.displayState.seekBarVisible = false;
       state.displayState.hideSeekBar = 0;
+      state.displayState.seekBarOpacity = 255;
     } else {
-      state.displayState.seekBarOpacity = std::min(255, remaining);
+      eventLoop.scheduleFade(40);
     }
-  } else {
-    state.displayState.seekBarOpacity = 255;
+    if (state.playbackState != PlaybackState::PLAYING) {
+      eventLoop.scheduleRefreshDisplay(0);
+    }
   }
-  screenOutput.displayFrame(frames, state.displayState);
 }
 
 void VivictPP::togglePlaying() {
@@ -317,13 +324,15 @@ void VivictPP::mouseMotion(int x, int y) {
   state.displayState.splitPercent =
     x * 100.0 / screenOutput.getWidth();
   bool showSeekBar = y > screenOutput.getHeight() - 70;
-  if (state.displayState.seekBarVisible && !showSeekBar ) {
+  if (state.displayState.seekBarVisible && !showSeekBar && state.displayState.hideSeekBar == 0) {
     state.displayState.hideSeekBar = vivictpp::util::relativeTimeMillis() + 500;
+    fade();
   } else if (showSeekBar) {
     state.displayState.seekBarVisible = true;
     state.displayState.hideSeekBar = 0;
+    state.displayState.seekBarOpacity = 255;
+    eventLoop.scheduleRefreshDisplay(0);
   }
-  eventLoop.scheduleRefreshDisplay(0);
 }
 
 void VivictPP::mouseWheel(int x, int y) {

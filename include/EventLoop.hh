@@ -13,6 +13,7 @@ class EventLoop {
   virtual void scheduleAdvanceFrame(int delay) = 0;
   virtual void scheduleRefreshDisplay(int delay) = 0;
   virtual void scheduleQueueAudio(int delay) = 0;
+  virtual void scheduleFade(int delay) = 0;
   virtual void start(EventListener &eventListener) = 0;
   virtual void stop() = 0;
 };

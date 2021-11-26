@@ -65,6 +65,7 @@ public:
   void advanceFrame() override;
   void refreshDisplay() override;
   void queueAudio() override;
+  void fade() override;
 
 private:
   void togglePlaying();
