@@ -43,6 +43,7 @@ public:
     std::array<vivictpp::libav::Frame, 2> firstFrames();
     void seek(double pts);
     std::array<std::vector<VideoMetadata>, 2> metadata();
+    double duration();
     double nextPts() {
       double nextPtsL = leftInput.decoder->frames().nextPts();
       if (!rightInput.decoder) {

@@ -61,12 +61,18 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig)
   state.pts = metadata[0][0].startTime;
   state.nextPts = state.pts;
   state.displayState.splitScreenDisabled = splitScreenDisabled;
+  plotEnabled = std::any_of(vivictPPConfig.sourceConfigs.begin(),
+                                               vivictPPConfig.sourceConfigs.end(),
+                            [](const SourceConfig &sc) { return !sc.vmafLog.empty(); });
+
+  state.displayState.displayPlot = plotEnabled;
   if (splitScreenDisabled) {
     frameDuration =1.0 / metadata[0][0].frameRate;
   } else {
     frameDuration =
       1.0 / std::max(metadata[0][0].frameRate, metadata[1][0].frameRate);
   }
+  inputDuration = videoInputs.duration();
 }
 
 int VivictPP::nextFrameDelay() {
@@ -138,8 +144,12 @@ void VivictPP::advanceFrame() {
       videoInputs.stepBackward(state.nextPts);
     }
     state.pts = state.nextPts;
+    bool wasSeeking = state.seeking;
     state.seeking = false;
     if (state.playbackState == PlaybackState::PLAYING) {
+      if (wasSeeking) {
+        state.avSync.playbackStart(vivictpp::util::toMicros(state.pts));
+      }
       state.nextPts = videoInputs.nextPts();
       logger->trace("VivictPP::advanceFrame nextPts={}", state.nextPts);
       if (isnan(state.nextPts)) {
@@ -165,6 +175,18 @@ void VivictPP::refreshDisplay() {
     state.displayState.timeStr = vivictpp::util::formatTime(state.pts);
   }
   state.displayState.pts = state.pts;
+  state.displayState.seekBarRelativePos = state.pts / inputDuration;
+  if (state.displayState.hideSeekBar > 0) {
+    int remaining = state.displayState.hideSeekBar - vivictpp::util::relativeTimeMillis();
+    if (remaining <= 0 ) {
+      state.displayState.seekBarVisible = false;
+      state.displayState.hideSeekBar = 0;
+    } else {
+      state.displayState.seekBarOpacity = std::min(255, remaining);
+    }
+  } else {
+    state.displayState.seekBarOpacity = 255;
+  }
   screenOutput.displayFrame(frames, state.displayState);
 }
 
@@ -294,6 +316,13 @@ void VivictPP::mouseMotion(int x, int y) {
   (void) y;
   state.displayState.splitPercent =
     x * 100.0 / screenOutput.getWidth();
+  bool showSeekBar = y > screenOutput.getHeight() - 70;
+  if (state.displayState.seekBarVisible && !showSeekBar ) {
+    state.displayState.hideSeekBar = vivictpp::util::relativeTimeMillis() + 500;
+  } else if (showSeekBar) {
+    state.displayState.seekBarVisible = true;
+    state.displayState.hideSeekBar = 0;
+  }
   eventLoop.scheduleRefreshDisplay(0);
 }
 
@@ -306,12 +335,13 @@ void VivictPP::mouseWheel(int x, int y) {
 }
 
 void VivictPP::mouseClick(int x, int y) {
-  if (state.displayState.displayPlot && y > screenOutput.getHeight() * 0.7) {
-    float seekRel = x / (float) screenOutput.getWidth();
+  vivictpp::ui::ClickTarget clickTarget = screenOutput.getClickTarget(x, y, state.displayState);
+  if (clickTarget.name == "plot" || clickTarget.name == "seekbar") {
+    float seekRel = (x - clickTarget.x) / (float) clickTarget.w;
     VideoMetadata &metadata = videoInputs.metadata()[0][0];
-    float pos = metadata.startTime + metadata.duration * seekRel;
-    seek(pos);
+    float pos = metadata.startTime + inputDuration * seekRel;
     logger->debug("seeking to {}", pos);
+    seek(pos);
   } else {
     togglePlaying();
   }
@@ -369,8 +399,13 @@ void VivictPP::keyPressed(std::string key) {
       eventLoop.scheduleRefreshDisplay(0);
       break;
     case 'P':
-      state.displayState.displayPlot = !state.displayState.displayPlot;
-      eventLoop.scheduleRefreshDisplay(0);
+      if (plotEnabled) {
+        state.displayState.displayPlot = !state.displayState.displayPlot;
+        if (state.displayState.displayPlot) {
+          state.displayState.seekBarVisible = false;
+        }
+        eventLoop.scheduleRefreshDisplay(0);
+      }
       break;
     case '1':
       switchStream(-1);

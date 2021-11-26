@@ -14,6 +14,10 @@
 #include <cmath>
 #include <stdexcept>
 
+const int seekBarHeight = 10;
+const int seekBarLeftMargin = 50;
+const int seekBarBottomMargin = 20;
+
 
 Resolution getTargetResolution(const std::unique_ptr<VideoMetadata> &leftVideoMetadata,
                                const std::unique_ptr<VideoMetadata> &rightVideoMetadata){
@@ -287,5 +291,47 @@ void vivictpp::ui::ScreenOutput::displayFrame(
     vmafGraph.render(renderer.get(), displayState.pts, leftVideoMetadata->startTime,
                      leftVideoMetadata->duration);
   }
+  if (displayState.seekBarVisible) {
+    int x0 = seekBarLeftMargin;
+    int y0 = height - seekBarHeight - seekBarBottomMargin;
+    int w = width - 2 * seekBarLeftMargin;
+    int h = seekBarHeight;
+    SDL_SetRenderDrawColor(renderer.get(), 125, 125, 125, displayState.seekBarOpacity);
+    SDL_Rect seekBarRect {x0, y0, w, h};
+    SDL_RenderFillRect(renderer.get(), &seekBarRect);
+    SDL_SetRenderDrawColor(renderer.get(), 125, 255, 125, displayState.seekBarOpacity);
+    seekBarRect.w = (int) (seekBarRect.w * displayState.seekBarRelativePos);
+    SDL_RenderFillRect(renderer.get(), &seekBarRect);
+    seekBarRect.x = seekBarLeftMargin + seekBarRect.w - 2;
+    seekBarRect.y = y0 - 3;
+    seekBarRect.w = 5;
+    seekBarRect.h = seekBarHeight + 6;
+    SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255, displayState.seekBarOpacity);
+    SDL_RenderFillRect(renderer.get(), &seekBarRect);
+    SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, displayState.seekBarOpacity);
+    SDL_RenderDrawRect(renderer.get(), &seekBarRect);
+  }
   SDL_RenderPresent(renderer.get());
+}
+
+vivictpp::ui::ClickTarget vivictpp::ui::ScreenOutput::getClickTarget(int x, int y, const vivictpp::ui::DisplayState &displayState) {
+  vivictpp::ui::ClickTarget seekBar("seekbar",
+                      seekBarLeftMargin,
+                      height - seekBarHeight - seekBarBottomMargin,
+                      width - 2 * seekBarLeftMargin,
+                      seekBarHeight);
+  vivictpp::ui::ClickTarget plot("plot",
+                   0,
+                   (int) height * 0.7,
+                   width,
+                   height - (int) height * 0.7);
+  vivictpp::ui::ClickTarget defaultTarget("default",0,0,width,height);
+
+  if (displayState.displayPlot && plot.contains(x,y)) {
+    return plot;
+  }
+  if (seekBar.contains(x,y)) {
+    return seekBar;
+  }
+  return defaultTarget;
 }

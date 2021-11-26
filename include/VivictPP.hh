@@ -86,7 +86,9 @@ private:
   vivictpp::ui::ScreenOutput screenOutput;
   std::shared_ptr<vivictpp::sdl::AudioOutput> audioOutput;
   bool splitScreenDisabled;
+  bool plotEnabled;
   double frameDuration;
+  double inputDuration;
   vivictpp::logging::Logger logger;
 };
 

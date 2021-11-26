@@ -4,6 +4,7 @@
 
 #include "VideoInputs.hh"
 #include "spdlog/spdlog.h"
+#include <libavcodec/avcodec.h>
 
 VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig) {
   av_log_set_level(AV_LOG_QUIET);
@@ -45,6 +46,23 @@ VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig) {
 bool VideoInputs::ptsInRange(double pts) {
   return !isnan(pts) && leftInput.decoder->frames().ptsInRange(pts) &&
     (!rightInput.decoder || rightInput.decoder->frames().ptsInRange(pts));
+}
+
+double VideoInputs::duration() {
+  double duration = 1e9;
+  for( const auto &metadata : leftInput.packetWorker->getVideoMetadata()) {
+    if (metadata.duration < duration) {
+      duration = metadata.duration;
+    }
+  }
+  if (rightInput.packetWorker) {
+    for( const auto &metadata : rightInput.packetWorker->getVideoMetadata()) {
+      if (metadata.duration < duration) {
+        duration = metadata.duration;
+      }
+    }
+  }
+  return duration;
 }
 
 void VideoInputs::stepForward(double pts) {
