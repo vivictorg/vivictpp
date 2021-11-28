@@ -23,6 +23,7 @@ vivictpp::ui::VivictUI::VivictUI(VivictPPConfig vivictPPConfig)
                  vivictPPConfig.sourceConfigs),
     splitScreenDisabled(vivictPPConfig.sourceConfigs.size() == 1),
     plotEnabled(vivictPPConfig.hasVmafData()),
+    startTime(vivictPP.getVideoInputs().startTime()),
     inputDuration(vivictPP.getVideoInputs().duration()),
     logger(vivictpp::logging::getOrCreateLogger("VivictUI")) {
   displayState.splitScreenDisabled = splitScreenDisabled;
@@ -42,7 +43,6 @@ void vivictpp::ui::VivictUI::advanceFrame() {
 
 
 void vivictpp::ui::VivictUI::fade() {
-  logger->info("fade");
   if (displayState.hideSeekBar > 0 && displayState.seekBarVisible) {
     displayState.seekBarOpacity = std::max(0, displayState.seekBarOpacity - 10);
     if (displayState.seekBarOpacity == 0) {
@@ -66,7 +66,7 @@ void vivictpp::ui::VivictUI::refreshDisplay() {
   }
   displayState.pts = vivictPP.getPts();
   // TODO: Take start time into consideration
-  displayState.seekBarRelativePos = displayState.pts / inputDuration;
+  displayState.seekBarRelativePos = (displayState.pts - startTime) / inputDuration;
   screenOutput.displayFrame(frames, displayState);
 }
 
@@ -95,7 +95,16 @@ void vivictpp::ui::VivictUI::mouseMotion(int x, int y) {
   (void) y;
   displayState.splitPercent =
     x * 100.0 / screenOutput.getWidth();
-  eventLoop.scheduleRefreshDisplay(0);
+  bool showSeekBar = y > screenOutput.getHeight() - 70;
+  if (displayState.seekBarVisible && !showSeekBar && displayState.hideSeekBar == 0) {
+     displayState.hideSeekBar = vivictpp::util::relativeTimeMillis() + 500;
+     fade();
+  } else if (showSeekBar) {
+    displayState.seekBarVisible = true;
+    displayState.hideSeekBar = 0;
+    displayState.seekBarOpacity = 255;
+    eventLoop.scheduleRefreshDisplay(0);
+  }
 }
 
 void vivictpp::ui::VivictUI::mouseWheel(int x, int y) {
@@ -107,12 +116,12 @@ void vivictpp::ui::VivictUI::mouseWheel(int x, int y) {
 }
 
 void vivictpp::ui::VivictUI::mouseClick(int x, int y) {
-  if (displayState.displayPlot && y > screenOutput.getHeight() * 0.7) {
-    float seekRel = x / (float) screenOutput.getWidth();
-    VideoMetadata &metadata = vivictPP.getVideoInputs().metadata()[0][0];
-    float pos = metadata.startTime + metadata.duration * seekRel;
-    vivictPP.seek(pos);
+  vivictpp::ui::ClickTarget clickTarget = screenOutput.getClickTarget(x, y, displayState);
+  if (clickTarget.name == "plot" || clickTarget.name == "seekbar") {
+    float seekRel = (x - clickTarget.x) / (float) clickTarget.w;
+    float pos = startTime + inputDuration * seekRel;
     logger->debug("seeking to {}", pos);
+    vivictPP.seek(pos);
   } else {
     togglePlaying();
   }

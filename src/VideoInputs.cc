@@ -65,6 +65,10 @@ double VideoInputs::duration() {
   return duration;
 }
 
+double VideoInputs::startTime() {
+  return leftInput.packetWorker->getVideoMetadata()[0].startTime;
+}
+
 void VideoInputs::stepForward(double pts) {
   leftInput.decoder->frames().stepForward(pts);
   if (rightInput.decoder)

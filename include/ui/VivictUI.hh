@@ -40,6 +40,7 @@ private:
   vivictpp::ui::ScreenOutput screenOutput;
   bool splitScreenDisabled;
   bool plotEnabled;
+  double startTime;
   double inputDuration;
   vivictpp::logging::Logger logger;
 };

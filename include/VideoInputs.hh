@@ -44,6 +44,7 @@ public:
     void seek(double pts);
     std::array<std::vector<VideoMetadata>, 2> metadata();
     double duration();
+    double startTime();
     double nextPts() {
       double nextPtsL = leftInput.decoder->frames().nextPts();
       if (!rightInput.decoder) {
