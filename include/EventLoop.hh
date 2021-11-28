@@ -13,6 +13,7 @@ public:
   virtual void scheduleAdvanceFrame(int delay) = 0;
   virtual void scheduleRefreshDisplay(int delay) = 0;
   virtual void scheduleQueueAudio(int delay) = 0;
+  virtual void scheduleFade(int delay) = 0;
 };
 
 class EventLoop: public EventScheduler {

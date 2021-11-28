@@ -20,6 +20,7 @@ class EventListener {
   virtual void advanceFrame() = 0;
   virtual void queueAudio() = 0;
   virtual void refreshDisplay() = 0;
+  virtual void fade() = 0;
 
 };
 

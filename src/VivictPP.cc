@@ -97,8 +97,12 @@ void VivictPP::advanceFrame() {
       videoInputs.stepBackward(state.nextPts);
     }
     state.pts = state.nextPts;
+    bool wasSeeking = state.seeking;
     state.seeking = false;
     if (state.playbackState == PlaybackState::PLAYING) {
+      if (wasSeeking) {
+        state.avSync.playbackStart(vivictpp::util::toMicros(state.pts));
+      }
       state.nextPts = videoInputs.nextPts();
       logger->trace("VivictPP::advanceFrame nextPts={}", state.nextPts);
       if (isnan(state.nextPts)) {

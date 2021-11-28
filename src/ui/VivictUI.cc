@@ -22,9 +22,11 @@ vivictpp::ui::VivictUI::VivictUI(VivictPPConfig vivictPPConfig)
                  metadataPtr(vivictPP.getVideoInputs().metadata()[1]),
                  vivictPPConfig.sourceConfigs),
     splitScreenDisabled(vivictPPConfig.sourceConfigs.size() == 1),
+    plotEnabled(vivictPPConfig.hasVmafData()),
+    inputDuration(vivictPP.getVideoInputs().duration()),
     logger(vivictpp::logging::getOrCreateLogger("VivictUI")) {
   displayState.splitScreenDisabled = splitScreenDisabled;
-
+  displayState.displayPlot = plotEnabled;
 }
 
 int vivictpp::ui::VivictUI::run() {
@@ -38,6 +40,24 @@ void vivictpp::ui::VivictUI::advanceFrame() {
   vivictPP.advanceFrame();
 }
 
+
+void vivictpp::ui::VivictUI::fade() {
+  logger->info("fade");
+  if (displayState.hideSeekBar > 0 && displayState.seekBarVisible) {
+    displayState.seekBarOpacity = std::max(0, displayState.seekBarOpacity - 10);
+    if (displayState.seekBarOpacity == 0) {
+      displayState.seekBarVisible = false;
+      displayState.hideSeekBar = 0;
+      displayState.seekBarOpacity = 255;
+    } else {
+      eventLoop.scheduleFade(40);
+    }
+    if (! vivictPP.isPlaying()) {
+      eventLoop.scheduleRefreshDisplay(0);
+    }
+  }
+}
+
 void vivictpp::ui::VivictUI::refreshDisplay() {
   logger->trace("vivictpp::ui::VivictUI::refreshDisplay");
   std::array<vivictpp::libav::Frame, 2> frames = vivictPP.getVideoInputs().firstFrames();
@@ -45,6 +65,8 @@ void vivictpp::ui::VivictUI::refreshDisplay() {
     displayState.timeStr = vivictpp::util::formatTime(vivictPP.getPts());
   }
   displayState.pts = vivictPP.getPts();
+  // TODO: Take start time into consideration
+  displayState.seekBarRelativePos = displayState.pts / inputDuration;
   screenOutput.displayFrame(frames, displayState);
 }
 

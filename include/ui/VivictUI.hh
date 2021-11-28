@@ -27,6 +27,7 @@ public:
   void advanceFrame() override;
   void refreshDisplay() override;
   void queueAudio() override;
+  void fade() override;
   void onQuit();
 
 private:
@@ -38,6 +39,8 @@ private:
   vivictpp::ui::DisplayState displayState;
   vivictpp::ui::ScreenOutput screenOutput;
   bool splitScreenDisabled;
+  bool plotEnabled;
+  double inputDuration;
   vivictpp::logging::Logger logger;
 };
 

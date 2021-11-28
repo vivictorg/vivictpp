@@ -34,6 +34,30 @@ extern "C" {
 namespace vivictpp {
 namespace ui {
 
+class ClickTarget {
+public:
+  ClickTarget(std::string name, int x, int y, int w, int h):
+    name(name),
+    x(x),
+    y(y),
+    w(w),
+    h(h) { };
+  const std::string name;
+  const int x;
+  const int y;
+  const int w;
+  const int h;
+  bool contains(int x, int y) {
+    return x >= this->x && x < this->x + this->w && y >= this->y && y < this->y + this->h;
+  }
+  std::string toString() {
+    std::ostringstream oss;
+    oss << "vivictpp::ui::ClickTarget [name=" << name
+        << ",x=" << x << ",y=" << y << ",w=" << w << ",h=" << h << "]";
+    return oss.str();
+  }
+};
+
 class ScreenOutput {
 public:
   ScreenOutput(VideoMetadata *leftVideoMetadataPtr,
@@ -51,6 +75,7 @@ public:
   void setCursorDefault();
   void setLeftMetadata(const VideoMetadata &metadata);
   void setRightMetadata(const VideoMetadata &metadata);
+  ClickTarget getClickTarget(int x, int y, const vivictpp::ui::DisplayState &displayState);
 
 private:
   std::unique_ptr<VideoMetadata> leftVideoMetadata;
@@ -94,7 +119,6 @@ private:
                           const vivictpp::ui::DisplayState &displayState);
   Uint8 *offsetPlaneLeft(const AVFrame *frame, const int plane,
                          const vivictpp::ui::DisplayState &displayState);
-  
 };
 
 void setRectangle(SDL_Rect &rect, int x, int y, int w, int h);

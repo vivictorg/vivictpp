@@ -22,6 +22,7 @@ vivictpp::sdl::SDLEventLoop::SDLEventLoop() :
   advanceFrameEventType(refreshEventType + 1),
   checkMouseDragEventType(advanceFrameEventType + 1),
   queueAudioEventType(checkMouseDragEventType + 1),
+  fadeEventType(queueAudioEventType + 1),
   logger(spdlog::stdout_color_mt("SDLEventLoop")){
 }
 
@@ -65,6 +66,11 @@ void vivictpp::sdl::SDLEventLoop::scheduleQueueAudio(int delay) {
   scheduleEvent(queueAudioEventType, delay);
 }
 
+void vivictpp::sdl::SDLEventLoop::scheduleFade(int delay) {
+    logger->trace("scheduleFade");
+  scheduleEvent(fadeEventType, delay);
+}
+
 void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
   logger->debug("SDLEventLoop::start");
   SDL_Event event;
@@ -84,6 +90,8 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
         }
       } else if(event.type == queueAudioEventType) {
         eventListener.queueAudio();
+      } else if(event.type == fadeEventType) {
+        eventListener.fade();
       } else
         switch (event.type) {
         case SDL_QUIT:

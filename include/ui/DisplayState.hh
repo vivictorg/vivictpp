@@ -52,6 +52,10 @@ struct DisplayState {
   bool splitScreenDisabled{false};
   bool isPlaying{false};
   double pts{0};
+  bool seekBarVisible{false};
+  int64_t hideSeekBar{0};
+  int seekBarOpacity{255};
+  float seekBarRelativePos{0};
 };
 
 }  // ui

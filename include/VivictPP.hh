@@ -77,15 +77,14 @@ public:
   VideoInputs& getVideoInputs() { return videoInputs; }
   AVSync &getAVSync() { return state.avSync; }
   const PlaybackState &getPlaybackState() { return state.playbackState; }
+  bool isPlaying() { return state.playbackState == PlaybackState::PLAYING; }
   void queueAudio();
 
  private:
-//vivictpp::sdl::SDLEventLoop eventLoop;
   PlayerState state;
   EventScheduler &eventScheduler;
   const AVPixelFormat pixelFormat;
   VideoInputs videoInputs;
-//  vivictpp::ui::ScreenOutput screenOutput;
   std::shared_ptr<vivictpp::audio::AudioOutput> audioOutput;
   bool splitScreenDisabled;
   double frameDuration;
