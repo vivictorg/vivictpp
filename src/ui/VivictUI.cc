@@ -103,8 +103,8 @@ void vivictpp::ui::VivictUI::mouseMotion(int x, int y) {
     displayState.seekBarVisible = true;
     displayState.hideSeekBar = 0;
     displayState.seekBarOpacity = 255;
-    eventLoop.scheduleRefreshDisplay(0);
   }
+  eventLoop.scheduleRefreshDisplay(0);
 }
 
 void vivictpp::ui::VivictUI::mouseWheel(int x, int y) {
