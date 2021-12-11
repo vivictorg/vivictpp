@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "ui/VivictUI.hh"
+#include "Controller.hh"
 #include "logging/Logging.hh"
 #include "VideoMetadata.hh"
 #include "sdl/SDLAudioOutput.hh"
@@ -15,7 +15,7 @@ VideoMetadata* metadataPtr(const std::vector<VideoMetadata> &v) {
 }
 
 
-vivictpp::ui::VivictUI::VivictUI(VivictPPConfig vivictPPConfig)
+vivictpp::Controller::Controller(VivictPPConfig vivictPPConfig)
   : eventLoop(),
     vivictPP(vivictPPConfig, eventLoop, vivictpp::sdl::audioOutputFactory),
     screenOutput(metadataPtr(vivictPP.getVideoInputs().metadata()[0]),
@@ -25,24 +25,24 @@ vivictpp::ui::VivictUI::VivictUI(VivictPPConfig vivictPPConfig)
     plotEnabled(vivictPPConfig.hasVmafData()),
     startTime(vivictPP.getVideoInputs().startTime()),
     inputDuration(vivictPP.getVideoInputs().duration()),
-    logger(vivictpp::logging::getOrCreateLogger("VivictUI")) {
+    logger(vivictpp::logging::getOrCreateLogger("Controller")) {
   displayState.splitScreenDisabled = splitScreenDisabled;
   displayState.displayPlot = plotEnabled;
 }
 
-int vivictpp::ui::VivictUI::run() {
+int vivictpp::Controller::run() {
   eventLoop.scheduleAdvanceFrame(5);
   eventLoop.start(*this);
-  logger->debug("vivictpp::ui::VivictUI::run exit");
+  logger->debug("vivictpp::Controller::run exit");
   return 0;
 }
 
-void vivictpp::ui::VivictUI::advanceFrame() {
+void vivictpp::Controller::advanceFrame() {
   vivictPP.advanceFrame();
 }
 
 
-void vivictpp::ui::VivictUI::fade() {
+void vivictpp::Controller::fade() {
   if (displayState.hideSeekBar > 0 && displayState.seekBarVisible) {
     displayState.seekBarOpacity = std::max(0, displayState.seekBarOpacity - 10);
     if (displayState.seekBarOpacity == 0) {
@@ -58,8 +58,8 @@ void vivictpp::ui::VivictUI::fade() {
   }
 }
 
-void vivictpp::ui::VivictUI::refreshDisplay() {
-  logger->trace("vivictpp::ui::VivictUI::refreshDisplay");
+void vivictpp::Controller::refreshDisplay() {
+  logger->trace("vivictpp::Controller::refreshDisplay");
   std::array<vivictpp::libav::Frame, 2> frames = vivictPP.getVideoInputs().firstFrames();
   if (displayState.displayTime) {
     displayState.timeStr = vivictpp::util::formatTime(vivictPP.getPts());
@@ -71,19 +71,19 @@ void vivictpp::ui::VivictUI::refreshDisplay() {
 }
 
 
-void vivictpp::ui::VivictUI::queueAudio() {
+void vivictpp::Controller::queueAudio() {
   vivictPP.queueAudio();
 }
 
-void vivictpp::ui::VivictUI::mouseDragStart() {
+void vivictpp::Controller::mouseDragStart() {
   screenOutput.setCursorHand();
 }
 
-void vivictpp::ui::VivictUI::mouseDragEnd() {
+void vivictpp::Controller::mouseDragEnd() {
   screenOutput.setCursorDefault();
 }
 
-void vivictpp::ui::VivictUI::mouseDrag(int xrel, int yrel) {
+void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
   displayState.panX -=
     (float)xrel / displayState.zoom.multiplier();
   displayState.panY -=
@@ -91,7 +91,7 @@ void vivictpp::ui::VivictUI::mouseDrag(int xrel, int yrel) {
   eventLoop.scheduleRefreshDisplay(0);
 }
 
-void vivictpp::ui::VivictUI::mouseMotion(int x, int y) {
+void vivictpp::Controller::mouseMotion(int x, int y) {
   (void) y;
   displayState.splitPercent =
     x * 100.0 / screenOutput.getWidth();
@@ -107,7 +107,7 @@ void vivictpp::ui::VivictUI::mouseMotion(int x, int y) {
   eventLoop.scheduleRefreshDisplay(0);
 }
 
-void vivictpp::ui::VivictUI::mouseWheel(int x, int y) {
+void vivictpp::Controller::mouseWheel(int x, int y) {
   displayState.panX -=
     (float)10 * x / displayState.zoom.multiplier();
   displayState.panY -=
@@ -115,7 +115,7 @@ void vivictpp::ui::VivictUI::mouseWheel(int x, int y) {
   eventLoop.scheduleRefreshDisplay(0);
 }
 
-void vivictpp::ui::VivictUI::mouseClick(int x, int y) {
+void vivictpp::Controller::mouseClick(int x, int y) {
   vivictpp::ui::ClickTarget clickTarget = screenOutput.getClickTarget(x, y, displayState);
   if (clickTarget.name == "plot" || clickTarget.name == "seekbar") {
     float seekRel = (x - clickTarget.x) / (float) clickTarget.w;
@@ -127,17 +127,17 @@ void vivictpp::ui::VivictUI::mouseClick(int x, int y) {
   }
 }
 
-void vivictpp::ui::VivictUI::togglePlaying() {
+void vivictpp::Controller::togglePlaying() {
   displayState.isPlaying = vivictPP.togglePlaying() == PlaybackState::PLAYING;
 }
 
-void vivictpp::ui::VivictUI::onQuit() {
+void vivictpp::Controller::onQuit() {
   eventLoop.stop();
   vivictPP.onQuit();
 }
 
-void vivictpp::ui::VivictUI::keyPressed(std::string key) {
-  logger->debug("vivictpp::ui::VivictUI::keyPressed key='{}'", key);
+void vivictpp::Controller::keyPressed(std::string key) {
+  logger->debug("vivictpp::Controller::keyPressed key='{}'", key);
   if (key.length() == 1) {
     switch (key[0]) {
     case 'Q':

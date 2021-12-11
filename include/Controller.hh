@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICT_UI_HH_
-#define VIVICT_UI_HH_
+#ifndef CONTROLLER_HH_
+#define CONTROLLER_HH_
 
 #include "ui/DisplayState.hh"
 #include "EventListener.hh"
@@ -11,11 +11,10 @@
 #include "VivictPP.hh"
 
 namespace vivictpp {
-namespace ui {
 
-class VivictUI : EventListener {
+class Controller : EventListener {
 public:
-  VivictUI(VivictPPConfig vivictPPConfig);
+  Controller(VivictPPConfig vivictPPConfig);
   int run();
   void mouseDragStart() override;
   void mouseDragEnd() override;
@@ -45,7 +44,6 @@ private:
   vivictpp::logging::Logger logger;
 };
 
-}  // ui
 }  // vivictpp
 
-#endif  // VIVICT_UI_HH_
+#endif  // CONTROLLER_HH_

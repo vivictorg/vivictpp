@@ -11,7 +11,7 @@
 #include "spdlog/fmt/ostr.h"
 
 #include "VivictPP.hh"
-#include "ui/VivictUI.hh"
+#include "Controller.hh"
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
 
@@ -89,8 +89,8 @@ int main(int argc, char **argv) {
     }
 
     VivictPPConfig vivictPPConfig(sourceConfigs, disableAudio);
-    vivictpp::ui::VivictUI vivictUI(vivictPPConfig);
-    return vivictUI.run();
+    vivictpp::Controller controller(vivictPPConfig);
+    return controller.run();
   } catch (const std::exception &e) {
     std::cerr << "Vivict had an unexpected error: " << e.what() << std::endl;
     return 1;
