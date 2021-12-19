@@ -60,9 +60,7 @@ public:
 
 class ScreenOutput {
 public:
-  ScreenOutput(VideoMetadata *leftVideoMetadataPtr,
-               VideoMetadata *rightVideoMetadataPtr,
-               std::vector<SourceConfig> sourceConfigs);
+  ScreenOutput(std::vector<SourceConfig> sourceConfigs);
   ScreenOutput(const ScreenOutput&) = delete;
   ScreenOutput& operator=(const ScreenOutput&) = delete;
   virtual ~ScreenOutput();
@@ -78,8 +76,8 @@ public:
   ClickTarget getClickTarget(int x, int y, const vivictpp::ui::DisplayState &displayState);
 
 private:
-  std::unique_ptr<VideoMetadata> leftVideoMetadata;
-  std::unique_ptr<VideoMetadata> rightVideoMetadata;
+  std::shared_ptr<VideoMetadata> leftVideoMetadata;
+  std::shared_ptr<VideoMetadata> rightVideoMetadata;
   std::vector<SourceConfig> sourceConfigs;
   Resolution targetResolution;
 
@@ -102,14 +100,17 @@ private:
   TextBox rightMetadataBox;
   TextBox leftFrameBox;
   TextBox rightFrameBox;
+  TextBox splashText;
   VmafGraph vmafGraph;
   vivictpp::logging::Logger logger;
 
  private:
   Resolution getTargetResolution();
+  void renderSplash();
+  void setSize();
   void calcZoomedSrcRect(const vivictpp::ui::DisplayState &displayState,
                          const Resolution &scaledResolution,
-                         const std::unique_ptr<VideoMetadata> &videoMetadata,
+                         const std::shared_ptr<VideoMetadata> &videoMetadata,
                          SDL_Rect &rect);
   void setDefaultSourceRectangles(const DisplayState &displayState);
   void updateRectangles(const DisplayState &displayState);

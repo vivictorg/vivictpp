@@ -79,9 +79,10 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
     TextTexture tt(renderer, title, fontSize - 2, fg, font);
     tt.render(renderer, margin.left + 5, 2);
   }
-
-  SDL_SetRenderDrawColor(renderer, fg.r, fg.g, fg.b, 128);
-  SDL_RenderDrawRect(renderer, nullptr);
+  if (border) {
+    SDL_SetRenderDrawColor(renderer, fg.r, fg.g, fg.b, 128);
+    SDL_RenderDrawRect(renderer, nullptr);
+  }
 
   SDL_SetRenderTarget(renderer, nullptr);
 }
@@ -112,6 +113,9 @@ void vivictpp::ui::TextBox::render(SDL_Renderer *renderer) {
   case TextBoxPosition::TOP_RIGHT:
     x = this->x + rendererWidth - textureW - 5;
     break;
+  case TextBoxPosition::CENTER:
+    x = this->x + (rendererWidth - textureW) / 2;
+    y = this->y + (rendererHeight - textureH) / 2;
   }
   SDL_Rect rect = {x, y, textureW, textureH};
 

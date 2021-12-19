@@ -16,7 +16,8 @@ struct EventData {
   int type;
 };
 
-vivictpp::sdl::SDLEventLoop::SDLEventLoop() :
+vivictpp::sdl::SDLEventLoop::SDLEventLoop(std::vector<SourceConfig> sourceConfigs) :
+  screenOutput(sourceConfigs),
   quit(false),
   refreshEventType(SDL_RegisterEvents(4)),
   advanceFrameEventType(refreshEventType + 1),
@@ -86,7 +87,7 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
             mouseState.buttonTime != 0 &&
             vivictpp::util::relativeTimeMillis() - mouseState.buttonTime > 190) {
           mouseState.dragging = true;
-          eventListener.mouseDragStart();
+          screenOutput.setCursorHand();
         }
       } else if(event.type == queueAudioEventType) {
         eventListener.queueAudio();
@@ -118,7 +119,7 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
           if (!mouseState.dragging) {
             eventListener.mouseClick(mouseEvent.x, mouseEvent.y);
           } else {
-            eventListener.mouseDragEnd();
+            screenOutput.setCursorDefault();
           }
           mouseState.button = false;
           mouseState.dragging = false;

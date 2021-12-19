@@ -9,6 +9,7 @@
 #include "EventListener.hh"
 #include "logging/Logging.hh"
 #include "VivictPP.hh"
+#include <string>
 
 namespace vivictpp {
 
@@ -16,8 +17,6 @@ class Controller : EventListener {
 public:
   Controller(VivictPPConfig vivictPPConfig);
   int run();
-  void mouseDragStart() override;
-  void mouseDragEnd() override;
   void mouseDrag(int xrel, int yrel) override;
   void mouseMotion(int x, int y) override;
   void mouseWheel(int x, int y) override;
@@ -36,7 +35,6 @@ private:
   vivictpp::sdl::SDLEventLoop eventLoop;
   VivictPP vivictPP;
   vivictpp::ui::DisplayState displayState;
-  vivictpp::ui::ScreenOutput screenOutput;
   bool splitScreenDisabled;
   bool plotEnabled;
   double startTime;

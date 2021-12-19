@@ -16,11 +16,8 @@ VideoMetadata* metadataPtr(const std::vector<VideoMetadata> &v) {
 
 
 vivictpp::Controller::Controller(VivictPPConfig vivictPPConfig)
-  : eventLoop(),
+  : eventLoop(vivictPPConfig.sourceConfigs),
     vivictPP(vivictPPConfig, eventLoop, vivictpp::sdl::audioOutputFactory),
-    screenOutput(metadataPtr(vivictPP.getVideoInputs().metadata()[0]),
-                 metadataPtr(vivictPP.getVideoInputs().metadata()[1]),
-                 vivictPPConfig.sourceConfigs),
     splitScreenDisabled(vivictPPConfig.sourceConfigs.size() == 1),
     plotEnabled(vivictPPConfig.hasVmafData()),
     startTime(vivictPP.getVideoInputs().startTime()),
@@ -28,6 +25,10 @@ vivictpp::Controller::Controller(VivictPPConfig vivictPPConfig)
     logger(vivictpp::logging::getOrCreateLogger("Controller")) {
   displayState.splitScreenDisabled = splitScreenDisabled;
   displayState.displayPlot = plotEnabled;
+  eventLoop.setLeftMetadata(vivictPP.getVideoInputs().metadata()[0][0]);
+  if (! (vivictPP.getVideoInputs().metadata()[1]).empty()) {
+    eventLoop.setRightMetadata(vivictPP.getVideoInputs().metadata()[1][0]);
+  }
 }
 
 int vivictpp::Controller::run() {
@@ -67,20 +68,12 @@ void vivictpp::Controller::refreshDisplay() {
   displayState.pts = vivictPP.getPts();
   // TODO: Take start time into consideration
   displayState.seekBarRelativePos = (displayState.pts - startTime) / inputDuration;
-  screenOutput.displayFrame(frames, displayState);
+  eventLoop.displayFrame(frames, displayState);
 }
 
 
 void vivictpp::Controller::queueAudio() {
   vivictPP.queueAudio();
-}
-
-void vivictpp::Controller::mouseDragStart() {
-  screenOutput.setCursorHand();
-}
-
-void vivictpp::Controller::mouseDragEnd() {
-  screenOutput.setCursorDefault();
 }
 
 void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
@@ -94,8 +87,8 @@ void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
 void vivictpp::Controller::mouseMotion(int x, int y) {
   (void) y;
   displayState.splitPercent =
-    x * 100.0 / screenOutput.getWidth();
-  bool showSeekBar = y > screenOutput.getHeight() - 70;
+    x * 100.0 / eventLoop.getWidth();
+  bool showSeekBar = y > eventLoop.getHeight() - 70;
   if (displayState.seekBarVisible && !showSeekBar && displayState.hideSeekBar == 0) {
      displayState.hideSeekBar = vivictpp::util::relativeTimeMillis() + 500;
      fade();
@@ -115,16 +108,18 @@ void vivictpp::Controller::mouseWheel(int x, int y) {
   eventLoop.scheduleRefreshDisplay(0);
 }
 
-void vivictpp::Controller::mouseClick(int x, int y) {
-  vivictpp::ui::ClickTarget clickTarget = screenOutput.getClickTarget(x, y, displayState);
-  if (clickTarget.name == "plot" || clickTarget.name == "seekbar") {
+void vivictpp::Controller::mouseClick(int x, int y /*, std::string target*/) {
+  /*
+  vivictpp::ui::ClickTarget clickTarget = eventLoop.getClickTarget(x, y, displayState);
+  if (clickTarget.name == "plot" || clickTarget == "seekbar") {
     float seekRel = (x - clickTarget.x) / (float) clickTarget.w;
     float pos = startTime + inputDuration * seekRel;
     logger->debug("seeking to {}", pos);
     vivictPP.seek(pos);
   } else {
-    togglePlaying();
-  }
+  */
+  togglePlaying();
+//  }
 }
 
 void vivictpp::Controller::togglePlaying() {
@@ -173,7 +168,7 @@ void vivictpp::Controller::keyPressed(std::string key) {
       break;
     case 'F':
       displayState.fullscreen = !displayState.fullscreen;
-      screenOutput.setFullscreen(displayState.fullscreen);
+      eventLoop.setFullscreen(displayState.fullscreen);
       break;
     case 'T':
       displayState.displayTime = !displayState.displayTime;
