@@ -32,7 +32,7 @@ vivictpp::Controller::Controller(VivictPPConfig vivictPPConfig)
 }
 
 int vivictpp::Controller::run() {
-  eventLoop.scheduleAdvanceFrame(5);
+//  eventLoop.scheduleAdvanceFrame(5);
   eventLoop.start(*this);
   logger->debug("vivictpp::Controller::run exit");
   return 0;
