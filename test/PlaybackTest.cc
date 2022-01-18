@@ -43,32 +43,6 @@ static int SDLCALL my_event_filter(void *userdata, SDL_Event * event)
     return 1;
 }
 
-class MockDisplay : vivictpp::ui::Display {
-public:
-    MockDisplay();
-    virtual ~MockDisplay() = default;
-
-    virtual void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                              const vivictpp::ui::DisplayState &displayState) {
-    }
-    virtual int getWidth() {
-        return 1920;
-    }
-    virtual int getHeight() {
-        return 1080;
-    }
-    virtual void setFullscreen(bool fullscreen) {}
-//  void setCursorHand();
-//  void setCursorDefault();
-    virtual void setLeftMetadata(const VideoMetadata &metadata) {
-
-    }
-    virtual void setRightMetadata(const VideoMetadata &metadata) {
-
-    }
-};
-
-
 void mockKeyEvent(SDL_Keycode keycode) {
     SDL_Event event;
     event.type = SDL_KEYDOWN;
@@ -86,8 +60,10 @@ void sleepMillis(int n) {
 
 VivictPPConfig testConfig() {
     std::vector<SourceConfig> sourceConfigs;
-    sourceConfigs.push_back(SourceConfig("/home/gugr01/local-work/test-video/ToS-4k-1920.mov"));
-    sourceConfigs.push_back(SourceConfig("/home/gugr01/local-work/test-video/ToS-4k-1920.mov"));
+//    sourceConfigs.push_back(SourceConfig("/home/gugr01/local-work/test-video/ToS-4k-1920.mov"));
+//    sourceConfigs.push_back(SourceConfig("/home/gugr01/local-work/test-video/ToS-4k-1920.mov"));
+    sourceConfigs.push_back(SourceConfig("../testdata/test1.mp4"));
+    sourceConfigs.push_back(SourceConfig("../testdata/test1.mp4"));
     VivictPPConfig vivictPPConfig(sourceConfigs, true);
     return vivictPPConfig;
 }
@@ -122,6 +98,28 @@ public:
         thread.join();
     };
 
+    void stepForward() {
+        mockKeyEvent(SDLK_PERIOD);
+    };
+
+    void stepBackward() {
+        mockKeyEvent(SDLK_COMMA);
+    };
+
+    void seekForward() {
+        mockKeyEvent(SDLK_SLASH);
+    };
+
+    void seekBackward() {
+        mockKeyEvent(SDLK_m);
+    };
+
+    void togglePlay() {
+        mockKeyEvent(SDLK_SPACE);
+    }
+
+    double currentPts() { return controller.getPlayerState().pts; }
+
     EventFilterInitializer eventFilterInitializer;
     std::shared_ptr<vivictpp::sdl::SDLEventLoop> sdlEventLoop;
     vivictpp::Controller controller;
@@ -137,8 +135,8 @@ TEST_CASE( "Seeking" ) {
     sleepMillis(100);
 
     SECTION("Seek forward") {
-        mockKeyEvent(SDLK_SLASH);
-        mockKeyEvent(SDLK_SLASH);
+        testContext.seekForward();
+        testContext.seekForward();
         sleepMillis(500);
         double t = testContext.controller.getPlayerState().pts;
 
@@ -146,21 +144,22 @@ TEST_CASE( "Seeking" ) {
     }
 
     SECTION("Seek backward") {
-        mockKeyEvent(SDLK_SLASH);
-        mockKeyEvent(SDLK_SLASH);
+        testContext.seekForward();
+        testContext.seekForward();
         sleepMillis(200);
-        mockKeyEvent(SDLK_m);
+        testContext.seekBackward();
         sleepMillis(200);
         double t = testContext.controller.getPlayerState().pts;
 
         REQUIRE( t == 5);
     }
 
-    SECTION("Seek backward beoynd start") {
-        mockKeyEvent(SDLK_PERIOD);
-        mockKeyEvent(SDLK_PERIOD);
+
+    SECTION("Seek backward beyond start") {
+        testContext.stepForward();
+        testContext.stepForward();
         sleepMillis(200);
-        mockKeyEvent(SDLK_m);
+        testContext.seekBackward();
         sleepMillis(200);
         double t = testContext.controller.getPlayerState().pts;
 
@@ -181,7 +180,7 @@ TEST_CASE( "Test playback" ) {
     }
 
     SECTION("Playback speed") {
-        mockKeyEvent(SDLK_SPACE);
+        testContext.togglePlay();
         uint64_t a0 = testContext.controller.getPlayerState().lastFrameAdvance;
         while (a0 == std::numeric_limits<uint64_t>::min()) {
             sleepMillis(1);
@@ -200,6 +199,10 @@ TEST_CASE( "Test playback" ) {
 
         REQUIRE(drift < 10);
 
+    }
+
+    SECTION("Stops at end of stream") {
+        // TODO
     }
 
 }
