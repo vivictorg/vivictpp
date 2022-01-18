@@ -15,8 +15,11 @@ VideoMetadata* metadataPtr(const std::vector<VideoMetadata> &v) {
 }
 
 
-vivictpp::Controller::Controller(VivictPPConfig vivictPPConfig)
-  : eventLoop(vivictPPConfig.sourceConfigs),
+vivictpp::Controller::Controller(std::shared_ptr<EventLoop> eventLoop,
+                                 std::shared_ptr<vivictpp::ui::Display> display,
+                                 VivictPPConfig vivictPPConfig)
+  : eventLoop(eventLoop),
+    display(display),
     vivictPP(vivictPPConfig, eventLoop, vivictpp::sdl::audioOutputFactory),
     splitScreenDisabled(vivictPPConfig.sourceConfigs.size() == 1),
     plotEnabled(vivictPPConfig.hasVmafData()),
@@ -25,15 +28,15 @@ vivictpp::Controller::Controller(VivictPPConfig vivictPPConfig)
     logger(vivictpp::logging::getOrCreateLogger("Controller")) {
   displayState.splitScreenDisabled = splitScreenDisabled;
   displayState.displayPlot = plotEnabled;
-  eventLoop.setLeftMetadata(vivictPP.getVideoInputs().metadata()[0][0]);
+  display->setLeftMetadata(vivictPP.getVideoInputs().metadata()[0][0]);
   if (! (vivictPP.getVideoInputs().metadata()[1]).empty()) {
-    eventLoop.setRightMetadata(vivictPP.getVideoInputs().metadata()[1][0]);
+    display->setRightMetadata(vivictPP.getVideoInputs().metadata()[1][0]);
   }
 }
 
 int vivictpp::Controller::run() {
 //  eventLoop.scheduleAdvanceFrame(5);
-  eventLoop.start(*this);
+  eventLoop->start(*this);
   logger->debug("vivictpp::Controller::run exit");
   return 0;
 }
@@ -51,10 +54,10 @@ void vivictpp::Controller::fade() {
       displayState.hideSeekBar = 0;
       displayState.seekBarOpacity = 255;
     } else {
-      eventLoop.scheduleFade(40);
+      eventLoop->scheduleFade(40);
     }
     if (! vivictPP.isPlaying()) {
-      eventLoop.scheduleRefreshDisplay(0);
+      eventLoop->scheduleRefreshDisplay(0);
     }
   }
 }
@@ -68,7 +71,7 @@ void vivictpp::Controller::refreshDisplay() {
   displayState.pts = vivictPP.getPts();
   // TODO: Take start time into consideration
   displayState.seekBarRelativePos = (displayState.pts - startTime) / inputDuration;
-  eventLoop.displayFrame(frames, displayState);
+  display->displayFrame(frames, displayState);
 }
 
 
@@ -81,14 +84,14 @@ void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
     (float)xrel / displayState.zoom.multiplier();
   displayState.panY -=
     (float)yrel / displayState.zoom.multiplier();
-  eventLoop.scheduleRefreshDisplay(0);
+  eventLoop->scheduleRefreshDisplay(0);
 }
 
 void vivictpp::Controller::mouseMotion(int x, int y) {
   (void) y;
   displayState.splitPercent =
-    x * 100.0 / eventLoop.getWidth();
-  bool showSeekBar = y > eventLoop.getHeight() - 70;
+    x * 100.0 / display->getWidth();
+  bool showSeekBar = y > display->getHeight() - 70;
   if (displayState.seekBarVisible && !showSeekBar && displayState.hideSeekBar == 0) {
      displayState.hideSeekBar = vivictpp::util::relativeTimeMillis() + 500;
      fade();
@@ -97,7 +100,7 @@ void vivictpp::Controller::mouseMotion(int x, int y) {
     displayState.hideSeekBar = 0;
     displayState.seekBarOpacity = 255;
   }
-  eventLoop.scheduleRefreshDisplay(0);
+  eventLoop->scheduleRefreshDisplay(0);
 }
 
 void vivictpp::Controller::mouseWheel(int x, int y) {
@@ -105,7 +108,7 @@ void vivictpp::Controller::mouseWheel(int x, int y) {
     (float)10 * x / displayState.zoom.multiplier();
   displayState.panY -=
     (float)10 * y / displayState.zoom.multiplier();
-  eventLoop.scheduleRefreshDisplay(0);
+  eventLoop->scheduleRefreshDisplay(0);
 }
 
 void vivictpp::Controller::mouseClick(int x, int y /*, std::string target*/) {
@@ -127,7 +130,7 @@ void vivictpp::Controller::togglePlaying() {
 }
 
 void vivictpp::Controller::onQuit() {
-  eventLoop.stop();
+  eventLoop->stop();
   vivictPP.onQuit();
 }
 
@@ -152,35 +155,35 @@ void vivictpp::Controller::keyPressed(std::string key) {
       break;
     case 'U':
       displayState.zoom.increment();
-      eventLoop.scheduleRefreshDisplay(0);
+      eventLoop->scheduleRefreshDisplay(0);
       logger->debug("Zoom: {}", displayState.zoom.get());
       break;
     case 'I':
       displayState.zoom.decrement();
-      eventLoop.scheduleRefreshDisplay(0);
+      eventLoop->scheduleRefreshDisplay(0);
       logger->debug("Zoom: {}", displayState.zoom.get());
       break;
     case '0':
       displayState.zoom.set(0);
       displayState.panX = 0;
       displayState.panY = 0;
-      eventLoop.scheduleRefreshDisplay(0);
+      eventLoop->scheduleRefreshDisplay(0);
       break;
     case 'F':
       displayState.fullscreen = !displayState.fullscreen;
-      eventLoop.setFullscreen(displayState.fullscreen);
+      display->setFullscreen(displayState.fullscreen);
       break;
     case 'T':
       displayState.displayTime = !displayState.displayTime;
-      eventLoop.scheduleRefreshDisplay(0);
+      eventLoop->scheduleRefreshDisplay(0);
       break;
     case 'D':
       displayState.displayMetadata = !displayState.displayMetadata;
-      eventLoop.scheduleRefreshDisplay(0);
+      eventLoop->scheduleRefreshDisplay(0);
       break;
     case 'P':
       displayState.displayPlot = !displayState.displayPlot;
-      eventLoop.scheduleRefreshDisplay(0);
+      eventLoop->scheduleRefreshDisplay(0);
       break;
     case '1':
       vivictPP.switchStream(-1);

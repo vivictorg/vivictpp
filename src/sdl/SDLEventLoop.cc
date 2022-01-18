@@ -8,8 +8,7 @@ extern "C" {
 #include <SDL.h>
 }
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include "logging/Logging.hh"
 #include "TimeUtils.hh"
 
 struct EventData {
@@ -24,7 +23,7 @@ vivictpp::sdl::SDLEventLoop::SDLEventLoop(std::vector<SourceConfig> sourceConfig
   checkMouseDragEventType(advanceFrameEventType + 1),
   queueAudioEventType(checkMouseDragEventType + 1),
   fadeEventType(queueAudioEventType + 1),
-  logger(spdlog::stdout_color_mt("SDLEventLoop")){
+  logger(vivictpp::logging::getOrCreateLogger("SDLEventLoop")){
 }
 
 static Uint32 scheduleEventCallback(Uint32 interval, void *param) {
@@ -143,6 +142,6 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
 }
 
 void vivictpp::sdl::SDLEventLoop::stop() {
-    logger->debug("stopping...");
+  logger->debug("stopping...");
   quit.store(true);
 }

@@ -40,5 +40,7 @@ vivictpplib = static_library('vivictpplib', 'src/libav/Decoder.cc', 'src/libav/F
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps, include_directories: incdir, install: true)
 
-seekTest = executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
-test('FormatHandler.seek', seekTest)
+#seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
+# test('FormatHandler.seek', seekTest)
+playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
+test('Playback', playbackTest)

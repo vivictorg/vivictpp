@@ -7,6 +7,8 @@
 
 #include "ui/DisplayState.hh"
 #include "EventListener.hh"
+#include "EventLoop.hh"
+#include "ui/VivictPPUI.hh"
 #include "logging/Logging.hh"
 #include "VivictPP.hh"
 #include <string>
@@ -15,7 +17,9 @@ namespace vivictpp {
 
 class Controller : EventListener {
 public:
-  Controller(VivictPPConfig vivictPPConfig);
+  Controller(std::shared_ptr<EventLoop> eventLoop,
+             std::shared_ptr<vivictpp::ui::Display> display,
+             VivictPPConfig vivictPPConfig);
   int run();
   void mouseDrag(int xrel, int yrel) override;
   void mouseMotion(int x, int y) override;
@@ -27,12 +31,14 @@ public:
   void queueAudio() override;
   void fade() override;
   void onQuit();
-
+  const PlayerState &getPlayerState() { return vivictPP.getPlayerState(); }
+  
 private:
   void togglePlaying();
 
 private:
-  vivictpp::sdl::SDLEventLoop eventLoop;
+  std::shared_ptr<EventLoop> eventLoop;
+  std::shared_ptr<vivictpp::ui::Display> display;
   VivictPP vivictPP;
   vivictpp::ui::DisplayState displayState;
   bool splitScreenDisabled;
