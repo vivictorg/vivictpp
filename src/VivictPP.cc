@@ -83,7 +83,8 @@ void VivictPP::advanceFrame() {
     state.nextPts = videoInputs.nextPts();
     if (!isnan(state.nextPts)) {
       eventScheduler->scheduleAdvanceFrame(nextFrameDelay());
-    }
+      return;
+    } 
   }
   if (videoInputs.ptsInRange(state.nextPts) && (!audioOutput || videoInputs.audioFrames().ptsInRange(state.nextPts))) {
     logger->trace("VivictPP::advanceFrame nextPts is in range {}",
@@ -177,6 +178,7 @@ PlaybackState VivictPP::togglePlaying() {
     if (audioOutput) {
       audioOutput->stop();
     }
+    eventScheduler->clearAdvanceFrame();
   }
   return state.playbackState;
 }
@@ -227,11 +229,13 @@ void VivictPP::seek(double nextPts) {
       togglePlaying();
     } else {
       audioSeek(state.nextPts);
+      eventScheduler->clearAdvanceFrame();
       eventScheduler->scheduleAdvanceFrame(5);
     }
   } else {
     state.seeking = true;
     videoInputs.seek(state.nextPts);
+    eventScheduler->clearAdvanceFrame();
     eventScheduler->scheduleAdvanceFrame(5);
   }
 }

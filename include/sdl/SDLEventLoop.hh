@@ -14,6 +14,7 @@
 #include "VideoMetadata.hh"
 #include "SourceConfig.hh"
 #include <vector>
+#include <map>
 
 namespace vivictpp {
 namespace sdl {
@@ -22,6 +23,18 @@ struct MouseState {
   bool button{false};
   int64_t buttonTime;
   bool dragging{false};
+};
+
+class CustomEvent {
+public:
+  CustomEvent(unsigned int type, std::string name):
+    type(type),
+    name(name) {};
+  CustomEvent(const CustomEvent &other) = default;
+  bool operator==(const CustomEvent other) const { return this->type == other.type; };
+public:
+  const unsigned int type;
+  const std::string name;
 };
 
 
@@ -34,6 +47,7 @@ public:
   void scheduleRefreshDisplay(int delay) override;
   void scheduleQueueAudio(int delay) override;
   void scheduleFade(int delay) override;
+  void clearAdvanceFrame() override;
   void start(EventListener &eventListener) override;
   void stop() override;
 
@@ -57,15 +71,19 @@ public:
     screenOutput.setRightMetadata(metadata);
   }
  private:
+  void scheduleEvent(const CustomEvent &eventType, const int delay);
+ private:
   SDLInitializer sdlInitializer;
   vivictpp::ui::ScreenOutput screenOutput;
   std::atomic<bool> quit;
   MouseState mouseState;
-  unsigned int refreshEventType;
-  unsigned int advanceFrameEventType;
-  unsigned int checkMouseDragEventType;
-  unsigned int queueAudioEventType;
-  unsigned int fadeEventType;
+  CustomEvent refreshEventType;
+  CustomEvent advanceFrameEventType;
+  CustomEvent checkMouseDragEventType;
+  CustomEvent queueAudioEventType;
+  CustomEvent fadeEventType;
+
+  SDL_TimerID advanceFrameTimerId;
   std::shared_ptr<spdlog::logger> logger;
 };
 
