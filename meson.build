@@ -35,10 +35,12 @@ vivictpplib = static_library('vivictpplib', 'src/libav/Decoder.cc', 'src/libav/F
                              'src/libav/Packet.cc', 'src/vmaf/VmafLog.cc',
                              'src/libav/Frame.cc', 'src/logging/Logging.cc',
                              'src/ui/VmafGraph.cc', 'src/ui/Fonts.cc', 'src/ui/TextTexture.cc',
-                             'src/ui/VivictUI.cc',
+                             'src/Controller.cc',
                              dependencies: deps, include_directories: incdir)
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps, include_directories: incdir, install: true)
 
-seekTest = executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
-test('FormatHandler.seek', seekTest)
+#seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
+# test('FormatHandler.seek', seekTest)
+playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
+test('Playback', playbackTest)

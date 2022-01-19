@@ -39,7 +39,7 @@ PlaybackState PlayerState::togglePlaying() {
   }
 
 VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
-                   EventScheduler &eventScheduler,
+                   std::shared_ptr<EventScheduler> eventScheduler,
                    vivictpp::audio::AudioOutputFactory &audioOutputFactory)
   : state(),
     eventScheduler(eventScheduler),
@@ -52,13 +52,13 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
   }
 
   auto metadata = videoInputs.metadata();
-  state.pts = metadata[0][0].startTime;
+  state.pts = videoInputs.minPts();
   state.nextPts = state.pts;
   if (vivictPPConfig.sourceConfigs.size() == 1) {
-    frameDuration =1.0 / metadata[0][0].frameRate;
+    frameDuration = metadata[0][0].frameDuration;
   } else {
     frameDuration =
-      1.0 / std::max(metadata[0][0].frameRate, metadata[1][0].frameRate);
+      std::min(metadata[0][0].frameDuration, metadata[1][0].frameDuration);
   }
 }
 
@@ -82,8 +82,9 @@ void VivictPP::advanceFrame() {
   if (isnan(state.nextPts)) {
     state.nextPts = videoInputs.nextPts();
     if (!isnan(state.nextPts)) {
-      eventScheduler.scheduleAdvanceFrame(nextFrameDelay());
-    }
+      eventScheduler->scheduleAdvanceFrame(nextFrameDelay());
+      return;
+    } 
   }
   if (videoInputs.ptsInRange(state.nextPts) && (!audioOutput || videoInputs.audioFrames().ptsInRange(state.nextPts))) {
     logger->trace("VivictPP::advanceFrame nextPts is in range {}",
@@ -103,19 +104,24 @@ void VivictPP::advanceFrame() {
       if (wasSeeking) {
         state.avSync.playbackStart(vivictpp::util::toMicros(state.pts));
       }
-      state.nextPts = videoInputs.nextPts();
-      logger->trace("VivictPP::advanceFrame nextPts={}", state.nextPts);
-      if (isnan(state.nextPts)) {
-        eventScheduler.scheduleAdvanceFrame(5);
+      if (state.pts >= videoInputs.maxPts()) {
+        togglePlaying();
       } else {
-        eventScheduler.scheduleAdvanceFrame(nextFrameDelay());
+        state.nextPts = videoInputs.nextPts();
+        logger->trace("VivictPP::advanceFrame nextPts={}", state.nextPts);
+        if (isnan(state.nextPts)) {
+          eventScheduler->scheduleAdvanceFrame(5);
+        } else {
+          eventScheduler->scheduleAdvanceFrame(nextFrameDelay());
+        }
       }
     }
-    eventScheduler.scheduleRefreshDisplay(0);
+    state.lastFrameAdvance = vivictpp::util::relativeTimeMicros();
+    eventScheduler->scheduleRefreshDisplay(0);
   } else {
-    logger->trace("nextPts is out of range {}", state.nextPts);
+    logger->trace("VivictPP::advanceFrame nextPts is out of range {}", state.nextPts);
     videoInputs.dropIfFullAndNextOutOfRange(state.pts, state.seeking ? 0 : 1);
-    eventScheduler.scheduleAdvanceFrame(5);
+    eventScheduler->scheduleAdvanceFrame(5);
   }
 }
 
@@ -150,7 +156,7 @@ void VivictPP::queueAudio() {
       delay = 10;
     }
   }
-  eventScheduler.scheduleQueueAudio(delay);
+  eventScheduler->scheduleQueueAudio(delay);
 }
 
 PlaybackState VivictPP::togglePlaying() {
@@ -161,35 +167,48 @@ PlaybackState VivictPP::togglePlaying() {
       audioOutput->start();
     }
     state.avSync.playbackStart(vivictpp::util::toMicros(state.pts));
+    /*
     if (state.nextPts == state.pts) {
       state.nextPts = state.pts + frameDuration;
     }
-    eventScheduler.scheduleAdvanceFrame(0);
+    */
+    state.nextPts = state.pts;
+    eventScheduler->scheduleAdvanceFrame(0);
   } else {
     if (audioOutput) {
       audioOutput->stop();
     }
+    eventScheduler->clearAdvanceFrame();
   }
   return state.playbackState;
 }
 
 void VivictPP::seekPreviousFrame() {
-  double previousPts = videoInputs.previousPts();
-  if (isnan(previousPts)) {
-    previousPts = state.pts - frameDuration;
+  if (state.seeking) {
+    seek(state.nextPts - frameDuration);
+  } else {
+    double previousPts = videoInputs.previousPts();
+    if (isnan(previousPts)) {
+      previousPts = state.pts - frameDuration;
+    }
+    seek(previousPts);
   }
-  seek(previousPts);
 }
 
 void VivictPP::seekNextFrame() {
-  double nextPts = videoInputs.nextPts();
-  if (isnan(nextPts)) {
-    nextPts = state.pts + frameDuration;
+  if (state.seeking) {
+    seek(state.nextPts + frameDuration);
+  } else {
+    double nextPts = videoInputs.nextPts();
+    if (isnan(nextPts)) {
+      nextPts = state.pts + frameDuration;
+    }
+    seek(nextPts);
   }
-  seek(nextPts);
 }
 
 void VivictPP::seekRelative(double deltaT) {
+  logger->trace("VivictPP::seekRelative deltaT={} pts={} nextPts={} seeking={}", deltaT, state.pts, state.nextPts, state.seeking);
   if (state.seeking) {
     seek(state.nextPts + deltaT);
   } else {
@@ -198,8 +217,10 @@ void VivictPP::seekRelative(double deltaT) {
 }
 
 void VivictPP::seek(double nextPts) {
+  nextPts = std::max(nextPts, videoInputs.minPts());
+  nextPts = std::min(nextPts, videoInputs.maxPts());
   state.nextPts = nextPts;
-  logger->debug("VivictPP::seek pts={} nextPts={}", state.pts, state.nextPts);
+  logger->debug("VivictPP::seek pts={} nextPts={} seeking={}", state.pts, state.nextPts, state.seeking);
   if (videoInputs.ptsInRange(state.nextPts) &&
       (!audioOutput || videoInputs.audioFrames().ptsInRange(state.nextPts))) {
     if (state.playbackState == PlaybackState::PLAYING) {
@@ -208,12 +229,14 @@ void VivictPP::seek(double nextPts) {
       togglePlaying();
     } else {
       audioSeek(state.nextPts);
-      eventScheduler.scheduleAdvanceFrame(5);
+      eventScheduler->clearAdvanceFrame();
+      eventScheduler->scheduleAdvanceFrame(5);
     }
   } else {
     state.seeking = true;
     videoInputs.seek(state.nextPts);
-    eventScheduler.scheduleAdvanceFrame(5);
+    eventScheduler->clearAdvanceFrame();
+    eventScheduler->scheduleAdvanceFrame(5);
   }
 }
 
@@ -250,8 +273,8 @@ void VivictPP::switchStream(int delta) {
     }
     videoInputs.selectVideoStreamLeft(state.leftVideoStreamIndex);
     state.seeking = true;
-    eventScheduler.scheduleAdvanceFrame(5);
-//    eventScheduler.scheduleRefreshDisplay(0);
+    eventScheduler->scheduleAdvanceFrame(5);
+//    eventScheduler->scheduleRefreshDisplay(0);
 //  }
 */
 }

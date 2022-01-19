@@ -4,6 +4,7 @@
 
 #include "logging/Logging.hh"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/cfg/env.h"
 
 vivictpp::logging::Logger vivictpp::logging::getOrCreateLogger(std::string name) {
     Logger logger = spdlog::get(name);
@@ -11,4 +12,10 @@ vivictpp::logging::Logger vivictpp::logging::getOrCreateLogger(std::string name)
         logger = spdlog::stdout_color_mt(name);
     }
     return logger;
+}
+
+
+void vivictpp::logging::initializeLogging() {
+  spdlog::cfg::load_env_levels();
+  spdlog::set_pattern("%H:%M:%S.%e %^%=8l%$ %-20n thread-%t  %v");
 }

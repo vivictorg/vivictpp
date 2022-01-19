@@ -2,23 +2,25 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICT_UI_HH_
-#define VIVICT_UI_HH_
+#ifndef CONTROLLER_HH_
+#define CONTROLLER_HH_
 
 #include "ui/DisplayState.hh"
 #include "EventListener.hh"
+#include "EventLoop.hh"
+#include "ui/VivictPPUI.hh"
 #include "logging/Logging.hh"
 #include "VivictPP.hh"
+#include <string>
 
 namespace vivictpp {
-namespace ui {
 
-class VivictUI : EventListener {
+class Controller : EventListener {
 public:
-  VivictUI(VivictPPConfig vivictPPConfig);
+  Controller(std::shared_ptr<EventLoop> eventLoop,
+             std::shared_ptr<vivictpp::ui::Display> display,
+             VivictPPConfig vivictPPConfig);
   int run();
-  void mouseDragStart() override;
-  void mouseDragEnd() override;
   void mouseDrag(int xrel, int yrel) override;
   void mouseMotion(int x, int y) override;
   void mouseWheel(int x, int y) override;
@@ -29,15 +31,16 @@ public:
   void queueAudio() override;
   void fade() override;
   void onQuit();
-
+  const PlayerState &getPlayerState() { return vivictPP.getPlayerState(); }
+  
 private:
   void togglePlaying();
 
 private:
-  vivictpp::sdl::SDLEventLoop eventLoop;
+  std::shared_ptr<EventLoop> eventLoop;
+  std::shared_ptr<vivictpp::ui::Display> display;
   VivictPP vivictPP;
   vivictpp::ui::DisplayState displayState;
-  vivictpp::ui::ScreenOutput screenOutput;
   bool splitScreenDisabled;
   bool plotEnabled;
   double startTime;
@@ -45,7 +48,6 @@ private:
   vivictpp::logging::Logger logger;
 };
 
-}  // ui
 }  // vivictpp
 
-#endif  // VIVICT_UI_HH_
+#endif  // CONTROLLER_HH_

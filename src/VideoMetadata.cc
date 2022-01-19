@@ -33,8 +33,10 @@ VideoMetadata::VideoMetadata(
       resolution(width, height),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
+      frameDuration(1.0 / frameRate),
       startTime(videoStream->start_time * av_q2d(videoStream->time_base)),
       duration(formatContext->duration * 1.0 / AV_TIME_BASE),
+      endTime(startTime + duration - frameDuration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)) {}
 
 std::string VideoMetadata::toString() const {

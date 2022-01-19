@@ -6,6 +6,7 @@
 #ifndef VIVICTPP_H_
 #define VIVICTPP_H_
 
+#include <bits/stdint-uintn.h>
 #include <string>
 
 #include "ui/DisplayState.hh"
@@ -42,6 +43,7 @@ struct PlayerState {
   bool seeking{false};
   double pts{0};
   double nextPts{0};
+  uint64_t lastFrameAdvance{std::numeric_limits<uint64_t>::min()}; // micros from monotonic clock
   int stepFrame{0};
   bool quit{false};
   int leftVideoStreamIndex{0};
@@ -59,7 +61,7 @@ struct AudioFrames {
 class VivictPP  {
 public:
   VivictPP(VivictPPConfig vivictPPConfig,
-           EventScheduler &eventScheduler,
+           std::shared_ptr<EventScheduler> eventScheduler,
            vivictpp::audio::AudioOutputFactory &audioOutputFactory);
   virtual ~VivictPP() = default;
   void advanceFrame();
@@ -76,13 +78,14 @@ public:
   void onQuit();
   VideoInputs& getVideoInputs() { return videoInputs; }
   AVSync &getAVSync() { return state.avSync; }
+  const PlayerState &getPlayerState() { return state; }
   const PlaybackState &getPlaybackState() { return state.playbackState; }
   bool isPlaying() { return state.playbackState == PlaybackState::PLAYING; }
   void queueAudio();
 
  private:
   PlayerState state;
-  EventScheduler &eventScheduler;
+  std::shared_ptr<EventScheduler> eventScheduler;
   const AVPixelFormat pixelFormat;
   VideoInputs videoInputs;
   std::shared_ptr<vivictpp::audio::AudioOutput> audioOutput;

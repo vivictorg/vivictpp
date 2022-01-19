@@ -16,6 +16,8 @@ using Logger = std::shared_ptr<spdlog::logger>;
 
 Logger getOrCreateLogger(std::string name);
 
+  void initializeLogging();
+  
 }  // namespace logging
 }  // namespace vivictpp
 
