@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
 
@@ -20,6 +21,12 @@ public:
 
   const bool disableAudio;
 
+public:
+  bool hasVmafData() {
+    return std::any_of(sourceConfigs.begin(),
+                sourceConfigs.end(),
+                [](const SourceConfig &sc) { return !sc.vmafLog.empty(); });
+  }
 };
 
 #endif  // #VIVICT_PP_CONFIG_HH_

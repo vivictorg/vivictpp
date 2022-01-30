@@ -22,7 +22,7 @@ extern "C" {
 namespace vivictpp {
 namespace ui {
 
-enum class TextBoxPosition { TOP_LEFT, TOP_CENTER, TOP_RIGHT, ABSOLUTE };
+enum class TextBoxPosition { TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER, ABSOLUTE };
 
 struct Margin {
   int top;
@@ -41,7 +41,7 @@ public:
   void setText(std::string newText);
   SDL_Color fg = {255, 255, 255, 255};
   SDL_Color bg = {50, 50, 50, 255};
-
+  bool border = true;
 private:
   SDL_Texture *texture;
   std::string text;

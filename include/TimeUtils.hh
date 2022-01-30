@@ -21,7 +21,7 @@ int64_t toMillis(int64_t micros);
 
 std::string formatTime(double pts);
 
-#endif // TIMEUTIL_HH_
-
 }  // namespace util
 }  // namespace vivictpp
+
+#endif // TIMEUTIL_HH_

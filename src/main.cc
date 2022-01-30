@@ -6,11 +6,12 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include "spdlog/cfg/env.h"
+
 #include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
+
 
 #include "VivictPP.hh"
+#include "Controller.hh"
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
 
@@ -73,9 +74,8 @@ int main(int argc, char **argv) {
     std::vector<std::string> filters = {leftFilter, rightFilter};
     std::vector<std::string> vmafLogfiles = {leftVmaf, rightVmaf};
 
-    spdlog::cfg::load_env_levels();
-    spdlog::set_pattern("%H:%M:%S.%e %^%=8l%$ %-20n thread-%t  %v");
-    
+    vivictpp::logging::initializeLogging();
+
     std::vector<SourceConfig> sourceConfigs;
     for (size_t i = 0; i<sources.size(); i++) {
         std::string filter = i < filters.size() ? filters[i] : "";
@@ -88,8 +88,9 @@ int main(int argc, char **argv) {
     }
 
     VivictPPConfig vivictPPConfig(sourceConfigs, disableAudio);
-    VivictPP vivictPP(vivictPPConfig);
-    return vivictPP.run();
+    auto sdlEventLoop = std::make_shared<vivictpp::sdl::SDLEventLoop>(vivictPPConfig.sourceConfigs);
+    vivictpp::Controller controller(sdlEventLoop, sdlEventLoop, vivictPPConfig);
+    return controller.run();
   } catch (const std::exception &e) {
     std::cerr << "Vivict had an unexpected error: " << e.what() << std::endl;
     return 1;

@@ -15,7 +15,6 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include "ui/VivictUI.hh"
 #include "ui/DisplayState.hh"
 #include "ui/TextBox.hh"
 #include "ui/VmafGraph.hh"
@@ -35,27 +34,50 @@ extern "C" {
 namespace vivictpp {
 namespace ui {
 
-class ScreenOutput: vivictpp::ui::VivictUI {
+class ClickTarget {
 public:
-  ScreenOutput(VideoMetadata *leftVideoMetadataPtr,
-               VideoMetadata *rightVideoMetadataPtr,
-               std::vector<SourceConfig> sourceConfigs);
+  ClickTarget(std::string name, int x, int y, int w, int h):
+    name(name),
+    x(x),
+    y(y),
+    w(w),
+    h(h) { };
+  const std::string name;
+  const int x;
+  const int y;
+  const int w;
+  const int h;
+  bool contains(int x, int y) {
+    return x >= this->x && x < this->x + this->w && y >= this->y && y < this->y + this->h;
+  }
+  std::string toString() {
+    std::ostringstream oss;
+    oss << "vivictpp::ui::ClickTarget [name=" << name
+        << ",x=" << x << ",y=" << y << ",w=" << w << ",h=" << h << "]";
+    return oss.str();
+  }
+};
+
+class ScreenOutput {
+public:
+  ScreenOutput(std::vector<SourceConfig> sourceConfigs);
   ScreenOutput(const ScreenOutput&) = delete;
   ScreenOutput& operator=(const ScreenOutput&) = delete;
   virtual ~ScreenOutput();
   void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                    const vivictpp::ui::DisplayState &displayState) override;
-  int getWidth() override { return width; }
-  int getHeight() override { return height; }
-  void setFullscreen(bool fullscreen) override;
-  void setCursorHand() override;
-  void setCursorDefault() override;
-  void setLeftMetadata(const VideoMetadata &metadata) override;
-  void setRightMetadata(const VideoMetadata &metadata) override;
+                    const vivictpp::ui::DisplayState &displayState);
+  int getWidth() { return width; }
+  int getHeight() { return height; }
+  void setFullscreen(bool fullscreen);
+  void setCursorHand();
+  void setCursorDefault();
+  void setLeftMetadata(const VideoMetadata &metadata);
+  void setRightMetadata(const VideoMetadata &metadata);
+  ClickTarget getClickTarget(int x, int y, const vivictpp::ui::DisplayState &displayState);
 
 private:
-  std::unique_ptr<VideoMetadata> leftVideoMetadata;
-  std::unique_ptr<VideoMetadata> rightVideoMetadata;
+  std::shared_ptr<VideoMetadata> leftVideoMetadata;
+  std::shared_ptr<VideoMetadata> rightVideoMetadata;
   std::vector<SourceConfig> sourceConfigs;
   Resolution targetResolution;
 
@@ -78,14 +100,17 @@ private:
   TextBox rightMetadataBox;
   TextBox leftFrameBox;
   TextBox rightFrameBox;
+  TextBox splashText;
   VmafGraph vmafGraph;
   vivictpp::logging::Logger logger;
 
  private:
   Resolution getTargetResolution();
+  void renderSplash();
+  void setSize();
   void calcZoomedSrcRect(const vivictpp::ui::DisplayState &displayState,
                          const Resolution &scaledResolution,
-                         const std::unique_ptr<VideoMetadata> &videoMetadata,
+                         const std::shared_ptr<VideoMetadata> &videoMetadata,
                          SDL_Rect &rect);
   void setDefaultSourceRectangles(const DisplayState &displayState);
   void updateRectangles(const DisplayState &displayState);
@@ -95,7 +120,6 @@ private:
                           const vivictpp::ui::DisplayState &displayState);
   Uint8 *offsetPlaneLeft(const AVFrame *frame, const int plane,
                          const vivictpp::ui::DisplayState &displayState);
-  
 };
 
 void setRectangle(SDL_Rect &rect, int x, int y, int w, int h);

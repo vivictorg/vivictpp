@@ -30,8 +30,10 @@ public:
   const Resolution resolution;
   const int bitrate;
   const double frameRate;
+  const double frameDuration;
   const double startTime;
   const double duration;
+  const double endTime;
   const std::string codec;
 
   std::string toString() const;

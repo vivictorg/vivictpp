@@ -43,6 +43,24 @@ public:
     std::array<vivictpp::libav::Frame, 2> firstFrames();
     void seek(double pts);
     std::array<std::vector<VideoMetadata>, 2> metadata();
+    double duration();
+    double startTime();
+    double minPts() {
+        VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
+        if (!rightInput.packetWorker) {
+            return meta1.startTime;
+        }
+        VideoMetadata meta2 = rightInput.packetWorker->getVideoMetadata()[0];
+        return std::max(meta1.startTime, meta2.startTime);
+    }
+    double maxPts() {
+        VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
+        if (!rightInput.packetWorker) {
+            return meta1.endTime;
+        }
+        VideoMetadata meta2 = rightInput.packetWorker->getVideoMetadata()[0];
+        return std::min(meta1.endTime, meta2.endTime);
+    }
     double nextPts() {
       double nextPtsL = leftInput.decoder->frames().nextPts();
       if (!rightInput.decoder) {

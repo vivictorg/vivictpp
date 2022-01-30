@@ -14,9 +14,16 @@
 #include <cmath>
 #include <stdexcept>
 
+const int seekBarHeight = 10;
+const int seekBarLeftMargin = 50;
+const int seekBarBottomMargin = 20;
+const int splashWidth = 640;
+const int splashHeight = 480;
 
-Resolution getTargetResolution(const std::unique_ptr<VideoMetadata> &leftVideoMetadata,
-                               const std::unique_ptr<VideoMetadata> &rightVideoMetadata){
+const std::string SPLASH_TEXT("____   ____._______   ____._______________________                       \n\\   \\ /   /|   \\   \\ /   /|   \\_   ___ \\__    ___/    .__         .__    \n \\   Y   / |   |\\   Y   / |   /    \\  \\/ |    |     __|  |___   __|  |___\n  \\     /  |   | \\     /  |   \\     \\____|    |    /__    __/  /__    __/\n   \\___/   |___|  \\___/   |___|\\______  /|____|       |__|        |__|   ");
+
+Resolution getTargetResolution(const std::shared_ptr<VideoMetadata> &leftVideoMetadata,
+                               const std::shared_ptr<VideoMetadata> &rightVideoMetadata){
   if ((!rightVideoMetadata) || leftVideoMetadata->width > rightVideoMetadata->width) {
     return leftVideoMetadata->resolution;
   }
@@ -32,25 +39,22 @@ std::vector<vivictpp::vmaf::VmafLog> vmafLogs(const std::vector<SourceConfig> &s
 }
 
 
-vivictpp::ui::ScreenOutput::ScreenOutput(VideoMetadata *leftVideoMetadataPtr,
-                                         VideoMetadata *rightVideoMetadataPtr,
-                                         std::vector<SourceConfig> sourceConfigs)
-  : leftVideoMetadata(leftVideoMetadataPtr),
-    rightVideoMetadata(rightVideoMetadataPtr),
+vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs)
+  : leftVideoMetadata(nullptr),
+    rightVideoMetadata(nullptr),
     sourceConfigs(sourceConfigs),
-    targetResolution(getTargetResolution()),
-    width(targetResolution.w),
-    height(targetResolution.h),
+    targetResolution(splashWidth, splashHeight),
+    width(splashWidth),
+    height(splashHeight),
     sdlInitializer(),
     screen(vivictpp::sdl::createWindow(width, height)),
     renderer(vivictpp::sdl::createRenderer(screen.get())),
-    leftTexture(vivictpp::sdl::createTexture(renderer.get(),
-                              leftVideoMetadata->width, leftVideoMetadata->height)),
+    leftTexture(nullptr, nullptr),
     rightTexture(nullptr, nullptr),
     handCursor(vivictpp::sdl::createHandCursor()),
     defaultCursor(SDL_GetCursor()),
     timeTextBox("00:00:00", "FreeMono", 24, TextBoxPosition::TOP_CENTER),
-    leftMetadataBox(leftVideoMetadata->toString(), "FreeMono", 16, TextBoxPosition::TOP_LEFT,
+    leftMetadataBox("", "FreeMono", 16, TextBoxPosition::TOP_LEFT,
                     0,0, "Stream Info"),
     rightMetadataBox("", "FreeMono", 16, TextBoxPosition::TOP_RIGHT,
                      0,0, "Stream Info"),
@@ -58,20 +62,25 @@ vivictpp::ui::ScreenOutput::ScreenOutput(VideoMetadata *leftVideoMetadataPtr,
                  "Frame Info"),
     rightFrameBox("", "FreeMono", 16, TextBoxPosition::TOP_RIGHT, 0, 140,
                  "Frame Info"),
+    splashText(SPLASH_TEXT, "FreeMono", 32 , TextBoxPosition::CENTER),
     vmafGraph(vmafLogs(sourceConfigs), 1.0f, 0.3f),
     logger(vivictpp::logging::getOrCreateLogger("ScreenOutput")) {
 
+  /*
   if (rightVideoMetadata) {
     rightTexture = vivictpp::sdl::createTexture(renderer.get(),
                                  rightVideoMetadata->width, rightVideoMetadata->height);
     rightMetadataBox.setText(rightVideoMetadata->toString());
   }
+  */
 
   leftMetadataBox.bg = {50, 50, 50, 100};
   rightMetadataBox.bg = {50, 50, 50, 100};
   leftFrameBox.bg = {50, 50, 50, 100};
   rightFrameBox.bg = {50, 50, 50, 100};
-
+  splashText.bg = {0,0,0,255};
+  splashText.border = false;
+  renderSplash();
 }
 
 vivictpp::ui::ScreenOutput::~ScreenOutput() {
@@ -86,22 +95,25 @@ Resolution vivictpp::ui::ScreenOutput::getTargetResolution() {
 
 void vivictpp::ui::ScreenOutput::setLeftMetadata(const VideoMetadata &metadata) {
   leftVideoMetadata.reset( new VideoMetadata(metadata));
-  targetResolution = getTargetResolution();
   leftMetadataBox.setText(leftVideoMetadata->toString());
   leftTexture = vivictpp::sdl::createTexture(renderer.get(),
                               leftVideoMetadata->width, leftVideoMetadata->height);
-  SDL_SetWindowSize(screen.get(), std::max(targetResolution.w, width),
-                    std::max(targetResolution.h, height));
+  setSize();
 }
 
 void vivictpp::ui::ScreenOutput::setRightMetadata(const VideoMetadata &metadata) {
   rightVideoMetadata.reset( new VideoMetadata(metadata));
-  targetResolution = getTargetResolution();
   rightMetadataBox.setText(rightVideoMetadata->toString());
   rightTexture = vivictpp::sdl::createTexture(renderer.get(),
                                rightVideoMetadata->width, rightVideoMetadata->height);
-  SDL_SetWindowSize(screen.get(), std::max(targetResolution.w, width),
-                    std::max(targetResolution.h, height));
+  setSize();
+}
+
+void vivictpp::ui::ScreenOutput::setSize() {
+  targetResolution = getTargetResolution();
+  width = std::max(targetResolution.w, width);
+  height = std::max(targetResolution.h, height);
+  SDL_SetWindowSize(screen.get(), width, height);
 }
 
 void vivictpp::ui::ScreenOutput::setCursorHand() { SDL_SetCursor(handCursor.get()); }
@@ -127,7 +139,7 @@ void vivictpp::ui::ScreenOutput::drawTime(const DisplayState &displayState) {
 
 void vivictpp::ui::ScreenOutput::calcZoomedSrcRect(const DisplayState &displayState,
                                      const Resolution &scaledResolution,
-                                     const std::unique_ptr<VideoMetadata> &videoMetadata,
+                                     const std::shared_ptr<VideoMetadata> &videoMetadata,
                                      SDL_Rect &rect) {
   int srcW = videoMetadata->width;
   int srcH = videoMetadata->height;
@@ -209,11 +221,17 @@ void vivictpp::ui::setRectangle(SDL_Rect &rect, int x, int y, int w, int h) {
   rect.h = h;
 }
 
+void vivictpp::ui::ScreenOutput::renderSplash() {
+  SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, SDL_ALPHA_OPAQUE);
+  SDL_RenderClear(renderer.get());
+  splashText.render(renderer.get());
+  SDL_RenderPresent(renderer.get());
+}
+
 void vivictpp::ui::ScreenOutput::displayFrame(
     const std::array<vivictpp::libav::Frame, 2> &frames,
     const DisplayState &displayState) {
   float splitPercent = displayState.splitPercent;
-
   AVFrame *frame1 = frames[0].avFrame();
   AVFrame *frame2 = frames[1].avFrame();
   SDL_GetRendererOutputSize(renderer.get(), &width, &height);
@@ -287,5 +305,47 @@ void vivictpp::ui::ScreenOutput::displayFrame(
     vmafGraph.render(renderer.get(), displayState.pts, leftVideoMetadata->startTime,
                      leftVideoMetadata->duration);
   }
+  if (displayState.seekBarVisible) {
+    int x0 = seekBarLeftMargin;
+    int y0 = height - seekBarHeight - seekBarBottomMargin;
+    int w = width - 2 * seekBarLeftMargin;
+    int h = seekBarHeight;
+    SDL_SetRenderDrawColor(renderer.get(), 125, 125, 125, displayState.seekBarOpacity);
+    SDL_Rect seekBarRect {x0, y0, w, h};
+    SDL_RenderFillRect(renderer.get(), &seekBarRect);
+    SDL_SetRenderDrawColor(renderer.get(), 125, 255, 125, displayState.seekBarOpacity);
+    seekBarRect.w = (int) (seekBarRect.w * displayState.seekBarRelativePos);
+    SDL_RenderFillRect(renderer.get(), &seekBarRect);
+    seekBarRect.x = seekBarLeftMargin + seekBarRect.w - 2;
+    seekBarRect.y = y0 - 3;
+    seekBarRect.w = 5;
+    seekBarRect.h = seekBarHeight + 6;
+    SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255, displayState.seekBarOpacity);
+    SDL_RenderFillRect(renderer.get(), &seekBarRect);
+    SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, displayState.seekBarOpacity);
+    SDL_RenderDrawRect(renderer.get(), &seekBarRect);
+  }
   SDL_RenderPresent(renderer.get());
+}
+
+vivictpp::ui::ClickTarget vivictpp::ui::ScreenOutput::getClickTarget(int x, int y, const vivictpp::ui::DisplayState &displayState) {
+  vivictpp::ui::ClickTarget seekBar("seekbar",
+                      seekBarLeftMargin,
+                      height - seekBarHeight - seekBarBottomMargin,
+                      width - 2 * seekBarLeftMargin,
+                      seekBarHeight);
+  vivictpp::ui::ClickTarget plot("plot",
+                   0,
+                   (int) height * 0.7,
+                   width,
+                   height - (int) height * 0.7);
+  vivictpp::ui::ClickTarget defaultTarget("default",0,0,width,height);
+
+  if (displayState.displayPlot && plot.contains(x,y)) {
+    return plot;
+  }
+  if (seekBar.contains(x,y)) {
+    return seekBar;
+  }
+  return defaultTarget;
 }

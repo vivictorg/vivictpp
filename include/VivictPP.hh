@@ -6,6 +6,7 @@
 #ifndef VIVICTPP_H_
 #define VIVICTPP_H_
 
+#include <bits/stdint-uintn.h>
 #include <string>
 
 #include "ui/DisplayState.hh"
@@ -15,10 +16,11 @@
 #include "VideoInputs.hh"
 #include "EventListener.hh"
 #include "sdl/SDLEventLoop.hh"
-#include "sdl/AudioOutput.hh"
 #include "AVSync.hh"
 #include "VivictPPConfig.hh"
 #include "logging/Logging.hh"
+#include "audio/AudioOutput.hh"
+#include "EventLoop.hh"
 
 
 
@@ -41,33 +43,29 @@ struct PlayerState {
   bool seeking{false};
   double pts{0};
   double nextPts{0};
+  uint64_t lastFrameAdvance{std::numeric_limits<uint64_t>::min()}; // micros from monotonic clock
   int stepFrame{0};
-    vivictpp::ui::DisplayState displayState;
   bool quit{false};
   int leftVideoStreamIndex{0};
   bool updateVideoMetadata{false};
   AVSync avSync;
   PlaybackState togglePlaying();
 };
+/*
+struct AudioFrames {
+  std::vector<vivictpp::libav::Frame>
+};
+*/
 
-class VivictPP : EventListener {
+
+class VivictPP  {
 public:
-  VivictPP(VivictPPConfig vivictPPConfig);
+  VivictPP(VivictPPConfig vivictPPConfig,
+           std::shared_ptr<EventScheduler> eventScheduler,
+           vivictpp::audio::AudioOutputFactory &audioOutputFactory);
   virtual ~VivictPP() = default;
-  int run();
-  void mouseDragStart() override;
-  void mouseDragEnd() override;
-  void mouseDrag(int xrel, int yrel) override;
-  void mouseMotion(int x, int y) override;
-  void mouseWheel(int x, int y) override;
-  void mouseClick(int x, int y) override;
-  void keyPressed(std::string key) override;
-  void advanceFrame() override;
-  void refreshDisplay() override;
-  void queueAudio() override;
-
-private:
-  void togglePlaying();
+  void advanceFrame();
+  PlaybackState togglePlaying();
   void audioSeek(double pts);
   void seek(double pts);
   void seekRelative(double deltaT);
@@ -76,15 +74,21 @@ private:
   void seekFrame(int delta);
   void switchStream(int delta);
   int nextFrameDelay();
+  double getPts() { return state.pts; }
   void onQuit();
+  VideoInputs& getVideoInputs() { return videoInputs; }
+  AVSync &getAVSync() { return state.avSync; }
+  const PlayerState &getPlayerState() { return state; }
+  const PlaybackState &getPlaybackState() { return state.playbackState; }
+  bool isPlaying() { return state.playbackState == PlaybackState::PLAYING; }
+  void queueAudio();
 
  private:
-  vivictpp::sdl::SDLEventLoop eventLoop;
   PlayerState state;
+  std::shared_ptr<EventScheduler> eventScheduler;
   const AVPixelFormat pixelFormat;
   VideoInputs videoInputs;
-  vivictpp::ui::ScreenOutput screenOutput;
-  std::shared_ptr<vivictpp::sdl::AudioOutput> audioOutput;
+  std::shared_ptr<vivictpp::audio::AudioOutput> audioOutput;
   bool splitScreenDisabled;
   double frameDuration;
   vivictpp::logging::Logger logger;
