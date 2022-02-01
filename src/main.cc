@@ -9,7 +9,7 @@
 
 #include "spdlog/spdlog.h"
 
-
+#include "Version.hh"
 #include "VivictPP.hh"
 #include "Controller.hh"
 #include "SourceConfig.hh"
@@ -45,7 +45,7 @@ q      Quit application
 
 See also  https://github.com/svt/vivictpp#readme
 
-Vivict++ )" + std::string(VPP_VERSION);
+Vivict++ )" + std::string(VPP_VERSION) + " " + std::string(VPP_GIT_HASH);
 
 int main(int argc, char **argv) {
   try {

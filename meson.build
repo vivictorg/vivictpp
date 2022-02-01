@@ -24,8 +24,8 @@ test_deps = [
 
 incdir = include_directories('include')
 
-version_cmd = run_command('git', 'describe')
-vpp_version = version_cmd.stdout().strip()
+git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')
+git_hash = git_hash_cmd.stdout().strip()
 
 vivictpplib = static_library('vivictpplib', 'src/libav/Decoder.cc', 'src/libav/FormatHandler.cc',
                              'src/ui/TextBox.cc', 'src/VideoInputs.cc', 'src/sdl/SDLAudioOutput.cc',
@@ -42,7 +42,7 @@ vivictpplib = static_library('vivictpplib', 'src/libav/Decoder.cc', 'src/libav/F
                              dependencies: deps, include_directories: incdir)
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps,
-           include_directories: incdir, install: true, cpp_args : '-DVPP_VERSION="' + vpp_version + '"')
+           include_directories: incdir, install: true, cpp_args : '-DVPP_GIT_HASH="' + git_hash + '"')
 
 #seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
 # test('FormatHandler.seek', seekTest)
