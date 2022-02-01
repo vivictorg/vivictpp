@@ -9,7 +9,7 @@
 
 #include "spdlog/spdlog.h"
 
-
+#include "Version.hh"
 #include "VivictPP.hh"
 #include "Controller.hh"
 #include "SourceConfig.hh"
@@ -18,6 +18,10 @@
 #include "CLI/App.hpp"
 #include "CLI/Formatter.hpp"
 #include "CLI/Config.hpp"
+
+#ifndef VPP_VERSION
+#define VPP_VERSION "unknown version"
+#endif
 
 const std::string FOOTER =
   R"(
@@ -39,7 +43,9 @@ p      Toggle visibility of vmaf plot (if vmaf data present)
 
 q      Quit application
 
-See also  https://github.com/svt/vivictpp#readme)";
+See also  https://github.com/svt/vivictpp#readme
+
+Vivict++ )" + std::string(VPP_VERSION) + " " + std::string(VPP_GIT_HASH);
 
 int main(int argc, char **argv) {
   try {

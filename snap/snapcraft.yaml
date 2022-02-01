@@ -1,5 +1,5 @@
 name: vivictpp # you probably want to 'snapcraft register <name>'
-license: GPL-3.0
+license: GPL-2.0-or-later
 base: core20 # the base snap is the execution environment for this snap
 version: git
 summary: Vivict video comparison tool++

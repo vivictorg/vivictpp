@@ -10,7 +10,6 @@
 #include "AVSync.hh"
 #include "audio/AudioOutput.hh"
 
-#include <bits/stdint-intn.h>
 #include <memory>
 
 extern "C" {
