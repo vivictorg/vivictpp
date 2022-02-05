@@ -25,14 +25,6 @@ bool vivictpp::workers::QueuePointer::operator!=(const QueuePointer &other) {
   return this->value != other.value;
 }
 
-vivictpp::workers::QueuePointer &vivictpp::workers::QueuePointer::operator=(const QueuePointer &other) {
-  if (this != &other) {
-    range = other.range;
-    value = other.value;
-  }
-  return *this;
-}
-
 vivictpp::workers::QueuePointer &vivictpp::workers::QueuePointer::operator=(const int newValue) {
   value = newValue;
   return *this;

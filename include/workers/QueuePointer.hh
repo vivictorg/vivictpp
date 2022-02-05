@@ -16,7 +16,6 @@ public:
   QueuePointer(int _value, int _range);
   QueuePointer operator+(int other);
   QueuePointer operator-(int other);
-  QueuePointer &operator=(const QueuePointer &other);
   QueuePointer &operator=(const int newValue);
   int distance(const QueuePointer &other);
   bool operator==(const QueuePointer &other);

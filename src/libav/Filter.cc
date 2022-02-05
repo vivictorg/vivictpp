@@ -126,15 +126,13 @@ void vivictpp::libav::VideoFilter::configure(AVStream *videoStream, AVCodecConte
   configureGraph(definition);
 }
 
-vivictpp::libav::AudioFilter::AudioFilter(AVStream *audioStream, AVCodecContext *codecContext,
-                         std::string definition) :
+vivictpp::libav::AudioFilter::AudioFilter(AVCodecContext *codecContext, std::string definition) :
   Filter() {
-  configure(audioStream, codecContext, definition);
+  configure(codecContext, definition);
 }
 
 
-void vivictpp::libav::AudioFilter::configure(AVStream *audioStream, AVCodecContext *codecContext,
-                            std::string definition) {
+void vivictpp::libav::AudioFilter::configure(AVCodecContext *codecContext, std::string definition) {
   spdlog::debug("Audiovivictpp::libav::Filter::configure  filter definition: {}", definition);
 
   char args[512];

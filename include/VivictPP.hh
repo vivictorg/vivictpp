@@ -6,7 +6,6 @@
 #ifndef VIVICTPP_H_
 #define VIVICTPP_H_
 
-#include <bits/stdint-uintn.h>
 #include <string>
 
 #include "ui/DisplayState.hh"
@@ -86,10 +85,8 @@ public:
  private:
   PlayerState state;
   std::shared_ptr<EventScheduler> eventScheduler;
-  const AVPixelFormat pixelFormat;
   VideoInputs videoInputs;
   std::shared_ptr<vivictpp::audio::AudioOutput> audioOutput;
-  bool splitScreenDisabled;
   double frameDuration;
   vivictpp::logging::Logger logger;
 };
