@@ -43,7 +43,6 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
                    vivictpp::audio::AudioOutputFactory &audioOutputFactory)
   : state(),
     eventScheduler(eventScheduler),
-    pixelFormat(AV_PIX_FMT_YUV420P),
     videoInputs(vivictPPConfig),
     audioOutput(nullptr),
     logger(vivictpp::logging::getOrCreateLogger("VivictPP")) {
