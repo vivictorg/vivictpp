@@ -5,6 +5,11 @@
 #include "libav/Decoder.hh"
 #include "libav/AVErrorUtils.hh"
 
+extern "C" {
+#include <libavutil/channel_layout.h>
+}
+
+
 #include "spdlog/spdlog.h"
 
 vivictpp::libav::Decoder::Decoder(AVCodecParameters *codecParameters)
@@ -33,7 +38,7 @@ std::vector<vivictpp::libav::Frame> vivictpp::libav::Decoder::handlePacket(Packe
 
 std::shared_ptr<AVCodecContext> vivictpp::libav::createCodecContext(AVCodecParameters *codecParameters) {
   AVCodecID codecId = codecParameters->codec_id;
-  AVCodec *codec = avcodec_find_decoder(codecId);
+  const AVCodec *codec = avcodec_find_decoder(codecId);
   if (codec == nullptr) {
     throw std::runtime_error(std::string("No codec found for codec ID: ") + std::string(avcodec_get_name(codecId)));
   }
