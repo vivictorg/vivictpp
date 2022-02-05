@@ -1,0 +1,16 @@
+name: ubuntu-build
+on: push
+jobs:
+  ubuntu-build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+      - name: Install ffmpeg and ssl
+        run: |
+          sudo apt-get update
+          sudo apt-get install libsdl2-dev libsdl2-ttf-dev libfreetype6-dev libavformat-dev libavfilter-dev libavcodec-dev libswscale-dev
+      - uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: test

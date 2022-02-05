@@ -1,0 +1,19 @@
+name: macos-build
+on: push
+jobs:
+  macos-build:
+    name: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+      - name: Install ffmpeg and ssl
+        run: |
+          brew update
+          brew install meson ninja cmake sdl2 sdl2_ttf ffmpeg@4
+      - name: Meson build
+        env:
+          PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: test
