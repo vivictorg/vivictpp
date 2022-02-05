@@ -112,6 +112,8 @@ void vivictpp::Controller::mouseWheel(int x, int y) {
 }
 
 void vivictpp::Controller::mouseClick(int x, int y /*, std::string target*/) {
+  (void) x;
+  (void) y;
   /*
   vivictpp::ui::ClickTarget clickTarget = eventLoop.getClickTarget(x, y, displayState);
   if (clickTarget.name == "plot" || clickTarget == "seekbar") {

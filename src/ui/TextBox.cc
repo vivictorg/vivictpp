@@ -48,7 +48,7 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
   std::vector<TextTexture> textures;
   textureW = 0;
   textureH = 0;
-  for (const std::string line : lines(text)) {
+  for (const std::string &line : lines(text)) {
     TextTexture tt(renderer, line, fontSize, fg, font);
     textureW = std::max(textureW, tt.width);
     textureH = textureH + tt.height;
@@ -70,7 +70,7 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
 
   int x = margin.left;
   int y = margin.top;
-  for (const TextTexture tt : textures) {
+  for (const TextTexture &tt : textures) {
     tt.render(renderer, x, y);
     y += tt.height;
   }

@@ -21,7 +21,7 @@ extern "C" {
 #include <stdlib.h>
 
 /*
-  
+ 
   Mock eventLoop or mock VivictOOUI
 
 
@@ -29,6 +29,7 @@ extern "C" {
 
 static int SDLCALL my_event_filter(void *userdata, SDL_Event * event)
 {
+    (void) userdata;
     switch (event->type) {
     case SDL_QUIT:
     case SDL_MOUSEMOTION:
@@ -187,7 +188,7 @@ TEST_CASE( "Test playback" ) {
             a0 = testContext.controller.getPlayerState().lastFrameAdvance;
         }
         double t0 = testContext.controller.getPlayerState().pts;
-        uint64_t b0 = vivictpp::util::relativeTimeMicros();
+
         sleepSeconds(10);
 
         double t1 = testContext.controller.getPlayerState().pts;

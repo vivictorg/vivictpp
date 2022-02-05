@@ -49,10 +49,10 @@ private:
 
 class AudioFilter: public Filter {
 public:
-  AudioFilter(AVStream *avStream, AVCodecContext *codecContext, std::string definition);
+  AudioFilter(AVCodecContext *codecContext, std::string definition);
   ~AudioFilter() = default;
 private:
-    void configure(AVStream *audioStream, AVCodecContext *codecContext,
+    void configure(AVCodecContext *codecContext,
              std::string definition);
 };
 

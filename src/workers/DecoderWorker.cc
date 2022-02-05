@@ -21,7 +21,7 @@ vivictpp::libav::Filter *createFilter(AVStream *stream, AVCodecContext *codecCon
   case AVMEDIA_TYPE_VIDEO:
     return new vivictpp::libav::VideoFilter(stream, codecContext, filterStr("format=yuv420p", customFilter));
   case AVMEDIA_TYPE_AUDIO:
-    return new vivictpp::libav::AudioFilter(stream, codecContext, "aformat=sample_fmts=s16");
+    return new vivictpp::libav::AudioFilter(codecContext, "aformat=sample_fmts=s16");
   default:
     throw std::runtime_error("Filter not supported for codec_type");
   }
