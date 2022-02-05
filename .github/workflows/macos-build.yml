@@ -16,4 +16,10 @@ jobs:
           PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
         uses: BSFishy/meson-build@v1.0.3
         with:
-          action: test
+          action: build
+      - name: Save logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos-build-logs
+          path: build/meson-logs

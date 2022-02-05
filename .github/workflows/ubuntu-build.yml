@@ -10,7 +10,18 @@ jobs:
       - name: Install ffmpeg and ssl
         run: |
           sudo apt-get update
-          sudo apt-get install libsdl2-dev libsdl2-ttf-dev libfreetype6-dev libavformat-dev libavfilter-dev libavcodec-dev libswscale-dev
-      - uses: BSFishy/meson-build@v1.0.3
+          sudo apt-get install libsdl2-dev libsdl2-ttf-dev libfreetype6-dev libavformat-dev libavfilter-dev libavcodec-dev libswscale-dev xvfb
+      - name: Meson build
+        uses: BSFishy/meson-build@v1.0.3
         with:
-          action: test
+          action: build
+      - name: Run tests
+        run: |
+          cd build
+          xvfb-run ./playbackTest
+      - name: Save logs
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubuntu-build-logs
+          path: build/meson-logs
