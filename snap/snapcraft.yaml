@@ -23,6 +23,7 @@ apps:
       - x11
       - opengl
       - home
+      - removable-media
   ffmpeg:
     command: usr/bin/ffmpeg
 

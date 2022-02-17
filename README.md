@@ -28,6 +28,12 @@ the code is not as clean as one would wish etc. See [known issues](#known-issues
 ```
 sudo snap install --edge vivictpp
 ```
+Note that due to snap security features, vivictpp will only be able to access files in your home folder
+when installed from snap. Connecting the vivictpp snap to the systems removable-media slot will allow
+also accessing files in location under /mnt and /media. The below command can be used for this.
+```
+sudo snap connect vivictpp:removable-media :removable-media
+```
 
 ### Homebrew
 ```
