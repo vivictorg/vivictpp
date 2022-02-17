@@ -3,7 +3,7 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
-## 0.1.10
+## 0.1.10 2022-02-17
 
 ### Added
 - Added removable-media slot
