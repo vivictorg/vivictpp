@@ -83,7 +83,7 @@ void VivictPP::advanceFrame() {
     if (!vivictpp::time::isNoPts(state.nextPts)) {
       eventScheduler->scheduleAdvanceFrame(nextFrameDelay());
       return;
-    } 
+    }
   }
   if (videoInputs.ptsInRange(state.nextPts) && (!audioOutput || videoInputs.audioFrames().ptsInRange(state.nextPts))) {
     logger->trace("VivictPP::advanceFrame nextPts is in range {}",
@@ -178,6 +178,7 @@ PlaybackState VivictPP::togglePlaying() {
       audioOutput->stop();
     }
     eventScheduler->clearAdvanceFrame();
+    eventScheduler->scheduleRefreshDisplay(0);
   }
   return state.playbackState;
 }

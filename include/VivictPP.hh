@@ -81,6 +81,22 @@ public:
   const PlaybackState &getPlaybackState() { return state.playbackState; }
   bool isPlaying() { return state.playbackState == PlaybackState::PLAYING; }
   void queueAudio();
+  int increaseFrameOffset() {
+    int value = videoInputs.increaseLeftFrameOffset();
+    if (state.playbackState != PlaybackState::PLAYING) {
+      videoInputs.stepForward(state.pts);
+      eventScheduler->scheduleRefreshDisplay(0);
+    }
+    return value;
+  }
+  int decreaseFrameOffset() {
+    int value = videoInputs.decreaseLeftFrameOffset();
+    if (state.playbackState != PlaybackState::PLAYING) {
+      videoInputs.stepBackward(state.pts);
+      eventScheduler->scheduleRefreshDisplay(0);
+    }
+    return value;
+  }
 
  private:
   PlayerState state;

@@ -6,7 +6,10 @@
 #include "spdlog/spdlog.h"
 #include <libavcodec/avcodec.h>
 
-VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig) {
+VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
+  _leftFrameOffset(0),
+  leftPtsOffset(0),
+  logger(vivictpp::logging::getOrCreateLogger("VideoInputs")) {
   av_log_set_level(AV_LOG_QUIET);
   for (auto source: vivictPPConfig.sourceConfigs) {
     auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
@@ -44,7 +47,7 @@ VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig) {
 }
 
 bool VideoInputs::ptsInRange(vivictpp::time::Time pts) {
-  return !vivictpp::time::isNoPts(pts) && leftInput.decoder->frames().ptsInRange(pts) &&
+  return !vivictpp::time::isNoPts(pts) && leftInput.decoder->frames().ptsInRange(pts + leftPtsOffset) &&
     (!rightInput.decoder || rightInput.decoder->frames().ptsInRange(pts));
 }
 
@@ -65,24 +68,26 @@ vivictpp::time::Time VideoInputs::duration() {
   return duration;
 }
 
+
 vivictpp::time::Time VideoInputs::startTime() {
-  return leftInput.packetWorker->getVideoMetadata()[0].startTime;
+  return leftInput.packetWorker->getVideoMetadata()[0].startTime - leftPtsOffset;
 }
 
 void VideoInputs::stepForward(vivictpp::time::Time pts) {
-  leftInput.decoder->frames().stepForward(pts);
+  leftInput.decoder->frames().stepForward(pts + leftPtsOffset);
   if (rightInput.decoder)
     rightInput.decoder->frames().stepForward(pts);
 }
 
+
 void VideoInputs::stepBackward(vivictpp::time::Time pts) {
-  leftInput.decoder->frames().stepBackward(pts);
+  leftInput.decoder->frames().stepBackward(pts + leftPtsOffset);
   if (rightInput.decoder)
     rightInput.decoder->frames().stepBackward(pts);
 }
 
 void VideoInputs::dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop) {
-  if (currentPts >= leftInput.decoder->frames().maxPts()) {
+  if (currentPts >= leftInput.decoder->frames().maxPts() - leftPtsOffset) {
     leftInput.decoder->frames().dropIfFull(framesToDrop);
   }
   if (rightInput.decoder &&
@@ -92,7 +97,7 @@ void VideoInputs::dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, i
 }
 
 void VideoInputs::dropIfFullAndOutOfRange(vivictpp::time::Time nextPts, int framesToDrop) {
-  if (vivictpp::time::isNoPts(nextPts) || nextPts > leftInput.decoder->frames().maxPts()) {
+  if (vivictpp::time::isNoPts(nextPts) || nextPts > leftInput.decoder->frames().maxPts() - leftPtsOffset) {
     leftInput.decoder->frames().dropIfFull(framesToDrop);
   }
   if (rightInput.decoder &&
@@ -110,7 +115,11 @@ std::array<vivictpp::libav::Frame, 2> VideoInputs::firstFrames() {
 
 void VideoInputs::seek(vivictpp::time::Time pts) {
   for (auto packetWorker : packetWorkers) {
-    packetWorker->seek(pts);
+    if (packetWorker == leftInput.packetWorker) {
+      packetWorker->seek(pts + leftPtsOffset);
+    } else {
+      packetWorker->seek(pts);
+    }
   }
 }
 

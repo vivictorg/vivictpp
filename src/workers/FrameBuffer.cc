@@ -55,7 +55,7 @@ bool vivictpp::workers::FrameBuffer::waitForNotFull(const std::chrono::milliseco
   } else {
     result = conditionVariable.wait_for(lock, relTime, [&]{ return _size < _maxSize; });
   }
-  logger->debug("waitForNotNull _size={} _maxSize={} returning {}", _size, _maxSize, result);
+  logger->trace("waitForNotNull _size={} _maxSize={} returning {}", _size, _maxSize, result);
   return result;
 }
 
@@ -172,7 +172,11 @@ int vivictpp::workers::FrameBuffer::stepForward(vivictpp::time::Time pts) {
 }
 
 void vivictpp::workers::FrameBuffer::stepBackward(vivictpp::time::Time pts) {
+  logger->debug("vivictpp::workers::Framebuffer::stepBackward entry _cursor={}, pts={}",
+                _cursor.getValue(), pts);
   while (ptsBuffer[(_cursor - 1).getValue()] >= pts && previous()) {
+    logger->trace("vivictpp::workers::Framebuffer::stepBackward _cursor={}, pts={}",
+                  _cursor.getValue(), pts);
   }
 }
 

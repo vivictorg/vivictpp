@@ -33,7 +33,8 @@ VideoMetadata::VideoMetadata(
       resolution(width, height),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
-      frameDuration(av_rescale_q(1, videoStream->r_frame_rate, vivictpp::time::TIME_BASE_Q)),
+      frameDuration(av_rescale(vivictpp::time::TIME_BASE, videoStream->r_frame_rate.den,
+                               videoStream->r_frame_rate.num)),
       startTime(av_rescale_q(videoStream->start_time, videoStream->time_base, vivictpp::time::TIME_BASE_Q)),
       duration(formatContext->duration), // allready in av_time_base
       endTime(startTime - frameDuration + duration),

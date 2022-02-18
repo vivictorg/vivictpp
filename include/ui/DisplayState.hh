@@ -58,6 +58,7 @@ struct DisplayState {
   int64_t hideSeekBar{0};
   int seekBarOpacity{255};
   float seekBarRelativePos{0};
+  int leftFrameOffset{0};
 };
 
 }  // ui

@@ -40,6 +40,7 @@ A mutex is used to ensure consistency
 
  */
 
+
 class FrameBuffer {
 public:
   FrameBuffer(int _maxSize);
@@ -71,7 +72,7 @@ private:
   void _drop(int n = 1);
 
 private:
-    vivictpp::logging::Logger logger;
+  vivictpp::logging::Logger logger;
   std::vector<vivictpp::libav::Frame> queue;
   std::vector<vivictpp::time::Time> ptsBuffer;
   QueuePointer _writePos; // Points to first empty slot,

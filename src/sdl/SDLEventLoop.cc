@@ -135,7 +135,8 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
         } break;
         case SDL_KEYDOWN: {
           SDL_KeyboardEvent kbe = event.key;
-          eventListener.keyPressed(std::string(SDL_GetKeyName(kbe.keysym.sym)));
+          eventListener.keyPressed(std::string(SDL_GetKeyName(kbe.keysym.sym)),
+                                   SDL_GetModState() & KMOD_SHIFT);
         } break;
         case SDL_WINDOWEVENT: {
           if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {

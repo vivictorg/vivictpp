@@ -32,6 +32,13 @@ private:
     MediaPipe leftInput;
     MediaPipe rightInput;
     MediaPipe audio1;
+    int _leftFrameOffset;
+    vivictpp::time::Time leftPtsOffset;
+    void calcLeftPtsOffset() {
+        leftPtsOffset = _leftFrameOffset * leftInput.packetWorker->getVideoMetadata()[0].frameDuration;
+        logger->debug("leftPtsOffset: {}", leftPtsOffset);
+    }
+    vivictpp::logging::Logger logger;
 
 public:
     explicit VideoInputs(VivictPPConfig vivictPPConfig);
@@ -48,21 +55,33 @@ public:
     vivictpp::time::Time minPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
         if (!rightInput.packetWorker) {
-            return meta1.startTime;
+            return meta1.startTime - leftPtsOffset;
         }
         VideoMetadata meta2 = rightInput.packetWorker->getVideoMetadata()[0];
-        return std::max(meta1.startTime, meta2.startTime);
+        return std::max(meta1.startTime - leftPtsOffset, meta2.startTime);
     }
     vivictpp::time::Time maxPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
         if (!rightInput.packetWorker) {
-            return meta1.endTime;
+            return meta1.endTime - leftPtsOffset;
         }
         VideoMetadata meta2 = rightInput.packetWorker->getVideoMetadata()[0];
-        return std::min(meta1.endTime, meta2.endTime);
+        return std::min(meta1.endTime - leftPtsOffset, meta2.endTime);
     }
+        int leftFrameOffset() { return _leftFrameOffset; }
+    int increaseLeftFrameOffset() {
+        _leftFrameOffset++;
+        calcLeftPtsOffset();
+        return _leftFrameOffset;
+    }
+    int decreaseLeftFrameOffset() {
+         _leftFrameOffset--;
+         calcLeftPtsOffset();
+         return _leftFrameOffset;
+    }
+
     vivictpp::time::Time nextPts() {
-      vivictpp::time::Time nextPtsL = leftInput.decoder->frames().nextPts();
+      vivictpp::time::Time nextPtsL = leftInput.decoder->frames().nextPts() - leftPtsOffset;
       if (!rightInput.decoder) {
         return nextPtsL;
       }
@@ -76,7 +95,7 @@ public:
       return std::min(nextPtsL, nextPtsR);
     }
     vivictpp::time::Time previousPts() {
-      vivictpp::time::Time ppl = leftInput.decoder->frames().previousPts();
+      vivictpp::time::Time ppl = leftInput.decoder->frames().previousPts() - leftPtsOffset;
       if(!rightInput.decoder) {
         return ppl;
       }

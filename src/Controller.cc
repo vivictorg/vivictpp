@@ -136,24 +136,32 @@ void vivictpp::Controller::onQuit() {
   vivictPP.onQuit();
 }
 
-void vivictpp::Controller::keyPressed(std::string key) {
-  logger->debug("vivictpp::Controller::keyPressed key='{}'", key);
+void vivictpp::Controller::keyPressed(std::string key, bool shift) {
+  logger->debug("vivictpp::Controller::keyPressed key='{}' shift={}", key, shift);
   if (key.length() == 1) {
     switch (key[0]) {
     case 'Q':
       onQuit();
       break;
     case '.':
-      vivictPP.seekNextFrame();
+      if (shift) {
+        displayState.leftFrameOffset = vivictPP.increaseFrameOffset();
+      } else {
+        vivictPP.seekNextFrame();
+      }
       break;
     case ',':
-      vivictPP.seekPreviousFrame();
+      if (shift) {
+        displayState.leftFrameOffset = vivictPP.decreaseFrameOffset();
+      } else {
+        vivictPP.seekPreviousFrame();
+      }
       break;
     case '/':
-      vivictPP.seekRelative(5);
+      vivictPP.seekRelative(vivictpp::time::seconds(shift ? 60 : 5));
       break;
     case 'M':
-      vivictPP.seekRelative(-5);
+      vivictPP.seekRelative(vivictpp::time::seconds(shift ? -60 : -5));
       break;
     case 'U':
       displayState.zoom.increment();

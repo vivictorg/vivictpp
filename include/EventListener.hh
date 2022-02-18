@@ -7,6 +7,8 @@
 
 #include <string>
 
+namespace vivictpp {
+
 class EventListener {
  public:
   virtual ~EventListener() = default;
@@ -14,12 +16,14 @@ class EventListener {
   virtual void mouseMotion(int x, int y) = 0;
   virtual void mouseWheel(int x, int y) = 0;
   virtual void mouseClick(int x, int y) = 0;
-  virtual void keyPressed(std::string key) = 0;
+  virtual void keyPressed(std::string key, bool shift) = 0;
   virtual void advanceFrame() = 0;
   virtual void queueAudio() = 0;
   virtual void refreshDisplay() = 0;
   virtual void fade() = 0;
 
 };
+
+};  // namespace vivictpp
 
 #endif  // #ifndef EVENT_LISTENER_H_
