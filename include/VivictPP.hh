@@ -11,7 +11,7 @@
 #include "ui/DisplayState.hh"
 #include "workers/FrameBuffer.hh"
 #include "ui/ScreenOutput.hh"
-#include "TimeUtils.hh"
+#include "time/TimeUtils.hh"
 #include "VideoInputs.hh"
 #include "EventListener.hh"
 #include "sdl/SDLEventLoop.hh"
@@ -20,7 +20,7 @@
 #include "logging/Logging.hh"
 #include "audio/AudioOutput.hh"
 #include "EventLoop.hh"
-
+#include "time/Time.hh"
 
 
 extern "C" {
@@ -40,14 +40,14 @@ std::string playbackStateName(PlaybackState playbackState);
 struct PlayerState {
   PlaybackState playbackState{PlaybackState::STOPPED};
   bool seeking{false};
-  double pts{0};
-  double nextPts{0};
+  vivictpp::time::Time pts{0};
+  vivictpp::time::Time nextPts{0};
   uint64_t lastFrameAdvance{std::numeric_limits<uint64_t>::min()}; // micros from monotonic clock
   int stepFrame{0};
   bool quit{false};
   int leftVideoStreamIndex{0};
   bool updateVideoMetadata{false};
-  AVSync avSync;
+  vivictpp::AVSync avSync;
   PlaybackState togglePlaying();
 };
 /*
@@ -65,18 +65,18 @@ public:
   virtual ~VivictPP() = default;
   void advanceFrame();
   PlaybackState togglePlaying();
-  void audioSeek(double pts);
-  void seek(double pts);
-  void seekRelative(double deltaT);
+  void audioSeek(vivictpp::time::Time pts);
+  void seek(vivictpp::time::Time pts);
+  void seekRelative(vivictpp::time::Time deltaT);
   void seekNextFrame();
   void seekPreviousFrame();
   void seekFrame(int delta);
   void switchStream(int delta);
   int nextFrameDelay();
-  double getPts() { return state.pts; }
+  vivictpp::time::Time getPts() { return state.pts; }
   void onQuit();
   VideoInputs& getVideoInputs() { return videoInputs; }
-  AVSync &getAVSync() { return state.avSync; }
+  vivictpp::AVSync &getAVSync() { return state.avSync; }
   const PlayerState &getPlayerState() { return state; }
   const PlaybackState &getPlaybackState() { return state.playbackState; }
   bool isPlaying() { return state.playbackState == PlaybackState::PLAYING; }
@@ -87,7 +87,7 @@ public:
   std::shared_ptr<EventScheduler> eventScheduler;
   VideoInputs videoInputs;
   std::shared_ptr<vivictpp::audio::AudioOutput> audioOutput;
-  double frameDuration;
+  vivictpp::time::Time frameDuration;
   vivictpp::logging::Logger logger;
 };
 

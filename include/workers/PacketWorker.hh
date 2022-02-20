@@ -10,6 +10,7 @@
 #include "libav/FormatHandler.hh"
 #include "workers/DecoderWorker.hh"
 #include "VideoMetadata.hh"
+#include "time/Time.hh"
 
 namespace vivictpp {
 namespace workers {
@@ -21,7 +22,7 @@ public:
   void addDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   void removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   bool hasDecoders() { return !decoderWorkers.empty(); }
-  void seek(double pos);
+  void seek(vivictpp::time::Time pos);
   std::vector<VideoMetadata> &getVideoMetadata() { return this->videoMetadata; }
   const std::vector<AVStream *> &getStreams() { return formatHandler.getStreams(); }
   const std::vector<AVStream *> &getVideoStreams() { return formatHandler.getVideoStreams(); }

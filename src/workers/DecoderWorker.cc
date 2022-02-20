@@ -43,7 +43,7 @@ vivictpp::workers::DecoderWorker::~DecoderWorker() {
   quit();
 }
 
-void vivictpp::workers::DecoderWorker::seek(double pos) {
+void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos) {
   DecoderWorker *dw(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
         dw->messageQueue.clearDataOlderThan(serialNo);
@@ -109,12 +109,14 @@ void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::F
     if (frame.pts() == AV_NOPTS_VALUE) {
         logger->debug("DecoderWorker::doWork Frame has no pts, ignoring");
     } else {
-        double pts = frame.pts() * av_q2d(stream->time_base);
-        logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({})", pts, frame.pts());
-        frameBuffer.write(frame, pts);
-        if( seeking() && pts >= seekPos) {
-            logger->debug("DecoderWorker::doWork seekFinished", pts);
-            this->state = InputWorkerState::ACTIVE;
-        }
+      vivictpp::time::Time pts = av_rescale_q(frame.pts(), stream->time_base, vivictpp::time::TIME_BASE_Q);
+//      vivictpp::time::Time pts = frame.pts();
+      logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({}), frame.time_base={}",
+                    pts, frame.pts(), frame.avFrame()->time_base.num);
+      frameBuffer.write(frame, pts);
+      if( seeking() && pts >= seekPos) {
+        logger->debug("DecoderWorker::doWork seekFinished", pts);
+        this->state = InputWorkerState::ACTIVE;
+      }
     }
 }

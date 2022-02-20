@@ -7,7 +7,6 @@
 
 #include <memory>
 
-
 extern "C" {
 #include <libavutil/avutil.h>
 #include <libavutil/frame.h>
@@ -26,7 +25,13 @@ public:
   bool empty() const { return !frame; }
   void reset();
   Frame static emptyFrame() { return Frame(nullptr); }
-  int64_t pts() const { return (frame ? frame->best_effort_timestamp : AV_NOPTS_VALUE); }
+  int64_t pts() const {
+    if (frame) {
+      return frame->best_effort_timestamp;
+    } else {
+      return AV_NOPTS_VALUE;
+    }
+}
 private:
   Frame(AVFrame *avFrame);
 };

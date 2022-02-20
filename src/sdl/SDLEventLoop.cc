@@ -9,7 +9,7 @@ extern "C" {
 }
 
 #include "logging/Logging.hh"
-#include "TimeUtils.hh"
+#include "time/TimeUtils.hh"
 
 vivictpp::sdl::SDLEventLoop::SDLEventLoop(std::vector<SourceConfig> sourceConfigs) :
   screenOutput(sourceConfigs),
@@ -93,7 +93,7 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
       } else if (event.type == checkMouseDragEventType.type) {
         if (mouseState.button && !mouseState.dragging &&
             mouseState.buttonTime != 0 &&
-            vivictpp::util::relativeTimeMillis() - mouseState.buttonTime > 190) {
+            vivictpp::time::relativeTimeMillis() - mouseState.buttonTime > 190) {
           mouseState.dragging = true;
           screenOutput.setCursorHand();
         }
@@ -119,7 +119,7 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
           break;
         case SDL_MOUSEBUTTONDOWN: {
           mouseState.button = true;
-          mouseState.buttonTime = vivictpp::util::relativeTimeMillis();
+          mouseState.buttonTime = vivictpp::time::relativeTimeMillis();
           scheduleEvent(checkMouseDragEventType, 200);
         } break;
         case SDL_MOUSEBUTTONUP: {

@@ -7,9 +7,10 @@
 #define TIMEUTIL_HH_
 
 #include <string>
+#include "time/Time.hh"
 
 namespace vivictpp {
-namespace util {
+namespace time {
 
 int64_t relativeTimeMicros();
 
@@ -21,7 +22,9 @@ int64_t toMillis(int64_t micros);
 
 std::string formatTime(double pts);
 
-}  // namespace util
+std::string formatTime(vivictpp::time::Time pts);
+
+}  // namespace time
 }  // namespace vivictpp
 
 #endif // TIMEUTIL_HH_

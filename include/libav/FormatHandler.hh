@@ -17,6 +17,8 @@ extern "C" {
 #include <vector>
 #include <set>
 
+#include "time/Time.hh"
+
 namespace vivictpp {
 namespace libav {
 
@@ -35,7 +37,7 @@ public:
   }
   AVFormatContext *getFormatContext() const { return formatContext; }
   AVPacket *nextPacket();
-  void seek(double t);
+  void seek(vivictpp::time::Time t);
   void setStreamActive(int streamIndex);
   void setStreamInactive(int streamIndex);
   void setActiveStreams(const std::set<int> &activeStreams);

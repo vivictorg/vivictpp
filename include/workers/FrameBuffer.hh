@@ -23,6 +23,7 @@ extern "C" {
 #include "workers/QueuePointer.hh"
 #include "libav/Frame.hh"
 #include "logging/Logging.hh"
+#include "time/Time.hh"
 
 namespace vivictpp {
 namespace workers {
@@ -44,23 +45,23 @@ public:
   FrameBuffer(int _maxSize);
   ~FrameBuffer() = default;
   vivictpp::libav::Frame first();
-  void write(vivictpp::libav::Frame frame, double pts);
-  double nextPts();
-  double previousPts();
-  int stepForward(double pts);
-  void stepBackward(double pts);
+  void write(vivictpp::libav::Frame frame, vivictpp::time::Time pts);
+  vivictpp::time::Time nextPts();
+  vivictpp::time::Time previousPts();
+  int stepForward(vivictpp::time::Time pts);
+  void stepBackward(vivictpp::time::Time pts);
   void drop(int n = 1);
   void dropIfFull(int n);
   int size();
-  double currentPts();
+  vivictpp::time::Time currentPts();
   void clear();
-  bool ptsInRange(double pts);
-  double minPts();
-  double maxPts();
+  bool ptsInRange(vivictpp::time::Time pts);
+  vivictpp::time::Time minPts();
+  vivictpp::time::Time maxPts();
   bool isFull();
   bool waitForNotFull(const std::chrono::milliseconds& relTime);
   bool isEmpty();
-  const std::vector<double> &getPtsBuffer() { return ptsBuffer; }
+  const std::vector<vivictpp::time::Time> &getPtsBuffer() { return ptsBuffer; }
 
 private:
   bool next();
@@ -72,7 +73,7 @@ private:
 private:
     vivictpp::logging::Logger logger;
   std::vector<vivictpp::libav::Frame> queue;
-  std::vector<double> ptsBuffer;
+  std::vector<vivictpp::time::Time> ptsBuffer;
   QueuePointer _writePos; // Points to first empty slot,
                           // ie one ahead of written value
   QueuePointer _cursor;

@@ -66,7 +66,7 @@ void vivictpp::Controller::refreshDisplay() {
   logger->trace("vivictpp::Controller::refreshDisplay");
   std::array<vivictpp::libav::Frame, 2> frames = vivictPP.getVideoInputs().firstFrames();
   if (displayState.displayTime) {
-    displayState.timeStr = vivictpp::util::formatTime(vivictPP.getPts());
+    displayState.timeStr = vivictpp::time::formatTime(vivictPP.getPts());
   }
   displayState.pts = vivictPP.getPts();
   // TODO: Take start time into consideration
@@ -93,7 +93,7 @@ void vivictpp::Controller::mouseMotion(int x, int y) {
     x * 100.0 / display->getWidth();
   bool showSeekBar = y > display->getHeight() - 70;
   if (displayState.seekBarVisible && !showSeekBar && displayState.hideSeekBar == 0) {
-     displayState.hideSeekBar = vivictpp::util::relativeTimeMillis() + 500;
+     displayState.hideSeekBar = vivictpp::time::relativeTimeMillis() + 500;
      fade();
   } else if (showSeekBar) {
     displayState.seekBarVisible = true;

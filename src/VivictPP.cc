@@ -63,13 +63,13 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
 
 int VivictPP::nextFrameDelay() {
 
-  int64_t videoDiff = state.avSync.diffMicros(vivictpp::util::toMicros(state.pts));
+  int64_t videoDiff = state.avSync.diffMicros(state.pts);
   int64_t clockPts = state.avSync.clock();
 
-  int corr = vivictpp::util::toMillis(videoDiff);
+  int corr = vivictpp::time::toMillis(videoDiff);
   if (corr > 30) corr = 30;
   if (corr < -30) corr = -30;
-  int delay = std::max(5, (int)((state.nextPts - state.pts) * 1000 + corr));
+  int delay = std::max(5, (int)(av_rescale(state.nextPts - state.pts, 1000, vivictpp::time::TIME_BASE) + corr));
   logger->debug("VivictPP::nextFrameDelay videoPts={} clockPts={} videoDelta={}ms corr = {}ms, delay = {}ms",
                state.pts, clockPts / 1e6, videoDiff/1e6, corr, delay);
   return delay;
@@ -78,9 +78,9 @@ int VivictPP::nextFrameDelay() {
 void VivictPP::advanceFrame() {
   logger->trace("VivictPP::advanceFrame pts={} nextPts={}", state.pts,
                 state.nextPts);
-  if (isnan(state.nextPts)) {
+  if (vivictpp::time::isNoPts(state.nextPts)) {
     state.nextPts = videoInputs.nextPts();
-    if (!isnan(state.nextPts)) {
+    if (!vivictpp::time::isNoPts(state.nextPts)) {
       eventScheduler->scheduleAdvanceFrame(nextFrameDelay());
       return;
     } 
@@ -101,21 +101,21 @@ void VivictPP::advanceFrame() {
     state.seeking = false;
     if (state.playbackState == PlaybackState::PLAYING) {
       if (wasSeeking) {
-        state.avSync.playbackStart(vivictpp::util::toMicros(state.pts));
+        state.avSync.playbackStart(state.pts);
       }
       if (state.pts >= videoInputs.maxPts()) {
         togglePlaying();
       } else {
         state.nextPts = videoInputs.nextPts();
         logger->trace("VivictPP::advanceFrame nextPts={}", state.nextPts);
-        if (isnan(state.nextPts)) {
+        if (vivictpp::time::isNoPts(state.nextPts)) {
           eventScheduler->scheduleAdvanceFrame(5);
         } else {
           eventScheduler->scheduleAdvanceFrame(nextFrameDelay());
         }
       }
     }
-    state.lastFrameAdvance = vivictpp::util::relativeTimeMicros();
+    state.lastFrameAdvance = vivictpp::time::relativeTimeMicros();
     eventScheduler->scheduleRefreshDisplay(0);
   } else {
     logger->trace("VivictPP::advanceFrame nextPts is out of range {}", state.nextPts);
@@ -129,27 +129,27 @@ void VivictPP::queueAudio() {
     return;
   }
   int delay = 0;
-  double queueDuration = audioOutput->queueDuration();
-  logger->debug("vivictpp::ui::VivictUI::queueAudio queueDuration={} audioOutput->currentPts={}",
+  vivictpp::time::Time queueDuration = audioOutput->queueDuration();
+  logger->debug("vivictPP::queueAudio queueDuration={} audioOutput->currentPts={}",
                queueDuration, audioOutput->currentPts());
   if (state.playbackState != PlaybackState::PLAYING) {
     return;
   }
-  if (queueDuration > 0.2) {
-    delay = std::max(1, (int) ((queueDuration - 0.04) * 1000));
+  if (queueDuration > 200000) {
+    delay = std::max(1, (int) ((queueDuration - 40000) / 1000));
   } else {
-    double nextPts = videoInputs.audioFrames().nextPts();
-    if (!isnan(nextPts)) {
+    vivictpp::time::Time nextPts = videoInputs.audioFrames().nextPts();
+    if (!vivictpp::time::isNoPts(nextPts)) {
       int c = 0;
-      while (!isnan(nextPts) && c < 5) {
-        double prevPts = videoInputs.audioFrames().currentPts();
+      while (!vivictpp::time::isNoPts(nextPts) && c < 5) {
+        vivictpp::time::Time prevPts = videoInputs.audioFrames().currentPts();
         videoInputs.audioFrames().stepForward(nextPts);
         queueDuration += (nextPts - prevPts);
         audioOutput->queueAudio(videoInputs.audioFrames().first());
         nextPts = videoInputs.audioFrames().nextPts();
         c++;
       }
-      delay = std::max(1, (int) ((queueDuration - 0.04) * 1000));
+      delay = std::max(1, (int) ((queueDuration - 40000) / 1000));
       logger->debug("vivictpp::ui::VivictUI::queueAudio framesQueued={} delay={}", c, delay);
     } else {
       delay = 10;
@@ -165,7 +165,7 @@ PlaybackState VivictPP::togglePlaying() {
     if (audioOutput) {
       audioOutput->start();
     }
-    state.avSync.playbackStart(vivictpp::util::toMicros(state.pts));
+    state.avSync.playbackStart(state.pts);
     /*
     if (state.nextPts == state.pts) {
       state.nextPts = state.pts + frameDuration;
@@ -186,8 +186,8 @@ void VivictPP::seekPreviousFrame() {
   if (state.seeking) {
     seek(state.nextPts - frameDuration);
   } else {
-    double previousPts = videoInputs.previousPts();
-    if (isnan(previousPts)) {
+    vivictpp::time::Time previousPts = videoInputs.previousPts();
+    if (vivictpp::time::isNoPts(previousPts)) {
       previousPts = state.pts - frameDuration;
     }
     seek(previousPts);
@@ -198,15 +198,15 @@ void VivictPP::seekNextFrame() {
   if (state.seeking) {
     seek(state.nextPts + frameDuration);
   } else {
-    double nextPts = videoInputs.nextPts();
-    if (isnan(nextPts)) {
+    vivictpp::time::Time nextPts = videoInputs.nextPts();
+    if (vivictpp::time::isNoPts(nextPts)) {
       nextPts = state.pts + frameDuration;
     }
     seek(nextPts);
   }
 }
 
-void VivictPP::seekRelative(double deltaT) {
+void VivictPP::seekRelative(vivictpp::time::Time deltaT) {
   logger->trace("VivictPP::seekRelative deltaT={} pts={} nextPts={} seeking={}", deltaT, state.pts, state.nextPts, state.seeking);
   if (state.seeking) {
     seek(state.nextPts + deltaT);
@@ -215,7 +215,7 @@ void VivictPP::seekRelative(double deltaT) {
   }
 }
 
-void VivictPP::seek(double nextPts) {
+void VivictPP::seek(vivictpp::time::Time nextPts) {
   nextPts = std::max(nextPts, videoInputs.minPts());
   nextPts = std::min(nextPts, videoInputs.maxPts());
   state.nextPts = nextPts;
@@ -239,7 +239,7 @@ void VivictPP::seek(double nextPts) {
   }
 }
 
-void VivictPP::audioSeek(double pts) {
+void VivictPP::audioSeek(vivictpp::time::Time pts) {
   if (!audioOutput) {
     return;
   }

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "VideoMetadata.hh"
-#include "TimeUtils.hh"
+#include "time/TimeUtils.hh"
 
 int getBitrate(AVStream *videoStream) {
   int bitrate = videoStream->codecpar->bit_rate;
@@ -33,10 +33,10 @@ VideoMetadata::VideoMetadata(
       resolution(width, height),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
-      frameDuration(1.0 / frameRate),
-      startTime(videoStream->start_time * av_q2d(videoStream->time_base)),
-      duration(formatContext->duration * 1.0 / AV_TIME_BASE),
-      endTime(startTime + duration - frameDuration),
+      frameDuration(av_rescale_q(1, videoStream->r_frame_rate, vivictpp::time::TIME_BASE_Q)),
+      startTime(av_rescale_q(videoStream->start_time, videoStream->time_base, vivictpp::time::TIME_BASE_Q)),
+      duration(formatContext->duration), // allready in av_time_base
+      endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)) {}
 
 std::string VideoMetadata::toString() const {
@@ -54,9 +54,10 @@ std::string VideoMetadata::toString() const {
       << "kb/s" << std::endl
       << std::setw(20) << std::left << "frameRate" << this->frameRate << "fps"
       << std::endl
-      << std::setw(20) << std::left << "duration" << vivictpp::util::formatTime(this->duration)
+      << std::setw(20) << std::left << "duration"
+      << vivictpp::time::formatTime(vivictpp::time::ptsToDouble(this->duration))
       << std::endl
-      << std::setw(20) << std::left << "startTime" << this->startTime
+      << std::setw(20) << std::left << "startTime" << vivictpp::time::ptsToDouble(this->startTime)
       << std::endl
       << std::setw(20) << std::left << "pixelFormat" << this->pixelFormat
       << std::endl;

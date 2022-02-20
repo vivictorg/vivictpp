@@ -11,6 +11,7 @@
 #include "libav/Filter.hh"
 #include "workers/FrameBuffer.hh"
 #include "libav/Decoder.hh"
+#include "time/Time.hh"
 
 #include <memory>
 #include <queue>
@@ -28,7 +29,7 @@ public:
                 int frameBufferSize = 50,
                 int packetQueueSize = 256);
   virtual ~DecoderWorker();
-  void seek(double pos);
+  void seek(vivictpp::time::Time pos);
   AVStream *getStream() { return stream; };
   AVCodecContext *getCodecContext() { return decoder->getCodecContext(); }
   FrameBuffer &frames() { return frameBuffer; }
@@ -50,7 +51,7 @@ private:
   std::shared_ptr<vivictpp::libav::Decoder> decoder;
   std::shared_ptr<vivictpp::libav::Filter> filter;
   std::queue<vivictpp::libav::Frame> frameQueue;
-  double seekPos;
+  vivictpp::time::Time seekPos;
 
 };
 }  // namespace workers

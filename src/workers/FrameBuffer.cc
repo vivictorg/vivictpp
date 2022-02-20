@@ -5,17 +5,18 @@
 #include "workers/FrameBuffer.hh"
 
 #include <iostream>
+#include <libavutil/avutil.h>
 #include <sstream>
 
 #include "logging/Logging.hh"
 
 
 
-std::string ptsBufferToString(const std::vector<double> &ptsBuffer) {
+std::string ptsBufferToString(const std::vector<vivictpp::time::Time> &ptsBuffer) {
   std::ostringstream os;
   int c = 0;
   os << "[";
-  for (double i : ptsBuffer) {
+  for (vivictpp::time::Time i : ptsBuffer) {
     if (c++ > 0) {
       os << ",";
     }
@@ -63,7 +64,7 @@ int vivictpp::workers::FrameBuffer::size() {
   return _size;
 }
 
-void vivictpp::workers::FrameBuffer::write(vivictpp::libav::Frame frame, double pts) {
+void vivictpp::workers::FrameBuffer::write(vivictpp::libav::Frame frame, vivictpp::time::Time pts) {
   bool wasEmpty = false;
   {
     const std::lock_guard<std::mutex> lock(mutex);
@@ -96,7 +97,7 @@ vivictpp::libav::Frame vivictpp::workers::FrameBuffer::first() {
   return queue[_cursor.getValue()];
 }
 
-double vivictpp::workers::FrameBuffer::currentPts() {
+vivictpp::time::Time vivictpp::workers::FrameBuffer::currentPts() {
   const std::lock_guard<std::mutex> lock(mutex);
   if (_size == 0) {
     return 0;
@@ -104,7 +105,7 @@ double vivictpp::workers::FrameBuffer::currentPts() {
   return ptsBuffer[_cursor.getValue()];
 }
 
-bool vivictpp::workers::FrameBuffer::ptsInRange(double pts) {
+bool vivictpp::workers::FrameBuffer::ptsInRange(vivictpp::time::Time pts) {
   logger->trace("vivictpp::workers::FrameBuffer::ptsInRange pts={} minPts={} maxPts={}", pts, minPts(), maxPts());
   bool result;
   const std::lock_guard<std::mutex> lock(mutex);
@@ -122,9 +123,9 @@ bool vivictpp::workers::FrameBuffer::ptsInRange(double pts) {
   return result;
 }
 
-double vivictpp::workers::FrameBuffer::minPts() { return ptsBuffer[this->tail().getValue()]; }
+vivictpp::time::Time vivictpp::workers::FrameBuffer::minPts() { return ptsBuffer[this->tail().getValue()]; }
 
-double vivictpp::workers::FrameBuffer::maxPts() {
+vivictpp::time::Time vivictpp::workers::FrameBuffer::maxPts() {
   QueuePointer index = _writePos - 1;
   logger->debug("maxPts() maxPts={}", ptsBuffer[index.getValue()]);
   return ptsBuffer[index.getValue()];
@@ -160,26 +161,26 @@ bool vivictpp::workers::FrameBuffer::next() {
   return result;
 }
 
-int vivictpp::workers::FrameBuffer::stepForward(double pts) {
+int vivictpp::workers::FrameBuffer::stepForward(vivictpp::time::Time pts) {
   int c = 0;
-  double nextPts = this->nextPts();
-  while (!isnan(nextPts) && nextPts <= pts && next()) {
+  vivictpp::time::Time nextPts = this->nextPts();
+  while (!vivictpp::time::isNoPts(nextPts) && nextPts <= pts && next()) {
     c++;
     nextPts = this->nextPts();
   }
   return c;
 }
 
-void vivictpp::workers::FrameBuffer::stepBackward(double pts) {
+void vivictpp::workers::FrameBuffer::stepBackward(vivictpp::time::Time pts) {
   while (ptsBuffer[(_cursor - 1).getValue()] >= pts && previous()) {
   }
 }
 
-double vivictpp::workers::FrameBuffer::nextPts() {
+vivictpp::time::Time vivictpp::workers::FrameBuffer::nextPts() {
   const std::lock_guard<std::mutex> lock(mutex);
-  double nextPts;
+  vivictpp::time::Time nextPts;
   if (_size == 0 || _cursor + 1 == _writePos) {
-    nextPts = std::numeric_limits<double>::quiet_NaN();
+    nextPts = vivictpp::time::NO_TIME;
   } else {
     nextPts = ptsBuffer[(_cursor + 1).getValue()];
   }
@@ -192,11 +193,11 @@ double vivictpp::workers::FrameBuffer::nextPts() {
   return nextPts;
 }
 
-double vivictpp::workers::FrameBuffer::previousPts() {
+vivictpp::time::Time vivictpp::workers::FrameBuffer::previousPts() {
   const std::lock_guard<std::mutex> lock(mutex);
-  double previousPts;
+  vivictpp::time::Time previousPts;
   if (_size == 0 || _cursor == this->tail()) {
-    previousPts = std::numeric_limits<double>::quiet_NaN();
+    previousPts = vivictpp::time::NO_TIME;
   } else {
     previousPts = ptsBuffer[(_cursor - 1).getValue()];
   }

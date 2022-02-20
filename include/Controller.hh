@@ -12,6 +12,7 @@
 #include "logging/Logging.hh"
 #include "VivictPP.hh"
 #include <string>
+#include "time/Time.hh"
 
 namespace vivictpp {
 
@@ -43,8 +44,8 @@ private:
   vivictpp::ui::DisplayState displayState;
   bool splitScreenDisabled;
   bool plotEnabled;
-  double startTime;
-  double inputDuration;
+  vivictpp::time::Time startTime;
+  vivictpp::time::Time inputDuration;
   vivictpp::logging::Logger logger;
 };
 
