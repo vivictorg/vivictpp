@@ -24,6 +24,6 @@ private:
   int64_t t0;
 };
 
-};  // namespace vivictpp
+}  // namespace vivictpp
 
 #endif

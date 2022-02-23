@@ -111,8 +111,8 @@ void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::F
     } else {
       vivictpp::time::Time pts = av_rescale_q(frame.pts(), stream->time_base, vivictpp::time::TIME_BASE_Q);
 //      vivictpp::time::Time pts = frame.pts();
-      logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({}), frame.time_base={}",
-                    pts, frame.pts(), frame.avFrame()->time_base.num);
+      logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({})",
+                    pts, frame.pts());
       frameBuffer.write(frame, pts);
       if( seeking() && pts >= seekPos) {
         logger->debug("DecoderWorker::doWork seekFinished", pts);

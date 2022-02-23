@@ -24,6 +24,6 @@ class EventListener {
 
 };
 
-};  // namespace vivictpp
+}  // namespace vivictpp
 
 #endif  // #ifndef EVENT_LISTENER_H_

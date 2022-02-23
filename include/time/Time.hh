@@ -17,7 +17,7 @@ namespace time {
 
   const Time NO_TIME = AV_NOPTS_VALUE;
   const int64_t TIME_BASE = AV_TIME_BASE;
-  const AVRational TIME_BASE_Q = AV_TIME_BASE_Q;
+  const AVRational TIME_BASE_Q = {1, AV_TIME_BASE};
 
   inline double ptsToDouble(Time pts) {
     return pts * av_q2d(TIME_BASE_Q);

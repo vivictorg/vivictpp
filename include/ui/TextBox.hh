@@ -55,7 +55,7 @@ private:
   int x = 0;
   int y = 0;
   std::string title;
-  int minWidth = 0;;
+  int minWidth = 0;
   int minHeight = 0;
   Margin margin;
   bool changed = false;
