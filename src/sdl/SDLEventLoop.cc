@@ -143,6 +143,7 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
             logger->debug("Window {} size changed to {}x{}",
                          event.window.windowID, event.window.data1,
                          event.window.data2);
+            eventListener.refreshDisplay();
           }
         } break;
         }
