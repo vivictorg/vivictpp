@@ -110,6 +110,10 @@ Run with the -h flag to see the commandline options
     .      Step backward 1 frame
     / or - Step forward 5 seconds
     m      Step backward 5 seconds
+    ?      Step Forward 60s
+    M      Step backward 60s
+    <      Decrease left frame offset
+    >      Increase left frame offset
     
     f      Toggle full screen
     u      Zoom in
