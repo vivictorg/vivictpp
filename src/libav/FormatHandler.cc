@@ -79,7 +79,7 @@ AVStream* firstActive(const std::vector<AVStream*> &streams) {
    return it == streams.end() ? nullptr : *it;
 }
 
-void vivictpp::libav::FormatHandler::seek(double t) {
+void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   spdlog::debug("FormatHandler::seek t={}", t);
   AVStream *stream = firstActive(videoStreams);
   if (stream == nullptr) {
@@ -88,29 +88,26 @@ void vivictpp::libav::FormatHandler::seek(double t) {
   if (stream == nullptr) {
     return;
   }
-  double seek_t = t;
+  vivictpp::time::Time seek_t = t;
   int flags = 0;
   if (std::strcmp("hls", this->formatContext->iformat->name) == 0) {
     // Seeking in a hls stream seeks to the first keyframe after the given
     // timestamp To ensure we seek to a iframe before the point we want to reach
     // we seek to a point 5s before
     spdlog::debug("Using hls seek");
-    seek_t -= 10;
+    seek_t -= 10 * vivictpp::time::TIME_BASE;
     spdlog::debug("FormatHandler::seek Adjusted seek: {}", seek_t);
     flags = AVSEEK_FLAG_BACKWARD;
   }
 
-  // Use av_rescale_rnd ?
-
-  int64_t ts = (int64_t)(seek_t * stream->time_base.den /
-                          stream->time_base.num);
-
+  int64_t ts = av_rescale_q(seek_t, vivictpp::time::TIME_BASE_Q, stream->time_base);
+  
   if (stream->start_time != AV_NOPTS_VALUE && stream->start_time > ts) {
       ts = stream->start_time;
   } else {
       flags = AVSEEK_FLAG_BACKWARD;
   }
-  spdlog::debug("FormatHandler::seek ts={}", ts);
+  spdlog::debug("vivictpp::libav::FormatHandler::seek ts={}", ts);
   vivictpp::libav::AVResult result = av_seek_frame(this->formatContext, stream->index,
                                                    ts, flags);
   if (result.error()) {

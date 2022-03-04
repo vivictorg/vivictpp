@@ -4,17 +4,17 @@
 
 #include "AVSync.hh"
 
-#include "TimeUtils.hh"
+#include "time/TimeUtils.hh"
 
-void AVSync::playbackStart(int64_t ptsMicros) {
-  t0 = vivictpp::util::relativeTimeMicros() - ptsMicros;
+void vivictpp::AVSync::playbackStart(vivictpp::time::Time ptsMicros) {
+  t0 = vivictpp::time::relativeTimeMicros() - ptsMicros;
 }
 
-int64_t AVSync::clock() {
-  int64_t t = vivictpp::util::relativeTimeMicros();
+int64_t vivictpp::AVSync::clock() {
+  int64_t t = vivictpp::time::relativeTimeMicros();
   return  t - t0;
 }
 
-int64_t AVSync::diffMicros(int64_t ptsMicros) {
-  return ptsMicros - (vivictpp::util::relativeTimeMicros() - t0);
+int64_t vivictpp::AVSync::diffMicros(vivictpp::time::Time ptsMicros) {
+  return ptsMicros - (vivictpp::time::relativeTimeMicros() - t0);
 }

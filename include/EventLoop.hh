@@ -20,7 +20,7 @@ public:
 class EventLoop: public EventScheduler {
  public:
   virtual ~EventLoop() = default;
-  virtual void start(EventListener &eventListener) = 0;
+  virtual void start(vivictpp::EventListener &eventListener) = 0;
   virtual void stop() = 0;
 };
 

@@ -30,8 +30,14 @@ KEYBOARD SHORTCUTS
 SPACE  Play/Pause video
 ,      Step forward 1 frame
 .      Step backward 1 frame
-/ or - Step forward 5 seconds
-m      Step backward 5 seconds
+/ or - Seek forward 5 seconds
+m      Seek backward 5 seconds
+?      Seek Forward 60s
+M      Seek backward 60s
+Alt-?  Seek Forward 10min
+Alt-M  Seek Backward 10min
+<      Decrease left frame offset
+>      Increase left frame offset
 
 f      Toggle full screen
 u      Zoom in

@@ -17,11 +17,12 @@ extern "C" {
 #include <iostream>
 #include "SourceConfig.hh"
 #include "Controller.hh"
-#include "TimeUtils.hh"
+#include "time/TimeUtils.hh"
+#include "time/Time.hh"
 #include <stdlib.h>
 
 /*
- 
+
   Mock eventLoop or mock VivictOOUI
 
 
@@ -61,8 +62,6 @@ void sleepMillis(int n) {
 
 VivictPPConfig testConfig() {
     std::vector<SourceConfig> sourceConfigs;
-//    sourceConfigs.push_back(SourceConfig("/home/gugr01/local-work/test-video/ToS-4k-1920.mov"));
-//    sourceConfigs.push_back(SourceConfig("/home/gugr01/local-work/test-video/ToS-4k-1920.mov"));
     sourceConfigs.push_back(SourceConfig("../testdata/test1.mp4"));
     sourceConfigs.push_back(SourceConfig("../testdata/test1.mp4"));
     VivictPPConfig vivictPPConfig(sourceConfigs, true);
@@ -139,9 +138,9 @@ TEST_CASE( "Seeking" ) {
         testContext.seekForward();
         testContext.seekForward();
         sleepMillis(500);
-        double t = testContext.controller.getPlayerState().pts;
+        vivictpp::time::Time t = testContext.controller.getPlayerState().pts;
 
-        REQUIRE( t == 10);
+        REQUIRE( t == vivictpp::time::seconds(10));
     }
 
     SECTION("Seek backward") {
@@ -150,9 +149,9 @@ TEST_CASE( "Seeking" ) {
         sleepMillis(200);
         testContext.seekBackward();
         sleepMillis(200);
-        double t = testContext.controller.getPlayerState().pts;
+        vivictpp::time::Time t = testContext.controller.getPlayerState().pts;
 
-        REQUIRE( t == 5);
+        REQUIRE( t == vivictpp::time::seconds(5));
     }
 
 
@@ -162,7 +161,7 @@ TEST_CASE( "Seeking" ) {
         sleepMillis(200);
         testContext.seekBackward();
         sleepMillis(200);
-        double t = testContext.controller.getPlayerState().pts;
+        vivictpp::time::Time t = testContext.controller.getPlayerState().pts;
 
         REQUIRE(t == 0);
 
@@ -175,7 +174,7 @@ TEST_CASE( "Test playback" ) {
     sleepMillis(100);
 
     SECTION("Starts at pts 0") {
-        double t = testContext.controller.getPlayerState().pts;
+        vivictpp::time::Time t = testContext.controller.getPlayerState().pts;
 
         REQUIRE(t == 0);
     }
@@ -187,18 +186,18 @@ TEST_CASE( "Test playback" ) {
             sleepMillis(1);
             a0 = testContext.controller.getPlayerState().lastFrameAdvance;
         }
-        double t0 = testContext.controller.getPlayerState().pts;
+        vivictpp::time::Time t0 = testContext.controller.getPlayerState().pts;
 
         sleepSeconds(10);
 
-        double t1 = testContext.controller.getPlayerState().pts;
+        vivictpp::time::Time t1 = testContext.controller.getPlayerState().pts;
         uint64_t a1 = testContext.controller.getPlayerState().lastFrameAdvance;
-        uint64_t b1 = vivictpp::util::relativeTimeMicros();
-        uint64_t playerElapsedTimeMillis = static_cast<uint64_t>(1000 * (t1 - t0)) + (b1 - a1) / 1000;
+        uint64_t b1 = vivictpp::time::relativeTimeMicros();
+        uint64_t playerElapsedTimeMillis = (t1 - t0 + b1 - a1) / 1000;
 
         int drift = std::abs(static_cast<int>(playerElapsedTimeMillis) - 10000);
 
-        REQUIRE(drift < 10);
+        REQUIRE(drift < vivictpp::time::millis(10));
 
     }
 

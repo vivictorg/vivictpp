@@ -17,6 +17,7 @@ extern "C" {
 #include <string>
 
 #include "Resolution.hh"
+#include "time/Time.hh"
 
 class VideoMetadata {
 public:
@@ -30,10 +31,10 @@ public:
   const Resolution resolution;
   const int bitrate;
   const double frameRate;
-  const double frameDuration;
-  const double startTime;
-  const double duration;
-  const double endTime;
+  const vivictpp::time::Time frameDuration;
+  const vivictpp::time::Time startTime;
+  const vivictpp::time::Time duration;
+  const vivictpp::time::Time endTime;
   const std::string codec;
 
   std::string toString() const;

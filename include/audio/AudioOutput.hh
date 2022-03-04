@@ -8,6 +8,7 @@
 #include "libav/Frame.hh"
 #include "workers/FrameBuffer.hh"
 #include "AVSync.hh"
+#include "time/Time.hh"
 
 namespace vivictpp {
 namespace audio {
@@ -15,12 +16,12 @@ namespace audio {
 class AudioOutput {
 public:
   virtual ~AudioOutput(){};
-  virtual double queueDuration() = 0;
+  virtual vivictpp::time::Time queueDuration() = 0;
   virtual void start() = 0;
   virtual void stop() = 0;
   virtual void queueAudio(const vivictpp::libav::Frame &frame) = 0;
   virtual void clearQueue() = 0;
-  virtual  double currentPts() = 0;
+  virtual vivictpp::time::Time currentPts() = 0;
 
 };
 

@@ -5,7 +5,8 @@
 #include "sdl/SDLAudioOutput.hh"
 
 extern "C" {
-  #include <SDL.h>
+#include <SDL.h>
+#include <libavutil/avutil.h>
 }
 
 #include "spdlog/spdlog.h"
@@ -39,15 +40,15 @@ void vivictpp::sdl::SDLAudioOutput::queueAudio(const vivictpp::libav::Frame &fra
                                                 frame.avFrame()->nb_samples,
                                                 (AVSampleFormat) frame.avFrame()->format, 1);
   SDL_QueueAudio(audioDevice, frame.avFrame()->data[0], size);
-  lastPts = frame.pts();
+  lastPts = av_rescale(frame.pts(), vivictpp::time::TIME_BASE, obtainedSpec.freq);
 }
 
 void vivictpp::sdl::SDLAudioOutput::clearQueue() {
   SDL_ClearQueuedAudio(audioDevice);
 }
 
-double vivictpp::sdl::SDLAudioOutput::currentPts() {
-  return (lastPts - queuedSamples()) / (double) obtainedSpec.freq;
+vivictpp::time::Time vivictpp::sdl::SDLAudioOutput::currentPts() {
+  return lastPts - queueDuration();
 }
 
 uint32_t vivictpp::sdl::SDLAudioOutput::queuedSamples() {
@@ -55,8 +56,8 @@ uint32_t vivictpp::sdl::SDLAudioOutput::queuedSamples() {
   return queueSize / bytesPerSample;
 }
 
-double vivictpp::sdl::SDLAudioOutput::queueDuration() {
-  return queuedSamples() / (double) obtainedSpec.freq;
+vivictpp::time::Time vivictpp::sdl::SDLAudioOutput::queueDuration() {
+  return av_rescale(queuedSamples(), vivictpp::time::TIME_BASE, obtainedSpec.freq);
 }
 
 void vivictpp::sdl::SDLAudioOutput::start() {

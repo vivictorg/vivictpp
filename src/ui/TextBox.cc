@@ -7,10 +7,12 @@
 #include "ui/TextTexture.hh"
 
 vivictpp::ui::TextBox::TextBox(std::string text, std::string font, int fontSize,
-                               TextBoxPosition position, int x, int y, std::string title,
+                               TextBoxPosition position, int x, int y,
+                                std::string title, int minWidth, int minHeight,
                                Margin margin)
     : texture(nullptr), text(text), font(font), fontSize(fontSize),
-      position(position), x(x), y(y), title(title), margin(margin) {
+      position(position), x(x), y(y), title(title),
+      minWidth(minWidth), minHeight(minHeight), margin(margin) {
   if (!title.empty()) {
     this->margin.top += fontSize + 4;
   }
@@ -56,6 +58,9 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
   }
   textureW += margin.left + margin.right;
   textureH += margin.top + margin.bottom;
+
+  textureW = std::max(textureW, minWidth);
+  textureH = std::max(textureH, minHeight);
 
   texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
                               SDL_TEXTUREACCESS_TARGET, textureW, textureH);

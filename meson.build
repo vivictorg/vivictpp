@@ -1,4 +1,4 @@
-project('vivict++', 'cpp', default_options : ['cpp_std=c++11', 'warning_level=3'])
+project('vivict++', 'cpp', default_options : ['cpp_std=c++11', 'warning_level=3', 'werror=true'])
 
 spdlog_proj = subproject('spdlog')
 cli11_proj = subproject('cli11')
@@ -32,7 +32,7 @@ vivictpplib = static_library('vivictpplib', 'src/libav/Decoder.cc', 'src/libav/F
                              'src/workers/FrameBuffer.cc', 'src/workers/QueuePointer.cc', 'src/VideoMetadata.cc',
                              'src/workers/VideoInputMessage.cc', 'src/AVSync.cc',
                              'src/ui/ScreenOutput.cc', 'src/VivictPP.cc', 'src/sdl/SDLUtils.cc',
-                             'src/sdl/SDLEventLoop.cc', 'src/TimeUtils.cc', 'src/sdl/SDLUtils.cc',
+                             'src/sdl/SDLEventLoop.cc', 'src/time/TimeUtils.cc', 'src/sdl/SDLUtils.cc',
                              'src/libav/Filter.cc', 'src/workers/PacketQueue.cc',
                              'src/workers/DecoderWorker.cc', 'src/workers/PacketWorker.cc',
                              'src/libav/Packet.cc', 'src/vmaf/VmafLog.cc',

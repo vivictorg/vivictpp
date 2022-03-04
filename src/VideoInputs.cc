@@ -6,7 +6,10 @@
 #include "spdlog/spdlog.h"
 #include <libavcodec/avcodec.h>
 
-VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig) {
+VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
+  _leftFrameOffset(0),
+  leftPtsOffset(0),
+  logger(vivictpp::logging::getOrCreateLogger("VideoInputs")) {
   av_log_set_level(AV_LOG_QUIET);
   for (auto source: vivictPPConfig.sourceConfigs) {
     auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
@@ -43,13 +46,13 @@ VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig) {
   }
 }
 
-bool VideoInputs::ptsInRange(double pts) {
-  return !isnan(pts) && leftInput.decoder->frames().ptsInRange(pts) &&
+bool VideoInputs::ptsInRange(vivictpp::time::Time pts) {
+  return !vivictpp::time::isNoPts(pts) && leftInput.decoder->frames().ptsInRange(pts + leftPtsOffset) &&
     (!rightInput.decoder || rightInput.decoder->frames().ptsInRange(pts));
 }
 
-double VideoInputs::duration() {
-  double duration = 1e9;
+vivictpp::time::Time VideoInputs::duration() {
+  vivictpp::time::Time duration = 1e9;
   for( const auto &metadata : leftInput.packetWorker->getVideoMetadata()) {
     if (metadata.duration < duration) {
       duration = metadata.duration;
@@ -65,24 +68,26 @@ double VideoInputs::duration() {
   return duration;
 }
 
-double VideoInputs::startTime() {
-  return leftInput.packetWorker->getVideoMetadata()[0].startTime;
+
+vivictpp::time::Time VideoInputs::startTime() {
+  return leftInput.packetWorker->getVideoMetadata()[0].startTime - leftPtsOffset;
 }
 
-void VideoInputs::stepForward(double pts) {
-  leftInput.decoder->frames().stepForward(pts);
+void VideoInputs::stepForward(vivictpp::time::Time pts) {
+  leftInput.decoder->frames().stepForward(pts + leftPtsOffset);
   if (rightInput.decoder)
     rightInput.decoder->frames().stepForward(pts);
 }
 
-void VideoInputs::stepBackward(double pts) {
-  leftInput.decoder->frames().stepBackward(pts);
+
+void VideoInputs::stepBackward(vivictpp::time::Time pts) {
+  leftInput.decoder->frames().stepBackward(pts + leftPtsOffset);
   if (rightInput.decoder)
     rightInput.decoder->frames().stepBackward(pts);
 }
 
-void VideoInputs::dropIfFullAndNextOutOfRange(double currentPts, int framesToDrop) {
-  if (currentPts >= leftInput.decoder->frames().maxPts()) {
+void VideoInputs::dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop) {
+  if (currentPts >= leftInput.decoder->frames().maxPts() - leftPtsOffset) {
     leftInput.decoder->frames().dropIfFull(framesToDrop);
   }
   if (rightInput.decoder &&
@@ -91,12 +96,12 @@ void VideoInputs::dropIfFullAndNextOutOfRange(double currentPts, int framesToDro
   }
 }
 
-void VideoInputs::dropIfFullAndOutOfRange(double nextPts, int framesToDrop) {
-  if (isnan(nextPts) || nextPts > leftInput.decoder->frames().maxPts()) {
+void VideoInputs::dropIfFullAndOutOfRange(vivictpp::time::Time nextPts, int framesToDrop) {
+  if (vivictpp::time::isNoPts(nextPts) || nextPts > leftInput.decoder->frames().maxPts() - leftPtsOffset) {
     leftInput.decoder->frames().dropIfFull(framesToDrop);
   }
   if (rightInput.decoder &&
-      (isnan(nextPts) || nextPts > rightInput.decoder->frames().maxPts())) {
+      (vivictpp::time::isNoPts(nextPts) || nextPts > rightInput.decoder->frames().maxPts())) {
     rightInput.decoder->frames().dropIfFull(framesToDrop);
   }
 }
@@ -108,9 +113,13 @@ std::array<vivictpp::libav::Frame, 2> VideoInputs::firstFrames() {
   return result;
 }
 
-void VideoInputs::seek(double pts) {
+void VideoInputs::seek(vivictpp::time::Time pts) {
   for (auto packetWorker : packetWorkers) {
-    packetWorker->seek(pts);
+    if (packetWorker == leftInput.packetWorker) {
+      packetWorker->seek(pts + leftPtsOffset);
+    } else {
+      packetWorker->seek(pts);
+    }
   }
 }
 
@@ -130,7 +139,7 @@ void VideoInputs::selectVideoStreamRight(int streamIndex) {
 }
 
 void VideoInputs::selectStream(MediaPipe &input, int streamIndex) {
-  double currentPts = input.decoder->frames().currentPts();
+  vivictpp::time::Time currentPts = input.decoder->frames().currentPts();
   input.packetWorker->stop();
   input.packetWorker->removeDecoderWorker(input.decoder);
   input.decoder.reset(

@@ -12,20 +12,21 @@
 #include "logging/Logging.hh"
 #include "VivictPP.hh"
 #include <string>
+#include "time/Time.hh"
 
 namespace vivictpp {
 
-class Controller : EventListener {
+class Controller : vivictpp::EventListener {
 public:
   Controller(std::shared_ptr<EventLoop> eventLoop,
              std::shared_ptr<vivictpp::ui::Display> display,
              VivictPPConfig vivictPPConfig);
   int run();
-  void mouseDrag(int xrel, int yrel) override;
-  void mouseMotion(int x, int y) override;
-  void mouseWheel(int x, int y) override;
-  void mouseClick(int x, int y) override;
-  void keyPressed(std::string key) override;
+  void mouseDrag(const int xrel, const int yrel) override;
+  void mouseMotion(const int x, const int y) override;
+  void mouseWheel(const int x, const int y) override;
+  void mouseClick(const int x, const int y) override;
+  void keyPressed(const std::string &key, const vivictpp::KeyModifiers &modifiers) override;
   void advanceFrame() override;
   void refreshDisplay() override;
   void queueAudio() override;
@@ -43,8 +44,8 @@ private:
   vivictpp::ui::DisplayState displayState;
   bool splitScreenDisabled;
   bool plotEnabled;
-  double startTime;
-  double inputDuration;
+  vivictpp::time::Time startTime;
+  vivictpp::time::Time inputDuration;
   vivictpp::logging::Logger logger;
 };
 

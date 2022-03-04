@@ -3,6 +3,15 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+### Added
+- Shift and Alt-shift can now be used togther with 'm' and '/' to seek 1 minute or 10 minute
+  forward or backward.
+- Support for left stream offset: shift-, and shift-. can now be used to offset the left stream by an integer number
+of frames.
+
+### Fixed
+- int64_t datatype now used for timestamps to avoid rounding errors
+
 ## 0.1.10 2022-02-17
 
 ### Added

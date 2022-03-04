@@ -10,6 +10,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "time/Time.hh"
+
 namespace vivictpp {
 namespace ui {
 
@@ -51,11 +53,12 @@ struct DisplayState {
   bool displayPlot{true};
   bool splitScreenDisabled{false};
   bool isPlaying{false};
-  double pts{0};
+  vivictpp::time::Time pts{0};
   bool seekBarVisible{false};
   int64_t hideSeekBar{0};
   int seekBarOpacity{255};
   float seekBarRelativePos{0};
+  int leftFrameOffset{0};
 };
 
 }  // ui

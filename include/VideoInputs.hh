@@ -32,59 +32,78 @@ private:
     MediaPipe leftInput;
     MediaPipe rightInput;
     MediaPipe audio1;
+    int _leftFrameOffset;
+    vivictpp::time::Time leftPtsOffset;
+    void calcLeftPtsOffset() {
+        leftPtsOffset = _leftFrameOffset * leftInput.packetWorker->getVideoMetadata()[0].frameDuration;
+        logger->debug("leftPtsOffset: {}", leftPtsOffset);
+    }
+    vivictpp::logging::Logger logger;
 
 public:
     explicit VideoInputs(VivictPPConfig vivictPPConfig);
-    bool ptsInRange(double pts);
-    void stepForward(double pts);
-    void stepBackward(double pts);
-    void dropIfFullAndOutOfRange(double nextPts, int framesToDrop);
-    void dropIfFullAndNextOutOfRange(double currentPts, int framesToDrop);
+    bool ptsInRange(vivictpp::time::Time pts);
+    void stepForward(vivictpp::time::Time pts);
+    void stepBackward(vivictpp::time::Time pts);
+    void dropIfFullAndOutOfRange(vivictpp::time::Time nextPts, int framesToDrop);
+    void dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop);
     std::array<vivictpp::libav::Frame, 2> firstFrames();
-    void seek(double pts);
+    void seek(vivictpp::time::Time pts);
     std::array<std::vector<VideoMetadata>, 2> metadata();
-    double duration();
-    double startTime();
-    double minPts() {
+    vivictpp::time::Time duration();
+    vivictpp::time::Time startTime();
+    vivictpp::time::Time minPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
         if (!rightInput.packetWorker) {
-            return meta1.startTime;
+            return meta1.startTime - leftPtsOffset;
         }
         VideoMetadata meta2 = rightInput.packetWorker->getVideoMetadata()[0];
-        return std::max(meta1.startTime, meta2.startTime);
+        return std::max(meta1.startTime - leftPtsOffset, meta2.startTime);
     }
-    double maxPts() {
+    vivictpp::time::Time maxPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
         if (!rightInput.packetWorker) {
-            return meta1.endTime;
+            return meta1.endTime - leftPtsOffset;
         }
         VideoMetadata meta2 = rightInput.packetWorker->getVideoMetadata()[0];
-        return std::min(meta1.endTime, meta2.endTime);
+        return std::min(meta1.endTime - leftPtsOffset, meta2.endTime);
     }
-    double nextPts() {
-      double nextPtsL = leftInput.decoder->frames().nextPts();
+        int leftFrameOffset() { return _leftFrameOffset; }
+    int increaseLeftFrameOffset() {
+        _leftFrameOffset++;
+        calcLeftPtsOffset();
+        return _leftFrameOffset;
+    }
+    int decreaseLeftFrameOffset() {
+         _leftFrameOffset--;
+         calcLeftPtsOffset();
+         return _leftFrameOffset;
+    }
+
+    vivictpp::time::Time nextPts() {
+      vivictpp::time::Time nextPtsL = leftInput.decoder->frames().nextPts() - leftPtsOffset;
       if (!rightInput.decoder) {
         return nextPtsL;
       }
-      double nextPtsR = rightInput.decoder->frames().nextPts();
-      if (isnan(nextPtsL)) {
+      vivictpp::time::Time nextPtsR = rightInput.decoder->frames().nextPts();
+      if (vivictpp::time::isNoPts(nextPtsL)) {
         return nextPtsL;
       }
-      if (isnan(nextPtsR)) {
+      if (vivictpp::time::isNoPts(nextPtsR)) {
         return nextPtsR;
       }
       return std::min(nextPtsL, nextPtsR);
     }
-    double previousPts() {
-      double ppl = leftInput.decoder->frames().previousPts();
+    vivictpp::time::Time previousPts() {
+      vivictpp::time::Time ppl = leftInput.decoder->frames().previousPts() - leftPtsOffset;
       if(!rightInput.decoder) {
         return ppl;
       }
-      double ppr = rightInput.decoder->frames().previousPts();
-      if (isnan(ppl)) {
+      vivictpp::time::Time ppr = rightInput.decoder->frames().previousPts();
+      if (vivictpp::time::isNoPts(ppl)) {
         return ppl;
       }
-      if (isnan(ppr)) {
+      if (vivictpp::time::isNoPts(ppr)) {
         return ppr;
       }
       return std::max(ppl, ppr);

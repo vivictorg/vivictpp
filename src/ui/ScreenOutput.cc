@@ -61,7 +61,9 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
     leftFrameBox("", "FreeMono", 16, TextBoxPosition::TOP_LEFT, 0, 140,
                  "Frame Info"),
     rightFrameBox("", "FreeMono", 16, TextBoxPosition::TOP_RIGHT, 0, 140,
-                 "Frame Info"),
+                  "Frame Info", 120),
+    frameOffsetBox("", "FreeMono", 16, TextBoxPosition::TOP_LEFT, 0, 202,
+                   "Frame offset", 120),
     splashText(SPLASH_TEXT, "FreeMono", 32 , TextBoxPosition::CENTER),
     vmafGraph(vmafLogs(sourceConfigs), 1.0f, 0.3f),
     logger(vivictpp::logging::getOrCreateLogger("ScreenOutput")) {
@@ -78,6 +80,7 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
   rightMetadataBox.bg = {50, 50, 50, 100};
   leftFrameBox.bg = {50, 50, 50, 100};
   rightFrameBox.bg = {50, 50, 50, 100};
+  frameOffsetBox.bg = {50, 50, 50, 100};
   splashText.bg = {0,0,0,255};
   splashText.border = false;
   renderSplash();
@@ -294,6 +297,12 @@ void vivictpp::ui::ScreenOutput::displayFrame(
         rightFrameBox.setText(text);
         rightFrameBox.render(renderer.get());
       }
+  }
+  if (displayState.leftFrameOffset != 0) {
+    frameOffsetBox.setText(std::string("  ") + std::to_string(displayState.leftFrameOffset));
+    int y = displayState.displayMetadata ? ( displayState.isPlaying ? 140 : 202) : 0;
+    frameOffsetBox.setY(y);
+    frameOffsetBox.render(renderer.get());
   }
   if (frame2 != nullptr) {
     SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);

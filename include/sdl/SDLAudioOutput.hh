@@ -9,7 +9,7 @@
 #include "workers/FrameBuffer.hh"
 #include "AVSync.hh"
 #include "audio/AudioOutput.hh"
-
+#include "time/Time.hh"
 #include <memory>
 
 extern "C" {
@@ -35,13 +35,13 @@ public:
   void stop() override;
   void queueAudio(const vivictpp::libav::Frame &frame) override;
   void clearQueue() override;
-  double currentPts() override;
+  vivictpp::time::Time currentPts() override;
   uint32_t queuedSamples();
-  double queueDuration() override;
+  vivictpp::time::Time queueDuration() override;
 private:
   void nextFrame();
 private:
-  int64_t lastPts;
+  vivictpp::time::Time lastPts;
   SDLInitializer sdlInitializer;
   SDL_AudioSpec obtainedSpec;
   SDL_AudioDeviceID audioDevice;

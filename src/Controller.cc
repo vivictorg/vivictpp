@@ -66,7 +66,7 @@ void vivictpp::Controller::refreshDisplay() {
   logger->trace("vivictpp::Controller::refreshDisplay");
   std::array<vivictpp::libav::Frame, 2> frames = vivictPP.getVideoInputs().firstFrames();
   if (displayState.displayTime) {
-    displayState.timeStr = vivictpp::util::formatTime(vivictPP.getPts());
+    displayState.timeStr = vivictpp::time::formatTime(vivictPP.getPts());
   }
   displayState.pts = vivictPP.getPts();
   // TODO: Take start time into consideration
@@ -79,7 +79,7 @@ void vivictpp::Controller::queueAudio() {
   vivictPP.queueAudio();
 }
 
-void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
+void vivictpp::Controller::mouseDrag(const int xrel, const int yrel) {
   displayState.panX -=
     (float)xrel / displayState.zoom.multiplier();
   displayState.panY -=
@@ -87,13 +87,13 @@ void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
   eventLoop->scheduleRefreshDisplay(0);
 }
 
-void vivictpp::Controller::mouseMotion(int x, int y) {
+void vivictpp::Controller::mouseMotion(const int x, const int y) {
   (void) y;
   displayState.splitPercent =
     x * 100.0 / display->getWidth();
   bool showSeekBar = y > display->getHeight() - 70;
   if (displayState.seekBarVisible && !showSeekBar && displayState.hideSeekBar == 0) {
-     displayState.hideSeekBar = vivictpp::util::relativeTimeMillis() + 500;
+     displayState.hideSeekBar = vivictpp::time::relativeTimeMillis() + 500;
      fade();
   } else if (showSeekBar) {
     displayState.seekBarVisible = true;
@@ -103,7 +103,7 @@ void vivictpp::Controller::mouseMotion(int x, int y) {
   eventLoop->scheduleRefreshDisplay(0);
 }
 
-void vivictpp::Controller::mouseWheel(int x, int y) {
+void vivictpp::Controller::mouseWheel(const int x, const int y) {
   displayState.panX -=
     (float)10 * x / displayState.zoom.multiplier();
   displayState.panY -=
@@ -111,7 +111,7 @@ void vivictpp::Controller::mouseWheel(int x, int y) {
   eventLoop->scheduleRefreshDisplay(0);
 }
 
-void vivictpp::Controller::mouseClick(int x, int y /*, std::string target*/) {
+void vivictpp::Controller::mouseClick(const int x, const int y /*, std::string target*/) {
   (void) x;
   (void) y;
   /*
@@ -136,24 +136,36 @@ void vivictpp::Controller::onQuit() {
   vivictPP.onQuit();
 }
 
-void vivictpp::Controller::keyPressed(std::string key) {
-  logger->debug("vivictpp::Controller::keyPressed key='{}'", key);
+int seekDistance(const vivictpp::KeyModifiers &modifiers) {
+  return modifiers.shift ? (modifiers.alt ? 600 : 60) : 5;
+}
+
+void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::KeyModifiers &modifiers) {
+  logger->debug("vivictpp::Controller::keyPressed key='{}' shift={} ctrl={}", key, modifiers.shift, modifiers.ctrl);
   if (key.length() == 1) {
     switch (key[0]) {
     case 'Q':
       onQuit();
       break;
     case '.':
-      vivictPP.seekNextFrame();
+      if (modifiers.shift) {
+        displayState.leftFrameOffset = vivictPP.increaseFrameOffset();
+      } else {
+        vivictPP.seekNextFrame();
+      }
       break;
     case ',':
-      vivictPP.seekPreviousFrame();
+      if (modifiers.shift) {
+        displayState.leftFrameOffset = vivictPP.decreaseFrameOffset();
+      } else {
+        vivictPP.seekPreviousFrame();
+      }
       break;
     case '/':
-      vivictPP.seekRelative(5);
+      vivictPP.seekRelative(vivictpp::time::seconds(seekDistance(modifiers)));
       break;
     case 'M':
-      vivictPP.seekRelative(-5);
+      vivictPP.seekRelative(vivictpp::time::seconds(-1 * seekDistance(modifiers)));
       break;
     case 'U':
       displayState.zoom.increment();

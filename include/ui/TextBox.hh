@@ -35,6 +35,7 @@ class TextBox {
 public:
   TextBox(std::string text, std::string font, int fontSize,
           TextBoxPosition position, int x=0, int y=0, std::string title="",
+          int minWidth = 0, int minHeight = 0,
           Margin margin = {2,2,2,2});
   ~TextBox();
   void render(SDL_Renderer *renderer);
@@ -42,6 +43,7 @@ public:
   SDL_Color fg = {255, 255, 255, 255};
   SDL_Color bg = {50, 50, 50, 255};
   bool border = true;
+  void setY(int _y) { y = _y; }
 private:
   SDL_Texture *texture;
   std::string text;
@@ -53,6 +55,8 @@ private:
   int x = 0;
   int y = 0;
   std::string title;
+  int minWidth = 0;
+  int minHeight = 0;
   Margin margin;
   bool changed = false;
 private:

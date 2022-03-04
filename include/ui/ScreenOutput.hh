@@ -100,6 +100,7 @@ private:
   TextBox rightMetadataBox;
   TextBox leftFrameBox;
   TextBox rightFrameBox;
+  TextBox frameOffsetBox;
   TextBox splashText;
   VmafGraph vmafGraph;
   vivictpp::logging::Logger logger;

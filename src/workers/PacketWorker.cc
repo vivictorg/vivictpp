@@ -87,7 +87,7 @@ void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<
       }, "removeDecoder"));
 }
 
-void vivictpp::workers::PacketWorker::seek(double pos) {
+void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos) {
   PacketWorker *packetWorker(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
                                                (void) serialNo;
