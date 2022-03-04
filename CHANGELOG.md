@@ -3,6 +3,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.1.11 2022-03-04
+
 ### Added
 - Shift and Alt-shift can now be used togther with 'm' and '/' to seek 1 minute or 10 minute
   forward or backward.
