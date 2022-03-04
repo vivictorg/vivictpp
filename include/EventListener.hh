@@ -12,6 +12,7 @@ namespace vivictpp {
 struct KeyModifiers {
   bool shift: 1;
   bool ctrl: 1;
+  bool alt: 1;
 };
 
 class EventListener {

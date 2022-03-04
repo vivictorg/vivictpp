@@ -83,7 +83,7 @@ void vivictpp::sdl::SDLEventLoop::clearAdvanceFrame() {
 
 vivictpp::KeyModifiers getKeyModifiers() {
   SDL_Keymod modState = SDL_GetModState();
-  return {!!(modState & KMOD_SHIFT), !!(modState & KMOD_CTRL)};
+  return {!!(modState & KMOD_SHIFT), !!(modState & KMOD_CTRL), !!(modState & KMOD_ALT)};
 }
 
 void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {

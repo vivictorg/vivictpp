@@ -136,6 +136,10 @@ void vivictpp::Controller::onQuit() {
   vivictPP.onQuit();
 }
 
+int seekDistance(const vivictpp::KeyModifiers &modifiers) {
+  return modifiers.shift ? (modifiers.alt ? 600 : 60) : 5;
+}
+
 void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::KeyModifiers &modifiers) {
   logger->debug("vivictpp::Controller::keyPressed key='{}' shift={} ctrl={}", key, modifiers.shift, modifiers.ctrl);
   if (key.length() == 1) {
@@ -158,10 +162,10 @@ void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::Ke
       }
       break;
     case '/':
-      vivictPP.seekRelative(vivictpp::time::seconds(modifiers.shift ? 60 : 5));
+      vivictPP.seekRelative(vivictpp::time::seconds(seekDistance(modifiers)));
       break;
     case 'M':
-      vivictPP.seekRelative(vivictpp::time::seconds(modifiers.shift ? -60 : -5));
+      vivictPP.seekRelative(vivictpp::time::seconds(-1 * seekDistance(modifiers)));
       break;
     case 'U':
       displayState.zoom.increment();

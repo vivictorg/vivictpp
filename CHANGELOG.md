@@ -4,7 +4,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 ## Current
 
 ### Added
-- Shift-m and shift-/ now seeks one minute forward and backward respectively
+- Shift and Alt-shift can now be used togther with 'm' and '/' to seek 1 minute or 10 minute
+  forward or backward.
 - Support for left stream offset: shift-, and shift-. can now be used to offset the left stream by an integer number
 of frames.
 
