@@ -78,6 +78,12 @@ void vivictpp::sdl::SDLEventLoop::clearAdvanceFrame() {
   SDL_RemoveTimer(advanceFrameTimerId);
   SDL_PumpEvents();
   SDL_FlushEvent(advanceFrameEventType.type);
+
+}
+
+vivictpp::KeyModifiers getKeyModifiers() {
+  SDL_Keymod modState = SDL_GetModState();
+  return {!!(modState & KMOD_SHIFT), !!(modState & KMOD_CTRL)};
 }
 
 void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
@@ -136,7 +142,7 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
         case SDL_KEYDOWN: {
           SDL_KeyboardEvent kbe = event.key;
           eventListener.keyPressed(std::string(SDL_GetKeyName(kbe.keysym.sym)),
-                                   SDL_GetModState() & KMOD_SHIFT);
+                                   getKeyModifiers());
         } break;
         case SDL_WINDOWEVENT: {
           if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
@@ -156,3 +162,4 @@ void vivictpp::sdl::SDLEventLoop::stop() {
   logger->debug("stopping...");
   quit.store(true);
 }
+

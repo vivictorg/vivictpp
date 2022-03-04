@@ -22,11 +22,11 @@ public:
              std::shared_ptr<vivictpp::ui::Display> display,
              VivictPPConfig vivictPPConfig);
   int run();
-  void mouseDrag(int xrel, int yrel) override;
-  void mouseMotion(int x, int y) override;
-  void mouseWheel(int x, int y) override;
-  void mouseClick(int x, int y) override;
-  void keyPressed(std::string key, bool shift) override;
+  void mouseDrag(const int xrel, const int yrel) override;
+  void mouseMotion(const int x, const int y) override;
+  void mouseWheel(const int x, const int y) override;
+  void mouseClick(const int x, const int y) override;
+  void keyPressed(const std::string &key, const vivictpp::KeyModifiers &modifiers) override;
   void advanceFrame() override;
   void refreshDisplay() override;
   void queueAudio() override;

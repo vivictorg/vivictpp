@@ -79,7 +79,7 @@ void vivictpp::Controller::queueAudio() {
   vivictPP.queueAudio();
 }
 
-void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
+void vivictpp::Controller::mouseDrag(const int xrel, const int yrel) {
   displayState.panX -=
     (float)xrel / displayState.zoom.multiplier();
   displayState.panY -=
@@ -87,7 +87,7 @@ void vivictpp::Controller::mouseDrag(int xrel, int yrel) {
   eventLoop->scheduleRefreshDisplay(0);
 }
 
-void vivictpp::Controller::mouseMotion(int x, int y) {
+void vivictpp::Controller::mouseMotion(const int x, const int y) {
   (void) y;
   displayState.splitPercent =
     x * 100.0 / display->getWidth();
@@ -103,7 +103,7 @@ void vivictpp::Controller::mouseMotion(int x, int y) {
   eventLoop->scheduleRefreshDisplay(0);
 }
 
-void vivictpp::Controller::mouseWheel(int x, int y) {
+void vivictpp::Controller::mouseWheel(const int x, const int y) {
   displayState.panX -=
     (float)10 * x / displayState.zoom.multiplier();
   displayState.panY -=
@@ -111,7 +111,7 @@ void vivictpp::Controller::mouseWheel(int x, int y) {
   eventLoop->scheduleRefreshDisplay(0);
 }
 
-void vivictpp::Controller::mouseClick(int x, int y /*, std::string target*/) {
+void vivictpp::Controller::mouseClick(const int x, const int y /*, std::string target*/) {
   (void) x;
   (void) y;
   /*
@@ -136,32 +136,32 @@ void vivictpp::Controller::onQuit() {
   vivictPP.onQuit();
 }
 
-void vivictpp::Controller::keyPressed(std::string key, bool shift) {
-  logger->debug("vivictpp::Controller::keyPressed key='{}' shift={}", key, shift);
+void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::KeyModifiers &modifiers) {
+  logger->debug("vivictpp::Controller::keyPressed key='{}' shift={} ctrl={}", key, modifiers.shift, modifiers.ctrl);
   if (key.length() == 1) {
     switch (key[0]) {
     case 'Q':
       onQuit();
       break;
     case '.':
-      if (shift) {
+      if (modifiers.shift) {
         displayState.leftFrameOffset = vivictPP.increaseFrameOffset();
       } else {
         vivictPP.seekNextFrame();
       }
       break;
     case ',':
-      if (shift) {
+      if (modifiers.shift) {
         displayState.leftFrameOffset = vivictPP.decreaseFrameOffset();
       } else {
         vivictPP.seekPreviousFrame();
       }
       break;
     case '/':
-      vivictPP.seekRelative(vivictpp::time::seconds(shift ? 60 : 5));
+      vivictPP.seekRelative(vivictpp::time::seconds(modifiers.shift ? 60 : 5));
       break;
     case 'M':
-      vivictPP.seekRelative(vivictpp::time::seconds(shift ? -60 : -5));
+      vivictPP.seekRelative(vivictpp::time::seconds(modifiers.shift ? -60 : -5));
       break;
     case 'U':
       displayState.zoom.increment();
