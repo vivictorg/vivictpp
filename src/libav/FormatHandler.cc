@@ -39,7 +39,11 @@ void parseFormatOptions(std::string formatOptions, std::string &format, AVDictio
 
 vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string formatOptions)
     : formatContext(nullptr), inputFile(inputFile), packet(nullptr) {
+#if LIBAVFORMAT_VERSION_MAJOR >= 59
+  const AVInputFormat *inputFormat = nullptr;
+#else
   AVInputFormat *inputFormat = nullptr;
+#endif
   AVDictionary *options = NULL;
   std::string format;
   parseFormatOptions(formatOptions, format, &options);
