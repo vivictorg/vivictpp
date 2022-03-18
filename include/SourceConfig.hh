@@ -11,16 +11,21 @@
 
 class SourceConfig {
 public:
-  SourceConfig(std::string path, std::string filter = "", std::string vmafLogFile = ""):
+  SourceConfig(std::string path,
+               std::string filter = "",
+               std::string vmafLogFile = "",
+               std::string formatOptions = ""):
     path(path),
     filter(filter),
-    vmafLog(vmafLogFile)
+    vmafLog(vmafLogFile),
+    formatOptions(formatOptions)
     {
     }
 
   const std::string path;
   const std::string filter;
   const vivictpp::vmaf::VmafLog vmafLog;
+  const std::string formatOptions;
 };
 
 #endif  // SOURCECONFIG_HH_

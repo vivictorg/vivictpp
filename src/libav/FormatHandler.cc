@@ -8,12 +8,51 @@
 #include "spdlog/spdlog.h"
 
 #include <iostream>
+#include <libavutil/dict.h>
+#include <string>
 
-vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile)
+void parseFormatOptions(std::string formatOptions, std::string &format, AVDictionary** options) {
+    if (formatOptions.empty()) {
+        return;
+    }
+    size_t start;
+    size_t end = 0;
+    std::string delim(":");
+    while ((start = formatOptions.find_first_not_of(delim, end)) != std::string::npos)
+    {
+      end = formatOptions.find(delim, start);
+      std::string keyValue = formatOptions.substr(start, end - start);
+      size_t index = keyValue.find("=");
+      if (index != std::string::npos){
+        std::string key = keyValue.substr(0, index);
+        std::string value = keyValue.substr(index+1);
+        if (key == std::string("format")) {
+          format = value;
+        } else {
+          av_dict_set(options, key.c_str(), value.c_str(), 0);
+        }
+      } else {
+        av_dict_set(options, keyValue.c_str(), nullptr, 0);
+      }
+    }
+}
+
+vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string formatOptions)
     : formatContext(nullptr), inputFile(inputFile), packet(nullptr) {
-  if (avformat_open_input(&this->formatContext, this->inputFile.c_str(), nullptr,
-                          nullptr) != 0) {
-    throw std::runtime_error("Failed to open input");
+  AVInputFormat *inputFormat = nullptr;
+  AVDictionary *options = NULL;
+  std::string format;
+  parseFormatOptions(formatOptions, format, &options);
+  if (!format.empty() && !(inputFormat = av_find_input_format(format.c_str()))) {
+    av_dict_free(&options);
+    throw std::runtime_error(std::string("Unknown format: ") + format);
+  }
+
+  vivictpp::libav::AVResult result = avformat_open_input(&this->formatContext, this->inputFile.c_str(),
+                                                         inputFormat, &options);
+  av_dict_free(&options);
+  if (result.error()) {
+    throw std::runtime_error(std::string("Failed to open input: ") + result.getMessage());
   }
 
   // Retrieve stream information

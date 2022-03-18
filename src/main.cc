@@ -77,6 +77,11 @@ int main(int argc, char **argv) {
     app.add_option("--left-vmaf", leftVmaf, "Path to csv-file containing vmaf data for left video");
     app.add_option("--right-vmaf", rightVmaf, "Path to csv-file containing vmaf data for right video");
 
+    std::string leftInputFormat;
+    std::string rightInputFormat;
+    app.add_option("--left-format", leftInputFormat, "Format options for left video input");
+    app.add_option("--right-format", rightInputFormat, "Format options for right video input");
+
     CLI11_PARSE(app, argc, argv);
 
     std::vector<std::string> sources = {leftVideo};
@@ -85,6 +90,7 @@ int main(int argc, char **argv) {
     }
     std::vector<std::string> filters = {leftFilter, rightFilter};
     std::vector<std::string> vmafLogfiles = {leftVmaf, rightVmaf};
+    std::vector<std::string> formatOptions = {leftInputFormat, rightInputFormat};
 
     vivictpp::logging::initializeLogging();
 
@@ -92,7 +98,8 @@ int main(int argc, char **argv) {
     for (size_t i = 0; i<sources.size(); i++) {
         std::string filter = i < filters.size() ? filters[i] : "";
         std::string vmafLogFile = i < vmafLogfiles.size() ? vmafLogfiles[i] : "";
-        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile));
+        std::string format = i < formatOptions.size() ? formatOptions[i] : "";
+        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format));
     }
 
     for (auto sourceConfig : sourceConfigs) {

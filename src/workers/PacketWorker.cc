@@ -5,10 +5,10 @@
 #include "workers/PacketWorker.hh"
 #include "spdlog/spdlog.h"
 
-vivictpp::workers::PacketWorker::PacketWorker(std::string source):
+vivictpp::workers::PacketWorker::PacketWorker(std::string source, std::string format):
     InputWorker<int>(0, "PacketWorker"),
-  formatHandler(source),
-  currentPacket(nullptr)
+    formatHandler(source, format),
+    currentPacket(nullptr)
 {
     for (auto const &videoStream : formatHandler.getVideoStreams()) {
     VideoMetadata m =
