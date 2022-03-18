@@ -17,7 +17,7 @@ namespace workers {
 
 class PacketWorker : public InputWorker<int> {
 public:
-  PacketWorker(std::string source);
+  PacketWorker(std::string source, std::string format = "");
   virtual ~PacketWorker();
   void addDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   void removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);

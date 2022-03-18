@@ -157,6 +157,13 @@ For example, to compare an interlaced source with a transcoded and deinterlaced 
 Vivict++ can display VMAF data if such is provided by using the `--left-vmaf` and/or `--right-vmaf`
 options. The command line options take a path to a csv-file containing the data as argument. The file is expected to be a csv-file created by the [FFmpeg libvmaf filter](http://ffmpeg.org/ffmpeg-filters.html#libvmaf) with `log_fmt=csv`.
 
+### Specifying input format
+In case your input file is in a format this not easily identified, ie raw video, you can use the `--left-format` and `--right-format` to tell vivictpp how to interpret the input file. These options should be followed by a colon-separated list of key=value pairs. If `format` is specified as key, the corresponding value will be passed to [av_find_input_format](https://ffmpeg.org/doxygen/2.8/group__lavf__decoding.html#ga7d2f532c6653c2419b17956712fdf3da) to find the correct input format. Any other key value pairs will be passed to [avformat_open_input](https://ffmpeg.org/doxygen/2.8/group__lavf__decoding.html#ga10a404346c646e4ab58f4ed798baca32) through the `options` parameter.
+
+Example for playing a file containing raw video data:
+
+    vivictpp --left-format format=rawvideo:pixel_format=yuv422p10:video_size=1280x720:framerate=50 my-file.yuv
+
 ### Logging
 
 Logging for debugging purposes can be enabled by setting the environment variable `SPDLOG_LEVEL` to `DEBUG` or even `TRACE`.

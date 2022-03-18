@@ -24,7 +24,7 @@ namespace libav {
 
 class FormatHandler {
 public:
-  explicit FormatHandler(std::string inputFile);
+  explicit FormatHandler(std::string inputFile, std::string formatOptions = "");
   ~FormatHandler();
   const std::vector<AVStream *> &getVideoStreams() const {
     return videoStreams;
