@@ -3,6 +3,11 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.1.12 2022-03-18
+
+### Added
+- Support for specifying input format through --left-format and --right-format commandline options
+
 ## 0.1.11 2022-03-04
 
 ### Added
