@@ -18,6 +18,7 @@ extern "C" {
 #include <set>
 
 #include "time/Time.hh"
+#include "logging/Logging.hh"
 
 namespace vivictpp {
 namespace libav {
@@ -48,6 +49,7 @@ public:
 
 private:
   AVPacket *packet;
+  vivictpp::logging::Logger logger;
   std::vector<AVStream *> videoStreams;
   std::vector<AVStream *> audioStreams;
   std::vector<AVStream *> streams;

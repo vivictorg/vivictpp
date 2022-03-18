@@ -52,6 +52,7 @@ private:
   std::shared_ptr<vivictpp::libav::Filter> filter;
   std::queue<vivictpp::libav::Frame> frameQueue;
   vivictpp::time::Time seekPos;
+  vivictpp::time::Time lastSeenPts;
 
 };
 }  // namespace workers

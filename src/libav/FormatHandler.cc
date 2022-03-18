@@ -38,7 +38,8 @@ void parseFormatOptions(std::string formatOptions, std::string &format, AVDictio
 }
 
 vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string formatOptions)
-    : formatContext(nullptr), inputFile(inputFile), packet(nullptr) {
+    : formatContext(nullptr), inputFile(inputFile), packet(nullptr),
+      logger(vivictpp::logging::getOrCreateLogger("FormatHandler")) {
 #if LIBAVFORMAT_VERSION_MAJOR >= 59
   const AVInputFormat *inputFormat = nullptr;
 #else
@@ -144,7 +145,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   }
 
   int64_t ts = av_rescale_q(seek_t, vivictpp::time::TIME_BASE_Q, stream->time_base);
-  
+
   if (stream->start_time != AV_NOPTS_VALUE && stream->start_time > ts) {
       ts = stream->start_time;
   } else {
@@ -154,6 +155,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   vivictpp::libav::AVResult result = av_seek_frame(this->formatContext, stream->index,
                                                    ts, flags);
   if (result.error()) {
+      logger->error("Seek failed: {}", result.getMessage());
       throw std::runtime_error("Seek failed: " + result.getMessage());
   }
 }

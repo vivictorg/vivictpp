@@ -21,6 +21,11 @@ int getBitrate(AVStream *videoStream) {
   return bitrate;
 }
 
+vivictpp::time::Time getStartTime(AVStream *stream) {
+  return stream->start_time == AV_NOPTS_VALUE ? 0 :
+    av_rescale_q(stream->start_time, stream->time_base, vivictpp::time::TIME_BASE_Q);
+}
+
 VideoMetadata::VideoMetadata(
     std::string source, AVFormatContext *formatContext,
     //                             AVCodecContext *codecContext,
@@ -35,7 +40,7 @@ VideoMetadata::VideoMetadata(
       frameRate(av_q2d(videoStream->r_frame_rate)),
       frameDuration(av_rescale(vivictpp::time::TIME_BASE, videoStream->r_frame_rate.den,
                                videoStream->r_frame_rate.num)),
-      startTime(av_rescale_q(videoStream->start_time, videoStream->time_base, vivictpp::time::TIME_BASE_Q)),
+      startTime(getStartTime(videoStream)),
       duration(formatContext->duration), // allready in av_time_base
       endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)) {}

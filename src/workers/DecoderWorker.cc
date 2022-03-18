@@ -36,7 +36,8 @@ vivictpp::workers::DecoderWorker::DecoderWorker(AVStream *stream,
   stream(stream),
   frameBuffer(frameBufferSize),
   decoder(new vivictpp::libav::Decoder(stream->codecpar)),
-  filter(createFilter(stream, decoder->getCodecContext(), customFilter))
+  filter(createFilter(stream, decoder->getCodecContext(), customFilter)),
+  lastSeenPts(AV_NOPTS_VALUE)
 {}
 
 vivictpp::workers::DecoderWorker::~DecoderWorker() {
@@ -106,17 +107,23 @@ bool vivictpp::workers::DecoderWorker::onData(const vivictpp::workers::Data<vivi
 
 void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::Frame &frame) {
     logger->debug("pts={} AV_NOPTS_VALUE={}", frame.pts(), AV_NOPTS_VALUE);
-    if (frame.pts() == AV_NOPTS_VALUE) {
-        logger->debug("DecoderWorker::doWork Frame has no pts, ignoring");
-    } else {
-      vivictpp::time::Time pts = av_rescale_q(frame.pts(), stream->time_base, vivictpp::time::TIME_BASE_Q);
-//      vivictpp::time::Time pts = frame.pts();
-      logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({})",
-                    pts, frame.pts());
-      frameBuffer.write(frame, pts);
-      if( seeking() && pts >= seekPos) {
-        logger->debug("DecoderWorker::doWork seekFinished", pts);
-        this->state = InputWorkerState::ACTIVE;
+    vivictpp::time::Time pts = frame.pts();
+    if (pts == AV_NOPTS_VALUE) {
+      if (lastSeenPts == AV_NOPTS_VALUE) {
+        pts = 0;
+      } else {
+        pts = lastSeenPts + av_rescale(vivictpp::time::TIME_BASE, stream->r_frame_rate.den, stream->r_frame_rate.num);
       }
+      logger->warn("DecoderWorker::doWork Frame has no pts, estimating pts {}", pts);
+    } else {
+      pts = av_rescale_q(pts, stream->time_base, vivictpp::time::TIME_BASE_Q);
+    }
+    lastSeenPts = pts;
+    logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({})",
+                  pts, frame.pts());
+    frameBuffer.write(frame, pts);
+    if( seeking() && pts >= seekPos) {
+      logger->debug("DecoderWorker::doWork seekFinished", pts);
+      this->state = InputWorkerState::ACTIVE;
     }
 }

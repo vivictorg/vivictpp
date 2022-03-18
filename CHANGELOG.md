@@ -7,6 +7,7 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ### Added
 - Support for specifying input format through --left-format and --right-format commandline options
+- Support for estimating pts from frame rate if not set in frames
 
 ## 0.1.11 2022-03-04
 
