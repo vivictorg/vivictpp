@@ -42,6 +42,9 @@ std::shared_ptr<AVCodecContext> vivictpp::libav::createCodecContext(AVCodecParam
   if (codec == nullptr) {
     throw std::runtime_error(std::string("No codec found for codec ID: ") + std::string(avcodec_get_name(codecId)));
   }
+  spdlog::info("Using codec {} ({})", codec->name, codec->long_name);
+  AVDictionary *decoderOptions = nullptr;
+  av_dict_set(&decoderOptions, "threads", "auto", 0);
   AVCodecContext *codecContext = avcodec_alloc_context3(codec);
   vivictpp::libav::AVResult ret = avcodec_parameters_to_context(codecContext,
                                             codecParameters);
@@ -50,7 +53,7 @@ std::shared_ptr<AVCodecContext> vivictpp::libav::createCodecContext(AVCodecParam
                              ret.getMessage());
   }
   // TODO: avcodec_open2 is not thread safe so should probably be guared in some way
-  if (avcodec_open2(codecContext, codec, nullptr) < 0) {
+  if (avcodec_open2(codecContext, codec, &decoderOptions) < 0) {
     throw std::runtime_error("Failed to open codec");
   }
   if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
