@@ -10,7 +10,6 @@ VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
   _leftFrameOffset(0),
   leftPtsOffset(0),
   logger(vivictpp::logging::getOrCreateLogger("VideoInputs")) {
-  av_log_set_level(AV_LOG_INFO);
   for (auto source: vivictPPConfig.sourceConfigs) {
     auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
       new vivictpp::workers::PacketWorker(source.path, source.formatOptions));

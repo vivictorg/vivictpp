@@ -172,6 +172,9 @@ Some classes have a named logger, setting for a specific logger can be done like
 
     SPDLOG_LEVEL=info,DecoderWorker=debug vpp file1 file2
 
+The log level for the libav libraries can be specified by setting the environment variable `AVLOG_LEVEL`. Valid values are
+`quiet, panic, fatal, error, warning, info, verbose, debug, trace`.
+
 ## Known issues
 
 * Audio sync is less than perfect
