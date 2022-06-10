@@ -3,6 +3,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.1.13 2022-06-10
+
 ### Added
 - Audio is now disabled by default
 - Logav loglevel can now be specified through env variable
