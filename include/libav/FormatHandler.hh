@@ -18,13 +18,14 @@ extern "C" {
 #include <set>
 
 #include "time/Time.hh"
+#include "logging/Logging.hh"
 
 namespace vivictpp {
 namespace libav {
 
 class FormatHandler {
 public:
-  explicit FormatHandler(std::string inputFile);
+  explicit FormatHandler(std::string inputFile, std::string formatOptions = "");
   ~FormatHandler();
   const std::vector<AVStream *> &getVideoStreams() const {
     return videoStreams;
@@ -48,6 +49,7 @@ public:
 
 private:
   AVPacket *packet;
+  vivictpp::logging::Logger logger;
   std::vector<AVStream *> videoStreams;
   std::vector<AVStream *> audioStreams;
   std::vector<AVStream *> streams;

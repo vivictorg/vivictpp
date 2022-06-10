@@ -5,7 +5,7 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VPP_VERSION "0.1.11"
+#define VPP_VERSION "0.1.12"
 
 #ifndef VPP_GIT_HASH
 #define VPP_GIT_HASH ""

@@ -8,12 +8,56 @@
 #include "spdlog/spdlog.h"
 
 #include <iostream>
+#include <libavutil/dict.h>
+#include <string>
 
-vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile)
-    : formatContext(nullptr), inputFile(inputFile), packet(nullptr) {
-  if (avformat_open_input(&this->formatContext, this->inputFile.c_str(), nullptr,
-                          nullptr) != 0) {
-    throw std::runtime_error("Failed to open input");
+void parseFormatOptions(std::string formatOptions, std::string &format, AVDictionary** options) {
+    if (formatOptions.empty()) {
+        return;
+    }
+    size_t start;
+    size_t end = 0;
+    std::string delim(":");
+    while ((start = formatOptions.find_first_not_of(delim, end)) != std::string::npos)
+    {
+      end = formatOptions.find(delim, start);
+      std::string keyValue = formatOptions.substr(start, end - start);
+      size_t index = keyValue.find("=");
+      if (index != std::string::npos){
+        std::string key = keyValue.substr(0, index);
+        std::string value = keyValue.substr(index+1);
+        if (key == std::string("format")) {
+          format = value;
+        } else {
+          av_dict_set(options, key.c_str(), value.c_str(), 0);
+        }
+      } else {
+        av_dict_set(options, keyValue.c_str(), nullptr, 0);
+      }
+    }
+}
+
+vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string formatOptions)
+    : formatContext(nullptr), inputFile(inputFile), packet(nullptr),
+      logger(vivictpp::logging::getOrCreateLogger("FormatHandler")) {
+#if LIBAVFORMAT_VERSION_MAJOR >= 59
+  const AVInputFormat *inputFormat = nullptr;
+#else
+  AVInputFormat *inputFormat = nullptr;
+#endif
+  AVDictionary *options = NULL;
+  std::string format;
+  parseFormatOptions(formatOptions, format, &options);
+  if (!format.empty() && !(inputFormat = av_find_input_format(format.c_str()))) {
+    av_dict_free(&options);
+    throw std::runtime_error(std::string("Unknown format: ") + format);
+  }
+
+  vivictpp::libav::AVResult result = avformat_open_input(&this->formatContext, this->inputFile.c_str(),
+                                                         inputFormat, &options);
+  av_dict_free(&options);
+  if (result.error()) {
+    throw std::runtime_error(std::string("Failed to open input: ") + result.getMessage());
   }
 
   // Retrieve stream information
@@ -101,7 +145,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   }
 
   int64_t ts = av_rescale_q(seek_t, vivictpp::time::TIME_BASE_Q, stream->time_base);
-  
+
   if (stream->start_time != AV_NOPTS_VALUE && stream->start_time > ts) {
       ts = stream->start_time;
   } else {
@@ -111,6 +155,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   vivictpp::libav::AVResult result = av_seek_frame(this->formatContext, stream->index,
                                                    ts, flags);
   if (result.error()) {
+      logger->error("Seek failed: {}", result.getMessage());
       throw std::runtime_error("Seek failed: " + result.getMessage());
   }
 }

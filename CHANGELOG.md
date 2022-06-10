@@ -3,6 +3,19 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+### Added
+- Audio is now disabled by default
+- Logav loglevel can now be specified through env variable
+- Thread option for decoder is now set to auto
+- Playing streams without pts data is now supported
+
+## 0.1.12 2022-03-18
+
+### Added
+- Support for specifying input format through --left-format and --right-format commandline options
+- Support for estimating pts from frame rate if not set in frames
+- Support for compiling against ffmpeg5 libraries
+
 ## 0.1.11 2022-03-04
 
 ### Added
