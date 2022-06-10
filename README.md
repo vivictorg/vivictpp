@@ -99,7 +99,7 @@ Run with the -h flag to see the commandline options
       -h,--help                   Print this help message and exit
       --left-filter TEXT          Video filters for left video
       --right-filter TEXT         Video filters for left video
-      --disable-audio             Disable audio
+      --enable-audio              Enable audio
       --left-vmaf TEXT            Path to csv-file containing vmaf data for left video
       --right-vmaf TEXT           Path to csv-file containing vmaf data for right video
 

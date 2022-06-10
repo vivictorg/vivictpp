@@ -4,6 +4,7 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 ## Current
 
 ### Added
+- Audio is now disabled by default
 - Logav loglevel can now be specified through env variable
 - Thread option for decoder is now set to auto
 - Playing streams without pts data is now supported

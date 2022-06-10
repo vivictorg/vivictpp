@@ -69,8 +69,8 @@ int main(int argc, char **argv) {
     app.add_option("--left-filter", leftFilter, "Video filters for left video");
     app.add_option("--right-filter", rightFilter, "Video filters for left video");
 
-    bool disableAudio;
-    app.add_flag("--disable-audio",  disableAudio, "Disable audio");
+    bool enableAudio(false);
+    app.add_flag("--enable-audio",  enableAudio, "Enable audio");
 
     std::string leftVmaf("");
     std::string rightVmaf("");
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
         spdlog::debug("Source: path={} filters={}", sourceConfig.path, sourceConfig.filter);
     }
 
-    VivictPPConfig vivictPPConfig(sourceConfigs, disableAudio);
+    VivictPPConfig vivictPPConfig(sourceConfigs, !enableAudio);
     auto sdlEventLoop = std::make_shared<vivictpp::sdl::SDLEventLoop>(vivictPPConfig.sourceConfigs);
     vivictpp::Controller controller(sdlEventLoop, sdlEventLoop, vivictPPConfig);
     return controller.run();
