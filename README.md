@@ -144,6 +144,12 @@ Vivict++ can also be run with only one video
 * Panning is done by left clicking and dragging
 * Left clicking anywhere starts/stops the playback
 
+### Specifying input format
+In some cases, ie when playing a raw video file, it may be necessary to specify the input format through
+the `--left-input-format` and `--right-input-format` options. The argument for these options should be a string on the format `key1=value2:key2=value2:...` . If a key `format` is specified, the value for that key will be passed to [av_find_input_format](https://ffmpeg.org/doxygen/2.8/group__lavf__decoding.html#ga7d2f532c6653c2419b17956712fdf3da) to find the input format. Any other key-value pairs will be passed
+into [avformat_open_input](https://ffmpeg.org/doxygen/2.8/group__lavf__decoding.html#ga10a404346c646e4ab58f4ed798baca32)
+through the `options` dictionary.
+
 ### Using video filters
 The `--left-filter` and `--right-filter` options can be used to specify ffmpeg filters that are applied to the input(s) before being displayed. The filters should be specified using ffmpeg filter syntax, see [FFmpeg Filters Documentation](http://ffmpeg.org/ffmpeg-filters.html)
 
