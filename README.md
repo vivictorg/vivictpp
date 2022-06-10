@@ -51,7 +51,7 @@ brew install vivictpp
 
 $ apt-get --fix-missing install -y cmake python3-pip gcc python3-setuptools \
   python3-wheel libsdl2-dev libsdl2-ttf-dev libfreetype6-dev libavformat-dev libavcodec-dev \
-  libswscale-dev pkg-config
+  libavfilter-dev libswscale-dev pkg-config
 
 ```
 
