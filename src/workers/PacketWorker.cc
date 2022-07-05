@@ -3,23 +3,45 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "workers/PacketWorker.hh"
+#include "VideoMetadata.hh"
 #include "spdlog/spdlog.h"
+#include "workers/DecoderWorker.hh"
+
+std::shared_ptr<vivictpp::workers::DecoderWorker> findDecoderWorkerForStream(std::vector<std::shared_ptr<vivictpp::workers::DecoderWorker>> decoderWorkers,
+                                                                             const AVStream* stream) {
+    for (auto const &dw : decoderWorkers) {
+        if (dw->getStream() == stream) {
+            return dw;
+        }
+    }
+    return nullptr;
+}
 
 vivictpp::workers::PacketWorker::PacketWorker(std::string source, std::string format):
     InputWorker<int>(0, "PacketWorker"),
     formatHandler(source, format),
-    currentPacket(nullptr)
-{
-    for (auto const &videoStream : formatHandler.getVideoStreams()) {
-    VideoMetadata m =
-        VideoMetadata(source, formatHandler.getFormatContext(), videoStream);
-    this->videoMetadata.push_back(m);
-  }
+    currentPacket(nullptr) {
+    this->initVideoMetadata();
 }
 
 vivictpp::workers::PacketWorker::~PacketWorker() {
   unrefCurrentPacket();
   quit();
+}
+
+void  vivictpp::workers::PacketWorker::initVideoMetadata() {
+    std::vector<VideoMetadata> metadata;
+    for (auto const &videoStream : formatHandler.getVideoStreams()) {
+        std::shared_ptr<vivictpp::workers::DecoderWorker> decoderWorker = findDecoderWorkerForStream(decoderWorkers, videoStream);
+        auto filteredVideoMetadata = decoderWorker ? decoderWorker->getFilteredVideoMetadata() : FilteredVideoMetadata();
+        VideoMetadata m =
+            VideoMetadata(formatHandler.inputFile, formatHandler.getFormatContext(), videoStream, filteredVideoMetadata);
+        metadata.push_back(m);
+    }
+    {
+        std::lock_guard<std::mutex> guard(videoMetadataMutex);
+        this->videoMetadata = metadata;
+    }
 }
 
 void vivictpp::workers::PacketWorker::doWork() {
@@ -71,6 +93,7 @@ void vivictpp::workers::PacketWorker::addDecoderWorker(const std::shared_ptr<Dec
         (void) serialNo;
         pw->decoderWorkers.push_back(decoderWorker);
         pw->setActiveStreams();
+        pw->initVideoMetadata();
         return true;
       }, "addDecoder"));
 }
@@ -83,6 +106,7 @@ void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<
                                              pw->decoderWorkers.end(), decoderWorker),
                                  pw->decoderWorkers.end());
         pw->setActiveStreams();
+        pw->initVideoMetadata();
         return true;
       }, "removeDecoder"));
 }

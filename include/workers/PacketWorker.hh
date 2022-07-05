@@ -5,6 +5,8 @@
 #ifndef PACKET_WORKER_HH_
 #define PACKET_WORKER_HH_
 
+#include <atomic>
+
 #include "workers/InputWorker.hh"
 #include "workers/PacketQueue.hh"
 #include "libav/FormatHandler.hh"
@@ -23,7 +25,10 @@ public:
   void removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   bool hasDecoders() { return !decoderWorkers.empty(); }
   void seek(vivictpp::time::Time pos);
-  std::vector<VideoMetadata> &getVideoMetadata() { return this->videoMetadata; }
+  const std::vector<VideoMetadata> &getVideoMetadata() {
+    std::lock_guard<std::mutex> guard(videoMetadataMutex);
+    return this->videoMetadata;
+  }
   const std::vector<AVStream *> &getStreams() { return formatHandler.getStreams(); }
   const std::vector<AVStream *> &getVideoStreams() { return formatHandler.getVideoStreams(); }
   const std::vector<AVStream *> &getAudioStreams() { return formatHandler.getAudioStreams(); }
@@ -32,12 +37,14 @@ private:
   void doWork() override;
   void setActiveStreams();
   void unrefCurrentPacket();
+  void initVideoMetadata();
 
 private:
   vivictpp::libav::FormatHandler formatHandler;
   std::vector<std::shared_ptr<DecoderWorker>> decoderWorkers;
   AVPacket* currentPacket;
   std::vector<VideoMetadata> videoMetadata;
+  std::mutex videoMetadataMutex;
 
 };
 }  // namespace workers

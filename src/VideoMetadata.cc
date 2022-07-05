@@ -4,6 +4,7 @@
 
 #include "VideoMetadata.hh"
 #include "time/TimeUtils.hh"
+#include <libavformat/avformat.h>
 
 int getBitrate(AVStream *videoStream) {
   int bitrate = videoStream->codecpar->bit_rate;
@@ -27,15 +28,16 @@ vivictpp::time::Time getStartTime(AVStream *stream) {
 }
 
 VideoMetadata::VideoMetadata(
-    std::string source, AVFormatContext *formatContext,
-    //                             AVCodecContext *codecContext,
-    AVStream *videoStream)
+    std::string source,
+    AVFormatContext *formatContext,
+    AVStream *videoStream,
+    FilteredVideoMetadata filteredVideoMetadata)
     : source(source),
       //   pixelFormat(std::string(av_get_pix_fmt_name(codecContext->pix_fmt))),
       streamIndex(videoStream->index),
-      width(videoStream->codecpar->width),
-      height(videoStream->codecpar->height),
-      resolution(width, height),
+      resolution(videoStream->codecpar->width, videoStream->codecpar->height),
+      filteredResolution(filteredVideoMetadata.empty() ? resolution : filteredVideoMetadata.resolution),
+      filteredVideoMetadata(filteredVideoMetadata),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
       frameDuration(av_rescale(vivictpp::time::TIME_BASE, videoStream->r_frame_rate.den,
@@ -44,6 +46,16 @@ VideoMetadata::VideoMetadata(
       duration(formatContext->duration), // allready in av_time_base
       endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)) {}
+
+std::string VideoMetadata::resolutionAsString() const {
+  std::ostringstream oss;
+  oss << std::left << this->filteredResolution.w << "x"
+      << this->filteredResolution.h;
+  if (filteredResolution.w != resolution.w || filteredResolution.h != resolution.h) {
+    oss << " (" << resolution.w << "x" << resolution.h << ")";
+  }
+  return oss.str();
+}
 
 std::string VideoMetadata::toString() const {
   std::string separator = "\t";
@@ -54,9 +66,15 @@ std::string VideoMetadata::toString() const {
       //      this->source.substr(this->source.find_last_of("/") + 1) <<
       //      std::endl
       << std::setw(20) << std::left << "codec" << this->codec << std::endl
-      << std::setw(20) << std::left << "resolution" << this->width << "x"
-      << this->height << std::endl
-      << std::setw(20) << std::left << "bitrate" << this->bitrate / 1000.0
+//      << std::setw(20) << std::left << "resolution" << this->resolution.w << "x"
+//      << this->resolution.h << std::endl
+      << std::setw(20) << std::left
+      << "resolution" << this->filteredResolution.w << "x"  << this->filteredResolution.h << std::endl;
+    if (filteredResolution.w != resolution.w || filteredResolution.h != resolution.h) {
+       oss << std::setw(20) << std::left
+           << "orig resolution" << this->resolution.w << "x"  << this->resolution.h << std::endl;
+    }
+    oss  << std::setw(20) << std::left << "bitrate" << this->bitrate / 1000.0
       << "kb/s" << std::endl
       << std::setw(20) << std::left << "frameRate" << this->frameRate << "fps"
       << std::endl
@@ -69,3 +87,10 @@ std::string VideoMetadata::toString() const {
       << std::endl;
   return oss.str();
 }
+
+FilteredVideoMetadata::FilteredVideoMetadata(std::string filterDefinition ,
+                                             Resolution resolution,
+                                             double frameRate):
+  filteredDefinition(filterDefinition),
+  resolution(resolution),
+  frameRate(frameRate) {}

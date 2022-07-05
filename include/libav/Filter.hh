@@ -16,23 +16,26 @@ extern "C" {
 }
 
 #include "libav/Frame.hh"
+#include "Resolution.hh"
+#include "VideoMetadata.hh"
 
 namespace vivictpp {
 namespace libav {
 
 class Filter {
 public:
-  Filter(AVStream *avStream, AVCodecContext *codecContext, std::string definition);
-  ~Filter() = default;
+  virtual ~Filter() = default;
   Frame filterFrame(const Frame &frame);
   bool eof() { return eof_; };
+  Resolution getFilteredResolution();
 protected:
-  Filter();
+  Filter(std::string definition);
   void createFilter(AVFilterContext **filt_ctx, std::string filterName, const std::string name, const char *args, void *opaque);
   void configureGraph(std::string definition);
   AVFilterContext *bufferSrcCtx;
   AVFilterContext *bufferSinkCtx;
   std::shared_ptr<AVFilterGraph> graph;
+  std::string definition;
 private:
   bool eof_;
   Frame nextFrame;
@@ -42,6 +45,7 @@ class VideoFilter: public Filter {
 public:
   VideoFilter(AVStream *avStream, AVCodecContext *codecContext, std::string definition);
   ~VideoFilter() = default;
+  FilteredVideoMetadata getFilteredVideoMetadata();
 private:
     void configure(AVStream *videoStream, AVCodecContext *codecContext,
              std::string definition);
