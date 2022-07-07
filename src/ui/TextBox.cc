@@ -7,11 +7,10 @@
 #include "ui/TextTexture.hh"
 
 vivictpp::ui::TextBox::TextBox(std::string text, std::string font, int fontSize,
-                               TextBoxPosition position, int x, int y,
                                 std::string title, int minWidth, int minHeight,
                                Margin margin)
     : texture(nullptr), text(text), font(font), fontSize(fontSize),
-      position(position), x(x), y(y), title(title),
+      title(title),
       minWidth(minWidth), minHeight(minHeight), margin(margin) {
   if (!title.empty()) {
     this->margin.top += fontSize + 4;
@@ -92,36 +91,16 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
   SDL_SetRenderTarget(renderer, nullptr);
 }
 
-void vivictpp::ui::TextBox::render(SDL_Renderer *renderer) {
-  int rendererWidth;
-  int rendererHeight;
-  SDL_GetRendererOutputSize(renderer, &rendererWidth, &rendererHeight);
+void vivictpp::ui::TextBox::render(SDL_Renderer *renderer, int x, int y) {
+  if (!display) {
+    return;
+  }
   SDL_Texture *oldTexture(nullptr);
   if (changed || texture == nullptr) {
     oldTexture = texture;
     initTexture(renderer);
   }
 
-  int x = 0 + this->x;
-  int y = 5 + this->y;
-  switch (position) {
-  case TextBoxPosition::ABSOLUTE:
-    x = this->x;
-    y = this->y;
-    break;
-  case TextBoxPosition::TOP_LEFT:
-    x = 5 + this->x;
-    break;
-  case TextBoxPosition::TOP_CENTER:
-    x = this->x + (rendererWidth - textureW) / 2;
-    break;
-  case TextBoxPosition::TOP_RIGHT:
-    x = this->x + rendererWidth - textureW - 5;
-    break;
-  case TextBoxPosition::CENTER:
-    x = this->x + (rendererWidth - textureW) / 2;
-    y = this->y + (rendererHeight - textureH) / 2;
-  }
   SDL_Rect rect = {x, y, textureW, textureH};
 
   SDL_RenderCopy(renderer, texture, nullptr, &rect);

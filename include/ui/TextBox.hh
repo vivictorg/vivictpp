@@ -19,31 +19,27 @@ extern "C" {
 #include <utility>
 #include <vector>
 
+#include "ui/Ui.hh"
+
 namespace vivictpp {
 namespace ui {
 
-enum class TextBoxPosition { TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER, ABSOLUTE };
-
-struct Margin {
-  int top;
-  int right;
-  int bottom;
-  int left;
-};
-
-class TextBox {
+class TextBox: public Component {
 public:
   TextBox(std::string text, std::string font, int fontSize,
-          TextBoxPosition position, int x=0, int y=0, std::string title="",
+          std::string title="",
           int minWidth = 0, int minHeight = 0,
           Margin margin = {2,2,2,2});
   ~TextBox();
-  void render(SDL_Renderer *renderer);
+  void render(SDL_Renderer *renderer, int x, int y) override;
+  int getRenderedWidth() override { return display ? textureW : 0; }
+  int getRenderedHeight() override { return display ? textureH : 0; }
   void setText(std::string newText);
   SDL_Color fg = {255, 255, 255, 255};
   SDL_Color bg = {50, 50, 50, 255};
   bool border = true;
-  void setY(int _y) { y = _y; }
+  bool display = true;
+
 private:
   SDL_Texture *texture;
   std::string text;
@@ -51,9 +47,6 @@ private:
   int textureH = 0;
   const std::string font;
   const int fontSize;
-  const TextBoxPosition position;
-  int x = 0;
-  int y = 0;
   std::string title;
   int minWidth = 0;
   int minHeight = 0;
