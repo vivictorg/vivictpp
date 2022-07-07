@@ -33,6 +33,13 @@ public:
   AVStream *getStream() { return stream; };
   AVCodecContext *getCodecContext() { return decoder->getCodecContext(); }
   FrameBuffer &frames() { return frameBuffer; }
+  FilteredVideoMetadata getFilteredVideoMetadata() {
+    std::shared_ptr<vivictpp::libav::VideoFilter> videoFilter = std::dynamic_pointer_cast<vivictpp::libav::VideoFilter>(filter);
+    if (videoFilter) {
+      return videoFilter->getFilteredVideoMetadata();
+    }
+    return FilteredVideoMetadata();
+  }
 public:
   const int streamIndex;
 private:

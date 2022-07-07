@@ -18,6 +18,7 @@ extern "C" {
 #include "ui/DisplayState.hh"
 #include "ui/TextBox.hh"
 #include "ui/VmafGraph.hh"
+#include "ui/Container.hh"
 #include "vmaf/VmafLog.hh"
 #include "VideoMetadata.hh"
 #include "sdl/SDLUtils.hh"
@@ -94,14 +95,20 @@ private:
   SDL_Cursor *defaultCursor;
 
   SDL_Rect sourceRectLeft, sourceRectRight, zoomedView, destRectLeft, destRectRight, destRect;
-  TextBox timeTextBox;
+  FixedPositionContainer timeTextBox;
+//  TextBox timeTextBox;
   bool wasMaximized;
+  FixedPositionContainer leftMetaDisplay;
+  FixedPositionContainer rightMetaDisplay;
+  /*
   TextBox leftMetadataBox;
   TextBox rightMetadataBox;
   TextBox leftFrameBox;
   TextBox rightFrameBox;
   TextBox frameOffsetBox;
-  TextBox splashText;
+  */
+  //TextBox splashText;
+  FixedPositionContainer splashText;
   VmafGraph vmafGraph;
   vivictpp::logging::Logger logger;
 

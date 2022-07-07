@@ -29,10 +29,11 @@ void freeFilterGraph(AVFilterGraph *graph) {
   avfilter_graph_free(&graph);
 }
 
-vivictpp::libav::Filter::Filter() :
+vivictpp::libav::Filter::Filter(std::string definition) :
   bufferSrcCtx(nullptr),
   bufferSinkCtx(nullptr),
   graph(nullptr),
+  definition(definition),
   eof_(false) {
 }
 
@@ -94,7 +95,7 @@ vivictpp::libav::Frame vivictpp::libav::Filter::filterFrame(const vivictpp::liba
 
 vivictpp::libav::VideoFilter::VideoFilter(AVStream *videoStream, AVCodecContext *codecContext,
                          std::string definition) :
-  Filter() {
+  Filter(definition) {
   configure(videoStream, codecContext, definition);
 }
 
@@ -127,8 +128,15 @@ void vivictpp::libav::VideoFilter::configure(AVStream *videoStream, AVCodecConte
   configureGraph(definition);
 }
 
+FilteredVideoMetadata vivictpp::libav::VideoFilter::getFilteredVideoMetadata() {
+    int w = av_buffersink_get_w(bufferSinkCtx);
+    int h = av_buffersink_get_h(bufferSinkCtx);
+    double frameRate = av_q2d(av_buffersink_get_frame_rate(bufferSinkCtx));
+    return FilteredVideoMetadata(definition, Resolution(w,h), frameRate);
+}
+
 vivictpp::libav::AudioFilter::AudioFilter(AVCodecContext *codecContext, std::string definition) :
-  Filter() {
+  Filter(definition) {
   configure(codecContext, definition);
 }
 

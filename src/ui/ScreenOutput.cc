@@ -8,6 +8,7 @@
 #include "VideoMetadata.hh"
 #include "Resolution.hh"
 #include "sdl/SDLUtils.hh"
+#include "ui/Ui.hh"
 
 #include <cstring>
 #include <exception>
@@ -24,10 +25,10 @@ const std::string SPLASH_TEXT("____   ____._______   ____.______________________
 
 Resolution getTargetResolution(const std::shared_ptr<VideoMetadata> &leftVideoMetadata,
                                const std::shared_ptr<VideoMetadata> &rightVideoMetadata){
-  if ((!rightVideoMetadata) || leftVideoMetadata->width > rightVideoMetadata->width) {
-    return leftVideoMetadata->resolution;
+  if ((!rightVideoMetadata) || leftVideoMetadata->filteredResolution.w > rightVideoMetadata->filteredResolution.w) {
+    return leftVideoMetadata->filteredResolution;
   }
-  return rightVideoMetadata->resolution;
+  return rightVideoMetadata->filteredResolution;
 }
 
 std::vector<vivictpp::vmaf::VmafLog> vmafLogs(const std::vector<SourceConfig> &sourceConfigs) {
@@ -53,36 +54,41 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
     rightTexture(nullptr, nullptr),
     handCursor(vivictpp::sdl::createHandCursor()),
     defaultCursor(SDL_GetCursor()),
-    timeTextBox("00:00:00", "FreeMono", 24, TextBoxPosition::TOP_CENTER),
-    leftMetadataBox("", "FreeMono", 16, TextBoxPosition::TOP_LEFT,
-                    0,0, "Stream Info"),
-    rightMetadataBox("", "FreeMono", 16, TextBoxPosition::TOP_RIGHT,
-                     0,0, "Stream Info"),
-    leftFrameBox("", "FreeMono", 16, TextBoxPosition::TOP_LEFT, 0, 140,
-                 "Frame Info"),
-    rightFrameBox("", "FreeMono", 16, TextBoxPosition::TOP_RIGHT, 0, 140,
-                  "Frame Info", 120),
-    frameOffsetBox("", "FreeMono", 16, TextBoxPosition::TOP_LEFT, 0, 202,
-                   "Frame offset", 120),
-    splashText(SPLASH_TEXT, "FreeMono", 32 , TextBoxPosition::CENTER),
+    timeTextBox(Position::TOP_CENTER, {std::make_shared<TextBox>("00:00:00", "FreeMono", 24)}),
+    leftMetaDisplay(Position::TOP_LEFT, {
+      std::make_shared<TextBox>("", "FreeMono", 16, "Stream Info"),
+      std::make_shared<TextBox>("", "FreeMono", 16, "Frame Info"),
+      std::make_shared<TextBox>("", "FreeMono", 16, "Frame offset", 120)
+    }),
+    rightMetaDisplay(Position::TOP_RIGHT, {
+      std::make_shared<TextBox>("", "FreeMono", 16, "Stream Info"),
+      std::make_shared<TextBox>("", "FreeMono", 16, "Frame Info", 120)
+    }),
+    splashText(Position::CENTER, {std::make_shared<TextBox>(SPLASH_TEXT, "FreeMono", 32)}),
     vmafGraph(vmafLogs(sourceConfigs), 1.0f, 0.3f),
     logger(vivictpp::logging::getOrCreateLogger("ScreenOutput")) {
 
   /*
   if (rightVideoMetadata) {
     rightTexture = vivictpp::sdl::createTexture(renderer.get(),
-                                 rightVideoMetadata->width, rightVideoMetadata->height);
+                                 rightVideoMetadata->filteredResolution.w, rightVideoMetadata->filteredResolution.h);
     rightMetadataBox.setText(rightVideoMetadata->toString());
   }
   */
-
+  dynamic_cast<TextBox&>(leftMetaDisplay[0]).bg = {50, 50, 50, 100};
+  dynamic_cast<TextBox&>(leftMetaDisplay[1]).bg = {50, 50, 50, 100};
+  dynamic_cast<TextBox&>(leftMetaDisplay[2]).bg = {50, 50, 50, 100};
+  dynamic_cast<TextBox&>(rightMetaDisplay[0]).bg = {50, 50, 50, 100};
+  dynamic_cast<TextBox&>(rightMetaDisplay[1]).bg = {50, 50, 50, 100};
+  /*
   leftMetadataBox.bg = {50, 50, 50, 100};
   rightMetadataBox.bg = {50, 50, 50, 100};
   leftFrameBox.bg = {50, 50, 50, 100};
   rightFrameBox.bg = {50, 50, 50, 100};
   frameOffsetBox.bg = {50, 50, 50, 100};
-  splashText.bg = {0,0,0,255};
-  splashText.border = false;
+  */
+  dynamic_cast<TextBox&>(splashText[0]).bg = {0,0,0,255};
+  dynamic_cast<TextBox&>(splashText[0]).border = false;
   renderSplash();
 }
 
@@ -90,25 +96,25 @@ vivictpp::ui::ScreenOutput::~ScreenOutput() {
 }
 
 Resolution vivictpp::ui::ScreenOutput::getTargetResolution() {
-   if ((!rightVideoMetadata) || leftVideoMetadata->width > rightVideoMetadata->width) {
-    return leftVideoMetadata->resolution;
+   if ((!rightVideoMetadata) || leftVideoMetadata->filteredResolution.w > rightVideoMetadata->filteredResolution.w) {
+     return leftVideoMetadata->filteredResolution;
   }
-  return rightVideoMetadata->resolution;
+   return rightVideoMetadata->filteredResolution;
 }
 
 void vivictpp::ui::ScreenOutput::setLeftMetadata(const VideoMetadata &metadata) {
   leftVideoMetadata.reset( new VideoMetadata(metadata));
-  leftMetadataBox.setText(leftVideoMetadata->toString());
+  leftMetaDisplay.getComponent<TextBox>(0).setText(leftVideoMetadata->toString());
   leftTexture = vivictpp::sdl::createTexture(renderer.get(),
-                              leftVideoMetadata->width, leftVideoMetadata->height);
+                              leftVideoMetadata->filteredResolution.w, leftVideoMetadata->filteredResolution.h);
   setSize();
 }
 
 void vivictpp::ui::ScreenOutput::setRightMetadata(const VideoMetadata &metadata) {
   rightVideoMetadata.reset( new VideoMetadata(metadata));
-  rightMetadataBox.setText(rightVideoMetadata->toString());
+  rightMetaDisplay.getComponent<TextBox>(0).setText(rightVideoMetadata->toString());
   rightTexture = vivictpp::sdl::createTexture(renderer.get(),
-                               rightVideoMetadata->width, rightVideoMetadata->height);
+                               rightVideoMetadata->filteredResolution.w, rightVideoMetadata->filteredResolution.h);
   setSize();
 }
 
@@ -136,7 +142,7 @@ void vivictpp::ui::ScreenOutput::setFullscreen(bool fullscreen) {
 }
 
 void vivictpp::ui::ScreenOutput::drawTime(const DisplayState &displayState) {
-  timeTextBox.setText(displayState.timeStr);
+  timeTextBox.getComponent<TextBox>(0).setText(displayState.timeStr);
   timeTextBox.render(renderer.get());
 }
 
@@ -144,9 +150,9 @@ void vivictpp::ui::ScreenOutput::calcZoomedSrcRect(const DisplayState &displaySt
                                      const Resolution &scaledResolution,
                                      const std::shared_ptr<VideoMetadata> &videoMetadata,
                                      SDL_Rect &rect) {
-  int srcW = videoMetadata->width;
-  int srcH = videoMetadata->height;
-  float panScaling = (videoMetadata->width * displayState.zoom.multiplier()) /
+  int srcW = videoMetadata->filteredResolution.w;
+  int srcH = videoMetadata->filteredResolution.h;
+  float panScaling = (videoMetadata->filteredResolution.w * displayState.zoom.multiplier()) /
     scaledResolution.w;
   if(scaledResolution.w <= width) {
     rect.w = srcW;
@@ -165,9 +171,9 @@ void vivictpp::ui::ScreenOutput::calcZoomedSrcRect(const DisplayState &displaySt
 }
 
 void vivictpp::ui::ScreenOutput::setDefaultSourceRectangles(const DisplayState &displayState) {
-  vivictpp::ui::setRectangle(sourceRectLeft, 0, 0, leftVideoMetadata->width, leftVideoMetadata->height);
+  vivictpp::ui::setRectangle(sourceRectLeft, 0, 0, leftVideoMetadata->filteredResolution.w, leftVideoMetadata->filteredResolution.h);
   if (!displayState.splitScreenDisabled) {
-    vivictpp::ui::setRectangle(sourceRectRight, 0, 0, rightVideoMetadata->width, rightVideoMetadata->height);
+    vivictpp::ui::setRectangle(sourceRectRight, 0, 0, rightVideoMetadata->filteredResolution.w, rightVideoMetadata->filteredResolution.h);
   }
 }
 
@@ -266,13 +272,17 @@ void vivictpp::ui::ScreenOutput::displayFrame(
   if (displayState.displayTime) {
     drawTime(displayState);
   }
-  if (displayState.displayMetadata) {
-    leftMetadataBox.render(renderer.get());
-    if (frame2 != nullptr) {
-      rightMetadataBox.render(renderer.get());
-    }
+  leftMetaDisplay.getComponent<TextBox>(0).display = displayState.displayMetadata;
+  leftMetaDisplay.getComponent<TextBox>(1).display =
+    displayState.displayMetadata && !displayState.isPlaying;
+  leftMetaDisplay.getComponent<TextBox>(2).display = displayState.leftFrameOffset != 0;
+
+  if (displayState.leftFrameOffset != 0) {
+    leftMetaDisplay.getComponent<TextBox>(2).setText(std::string("  ") + std::to_string(displayState.leftFrameOffset));
   }
-  if (!displayState.isPlaying && displayState.displayMetadata) {
+
+  if (displayState.displayMetadata) {
+    if (!displayState.isPlaying) {
       std::string text = std::string("Frametype: ")
                          + av_get_picture_type_char(frame1->pict_type)
                          + std::string("\nFrame size: ") + std::to_string(frame1->pkt_size);
@@ -282,8 +292,7 @@ void vivictpp::ui::ScreenOutput::displayFrame(
         text += std::string("\nVmaf score: ")
                 + std::to_string(sourceConfigs[0].vmafLog.getVmafValues()[frameN]);
       }
-      leftFrameBox.setText(text);
-      leftFrameBox.render(renderer.get());
+      leftMetaDisplay.getComponent<TextBox>(1).setText(text);
       if (frame2 != nullptr) {
         text = std::string("Frametype: ")
                        + av_get_picture_type_char(frame2->pict_type)
@@ -294,16 +303,17 @@ void vivictpp::ui::ScreenOutput::displayFrame(
           text += std::string("\nVmaf score: ")
                   + std::to_string(sourceConfigs[1].vmafLog.getVmafValues()[frameN]);
         }
-        rightFrameBox.setText(text);
-        rightFrameBox.render(renderer.get());
+        rightMetaDisplay.getComponent<TextBox>(1).setText(text);
       }
+    }
   }
-  if (displayState.leftFrameOffset != 0) {
-    frameOffsetBox.setText(std::string("  ") + std::to_string(displayState.leftFrameOffset));
-    int y = displayState.displayMetadata ? ( displayState.isPlaying ? 140 : 202) : 0;
-    frameOffsetBox.setY(y);
-    frameOffsetBox.render(renderer.get());
+
+
+  leftMetaDisplay.render(renderer.get());
+  if (frame2 != nullptr) {
+    rightMetaDisplay.render(renderer.get());
   }
+
   if (frame2 != nullptr) {
     SDL_SetRenderDrawBlendMode(renderer.get(), SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255, 50);

@@ -7,8 +7,9 @@
 #define RESOLUTION_H_
 
 struct Resolution {
-Resolution(int w, int h):
-  w(w), h(h) {};
+  Resolution(int w, int h):
+    w(w), h(h) {};
+  Resolution(const Resolution &other) = default;
   int w;
   int h;
   float aspectRatio() const {
