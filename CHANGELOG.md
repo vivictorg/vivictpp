@@ -3,6 +3,11 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.1.14 2022-07-07
+
+### Added
+- Support for filters that change video resolution
+
 ## 0.1.13 2022-06-10
 
 ### Added
