@@ -11,10 +11,13 @@
 #include "spdlog/spdlog.h"
 #include "ui/VivictPPUI.hh"
 #include "ui/ScreenOutput.hh"
+#include "ui/Events.hh"
 #include "VideoMetadata.hh"
 #include "SourceConfig.hh"
+#include <functional>
 #include <vector>
 #include <map>
+#include <optional>
 
 namespace vivictpp {
 namespace sdl {
@@ -23,6 +26,7 @@ struct MouseState {
   bool button{false};
   int64_t buttonTime;
   bool dragging{false};
+  std::optional<const vivictpp::ui::MouseClicked> mouseClicked;
 };
 
 struct CustomEvent {
@@ -62,7 +66,7 @@ public:
     return screenOutput.getWidth();
   }
   int getHeight() override {
-    return screenOutput.getWidth();
+    return screenOutput.getHeight();
   }
   void setFullscreen(bool fullscreen) override {
     screenOutput.setFullscreen(fullscreen);

@@ -50,6 +50,7 @@ public:
 private:
   AVPacket *packet;
   vivictpp::logging::Logger logger;
+  vivictpp::logging::Logger seeklog;
   std::vector<AVStream *> videoStreams;
   std::vector<AVStream *> audioStreams;
   std::vector<AVStream *> streams;

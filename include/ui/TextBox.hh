@@ -32,8 +32,7 @@ public:
           Margin margin = {2,2,2,2});
   ~TextBox();
   void render(SDL_Renderer *renderer, int x, int y) override;
-  int getRenderedWidth() override { return display ? textureW : 0; }
-  int getRenderedHeight() override { return display ? textureH : 0; }
+  const Box& getBox() const override { return box; }
   void setText(std::string newText);
   SDL_Color fg = {255, 255, 255, 255};
   SDL_Color bg = {50, 50, 50, 255};
@@ -52,6 +51,7 @@ private:
   int minHeight = 0;
   Margin margin;
   bool changed = false;
+  Box box;
 private:
   void initTexture(SDL_Renderer *renderer);
 };

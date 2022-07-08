@@ -50,6 +50,7 @@ private:
   };
   bool onData(const vivictpp::workers::Data<vivictpp::libav::Packet> &data) override;
   void doWork() override;
+  void dropFrameIfSeekingAndBufferFull();
   bool seeking() { return state == InputWorkerState::SEEKING; }
   void addFrameToBuffer(const vivictpp::libav::Frame &frame);
 

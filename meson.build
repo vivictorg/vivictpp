@@ -39,10 +39,11 @@ vivictpplib = static_library('vivictpplib', 'src/libav/Decoder.cc', 'src/libav/F
                              'src/libav/Frame.cc', 'src/logging/Logging.cc',
                              'src/ui/VmafGraph.cc', 'src/ui/Fonts.cc', 'src/ui/TextTexture.cc',
                              'src/Controller.cc', 'src/ui/Container.cc',
+                             'src/ui/SeekBar.cc',
                              dependencies: deps, include_directories: incdir)
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps,
-           include_directories: incdir, install: true, cpp_args : '-DVPP_GIT_HASH="' + git_hash + '"')
+           include_directories: incdir, install: true, cpp_args : '-DVPP_GIT_HASH="' + git_hash + '"', link_args: '-g')
 
 #seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
 # test('FormatHandler.seek', seekTest)

@@ -114,6 +114,7 @@ void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<
 
 void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback) {
   PacketWorker *packetWorker(this);
+  seeklog->debug("PacketWorker::seek pos={}", pos);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
                                                (void) serialNo;
         packetWorker->formatHandler.seek(pos);

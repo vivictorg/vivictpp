@@ -1,37 +1,20 @@
 #include "ui/Container.hh"
-
-int vivictpp::ui::Container::getRenderedWidth() {
-  int w = 0;
-  for (auto& c : components) {
-    w = std::max(c->getRenderedWidth(), w);
-  }
-  return w;
-}
-
-int vivictpp::ui::Container::getRenderedHeight() {
-  int h = 0;
-  int n = 0;
-  for (auto& c : components) {
-    int ch = c->getRenderedHeight();
-    h += ch;
-    if (ch > 0) {
-      n++;
-    }
-  }
-  if (n > 1) {
-      h += (n - 1) * padding;
-  }
-  return h;
-}
+#include <cstddef>
 
 void vivictpp::ui::Container::render(SDL_Renderer *renderer, int x, int y) {
-  for (auto &c : components) {
+  box.x = x;
+  box.y = y;
+  int w = 0;
+  for (size_t i = 0; i < components.size(); i++) {
+    auto &c = components[i];
     c->render(renderer, x, y);
-    int h = c->getRenderedHeight();
-    if (h > 0) {
-      y += h  + padding;
+    if (c->getBox().h > 0) {
+      y += c->getBox().h + padding;
     }
+    w = std::max(w, c->getBox().w);
   }
+  box.h = std::max(0, y - padding);
+  box.w = w;
 }
 
 vivictpp::ui::Component& vivictpp::ui::Container::operator[](int index) {
@@ -62,14 +45,14 @@ void vivictpp::ui::FixedPositionContainer::render(SDL_Renderer *renderer, int x,
     x = 5 + this->offset.x;
     break;
   case Position::TOP_CENTER:
-    x = this->offset.x + (rendererWidth - getRenderedWidth()) / 2;
+    x = this->offset.x + (rendererWidth - box.w) / 2;
     break;
   case Position::TOP_RIGHT:
-    x = this->offset.x + rendererWidth - getRenderedWidth() - 5;
+    x = this->offset.x + rendererWidth - box.w - 5;
     break;
   case Position::CENTER:
-    x = this->offset.x + (rendererWidth - getRenderedWidth()) / 2;
-    y = this->offset.y + (rendererHeight - getRenderedHeight()) / 2;
+    x = this->offset.x + (rendererWidth - box.w) / 2;
+    y = this->offset.y + (rendererHeight - box.h) / 2;
   }
 
   Container::render(renderer, x, y);

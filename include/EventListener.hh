@@ -22,10 +22,12 @@ struct KeyModifiers {
 class EventListener {
  public:
   virtual ~EventListener() = default;
-  virtual void mouseDrag(const int xrel, const int yrel) = 0;
+  virtual void mouseDrag(const vivictpp::ui::MouseDragged mouseDragged) = 0;
+  virtual void mouseDragStarted(const vivictpp::ui::MouseDragStarted mouseDragStarted) = 0;
+  virtual void mouseDragStopped(const vivictpp::ui::MouseDragStopped mouseDragStopped) = 0;
   virtual void mouseMotion(const int x, const int y) = 0;
   virtual void mouseWheel(const int x, const int y) = 0;
-  virtual void mouseClick(const int x, const int y) = 0;
+  virtual void mouseClick(const vivictpp::ui::MouseClicked mouseClicked) = 0;
   virtual void keyPressed(const std::string &key, const KeyModifiers &modifiers) = 0;
   virtual void advanceFrame() = 0;
   virtual void queueAudio() = 0;

@@ -93,6 +93,7 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
 
 void vivictpp::ui::TextBox::render(SDL_Renderer *renderer, int x, int y) {
   if (!display) {
+    box = {x,y,0,0};
     return;
   }
   SDL_Texture *oldTexture(nullptr);
@@ -102,10 +103,10 @@ void vivictpp::ui::TextBox::render(SDL_Renderer *renderer, int x, int y) {
   }
 
   SDL_Rect rect = {x, y, textureW, textureH};
-
   SDL_RenderCopy(renderer, texture, nullptr, &rect);
   if (oldTexture) {
     SDL_DestroyTexture(oldTexture);
   }
+  box = {x, y, textureW, textureH};
   changed = false;
 }

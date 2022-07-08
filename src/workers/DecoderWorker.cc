@@ -44,6 +44,7 @@ vivictpp::workers::DecoderWorker::~DecoderWorker() {
   quit();
 }
 
+
 void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback) {
   seeklog->debug("vivictpp::workers::DecoderWorker::seek pos={}", pos);
   DecoderWorker *dw(this);
@@ -70,11 +71,9 @@ void logPacket(vivictpp::libav::Packet pkt, const std::shared_ptr<spdlog::logger
 void vivictpp::workers::DecoderWorker::doWork() {
     logger->trace("vivictpp::workers::DecoderWorker::doWork");
     while (!frameQueue.empty() && frameBuffer.waitForNotFull(std::chrono::milliseconds(2))) {
-        if (seeking()) {
-            frameBuffer.dropIfFull(1);
-        }
-        addFrameToBuffer(frameQueue.front());
-        frameQueue.pop();
+      dropFrameIfSeekingAndBufferFull();
+      addFrameToBuffer(frameQueue.front());
+      frameQueue.pop();
     }
 }
 
@@ -92,9 +91,7 @@ bool vivictpp::workers::DecoderWorker::onData(const vivictpp::workers::Data<vivi
   logPacket(packet, logger);
   std::vector<vivictpp::libav::Frame> frames = decoder->handlePacket(packet.avPacket());
   for (auto frame : frames) {
-    if (seeking()) {
-      frameBuffer.dropIfFull(1);
-    }
+    dropFrameIfSeekingAndBufferFull();
     vivictpp::libav::Frame filtered = filter ? filter->filterFrame(frame) : frame;
     if (!filtered.empty()) {
       if (frameBuffer.isFull()) {
@@ -105,6 +102,13 @@ bool vivictpp::workers::DecoderWorker::onData(const vivictpp::workers::Data<vivi
     }
   }
   return true;
+}
+
+void inline vivictpp::workers::DecoderWorker::dropFrameIfSeekingAndBufferFull() {
+  if (seeking()) {
+    seeklog->debug("vivictpp::workers::DecoderWorker::dropFrameIfSeekingAndBufferFull Dropping 1 frame from buffer");
+    frameBuffer.dropIfFull(1);
+  }
 }
 
 void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::Frame &frame) {

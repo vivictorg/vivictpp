@@ -106,6 +106,7 @@ public:
   std::shared_ptr<vivictpp::audio::AudioOutput> audioOutput;
   vivictpp::time::Time frameDuration;
   vivictpp::logging::Logger logger;
+  vivictpp::logging::Logger seeklog;
 };
 
 #endif  // VIVICTPP_H_

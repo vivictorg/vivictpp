@@ -45,7 +45,8 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
     eventScheduler(eventScheduler),
     videoInputs(vivictPPConfig),
     audioOutput(nullptr),
-    logger(vivictpp::logging::getOrCreateLogger("VivictPP")) {
+    logger(vivictpp::logging::getOrCreateLogger("VivictPP")),
+    seeklog(vivictpp::logging::getOrCreateLogger("seeklog")){
   if (!vivictPPConfig.disableAudio && videoInputs.hasAudio()) {
     audioOutput = audioOutputFactory.create(videoInputs.getAudioCodecContext());
   }
@@ -209,7 +210,7 @@ void VivictPP::seekNextFrame() {
 }
 
 void VivictPP::seekRelative(vivictpp::time::Time deltaT) {
-  logger->trace("VivictPP::seekRelative deltaT={} pts={} nextPts={} seeking={}", deltaT, state.pts, state.nextPts, state.seeking);
+  seeklog->debug("VivictPP::seekRelative deltaT={} pts={} nextPts={} seeking={}", deltaT, state.pts, state.nextPts, state.seeking);
   if (state.seeking) {
     seek(state.nextPts + deltaT);
   } else {
@@ -221,9 +222,10 @@ void VivictPP::seek(vivictpp::time::Time nextPts) {
   nextPts = std::max(nextPts, videoInputs.minPts());
   nextPts = std::min(nextPts, videoInputs.maxPts());
   state.nextPts = nextPts;
-  logger->debug("VivictPP::seek pts={} nextPts={} seeking={}", state.pts, state.nextPts, state.seeking);
+  seeklog->debug("VivictPP::seek pts={} nextPts={} seeking={}", state.pts, state.nextPts, state.seeking);
   if (videoInputs.ptsInRange(state.nextPts) &&
       (!audioOutput || videoInputs.audioFrames().ptsInRange(state.nextPts))) {
+    seeklog->debug("VivictPP::seek Seek pts in range");
     if (state.playbackState == PlaybackState::PLAYING) {
       togglePlaying();
       audioSeek(state.nextPts);
@@ -234,6 +236,7 @@ void VivictPP::seek(vivictpp::time::Time nextPts) {
       eventScheduler->scheduleAdvanceFrame(5);
     }
   } else {
+    seeklog->debug("VivictPP::seek Seek pts not in range");
     state.seeking = true;
     videoInputs.seek(state.nextPts, [this](vivictpp::time::Time pos) {
       this->eventScheduler->scheduleSeekFinished(pos);

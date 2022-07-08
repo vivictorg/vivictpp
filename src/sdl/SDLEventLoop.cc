@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "sdl/SDLEventLoop.hh"
+#include "SDL_events.h"
+#include "SDL_video.h"
 #include "ui/Events.hh"
 #include <memory>
 
@@ -118,7 +120,18 @@ void vivictpp::sdl::SDLEventLoop::handleCustomEvent(const SDL_Event &event, Even
         mouseState.buttonTime != 0 &&
         vivictpp::time::relativeTimeMillis() - mouseState.buttonTime > 190) {
       mouseState.dragging = true;
-      screenOutput.setCursorHand();
+      if (mouseState.mouseClicked.has_value() && mouseState.mouseClicked.value().target == "seekbar") {
+        screenOutput.setCursorHand();
+      } else {
+        screenOutput.setCursorPan();
+      }
+      vivictpp::ui::MouseDragStarted mouseDragStarted = {
+        mouseState.mouseClicked.value().target,
+        mouseState.mouseClicked.value().x,
+        mouseState.mouseClicked.value().y,
+        mouseState.mouseClicked.value().component
+      };
+      eventListener.mouseDragStarted(mouseDragStarted);
     }
   } else if(event.type == queueAudioEventType.type) {
     eventListener.queueAudio();
@@ -148,26 +161,41 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
           if (!mouseState.dragging) {
             eventListener.mouseMotion(mouseEvent.x, mouseEvent.y);
           } else {
-            eventListener.mouseDrag(mouseEvent.xrel, mouseEvent.yrel);
+            vivictpp::ui::MouseDragged mouseDragged = {
+              mouseState.mouseClicked.value().target,
+              mouseEvent.x,
+              mouseEvent.y,
+              mouseEvent.xrel,
+              mouseEvent.yrel,
+              mouseState.mouseClicked.value().component
+            };
+            eventListener.mouseDrag(mouseDragged);
           }
         } break;
         case SDL_MOUSEWHEEL:
           eventListener.mouseWheel(event.wheel.x, event.wheel.y);
           break;
         case SDL_MOUSEBUTTONDOWN: {
+          SDL_MouseButtonEvent mouseEvent = event.button;
           mouseState.button = true;
           mouseState.buttonTime = vivictpp::time::relativeTimeMillis();
+          mouseState.mouseClicked.emplace(screenOutput.getClickTarget(mouseEvent.x, mouseEvent.y));
           scheduleEvent(checkMouseDragEventType, 200);
         } break;
         case SDL_MOUSEBUTTONUP: {
-          SDL_MouseButtonEvent mouseEvent = event.button;
           if (!mouseState.dragging) {
-            eventListener.mouseClick(mouseEvent.x, mouseEvent.y);
+            eventListener.mouseClick(mouseState.mouseClicked.value());
           } else {
             screenOutput.setCursorDefault();
+            vivictpp::ui::MouseDragStopped mouseDragStopped = {
+              mouseState.mouseClicked.value().target,
+              mouseState.mouseClicked.value().component
+            };
+            eventListener.mouseDragStopped(mouseDragStopped);
           }
           mouseState.button = false;
           mouseState.dragging = false;
+          mouseState.mouseClicked.reset();
           mouseState.buttonTime = 0;
         } break;
         case SDL_KEYDOWN: {
@@ -186,8 +214,8 @@ void vivictpp::sdl::SDLEventLoop::start(EventListener &eventListener) {
         }
       }
     }
-    logger->debug("SDLEventLoop finished");
   }
+  logger->debug("SDLEventLoop finished");
 }
 
 void vivictpp::sdl::SDLEventLoop::stop() {
