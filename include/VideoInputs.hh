@@ -14,16 +14,32 @@ extern "C" {
 #include <string>
 #include <vector>
 #include <exception>
+#include <atomic>
+#include <mutex>
 
 #include "SourceConfig.hh"
 #include "VivictPPConfig.hh"
 #include "libav/Frame.hh"
 #include "workers/PacketWorker.hh"
 #include "workers/DecoderWorker.hh"
+#include "Seeking.hh"
 
 struct MediaPipe {
     std::shared_ptr<vivictpp::workers::PacketWorker> packetWorker;
     std::shared_ptr<vivictpp::workers::DecoderWorker> decoder;
+};
+
+class SeekState {
+public:
+    int reset(int nSeeks, vivictpp::SeekCallback onFinished);
+    void handleSeekFinished(int seekId, int seekPos);
+
+private:
+    int seekId{1}; // Used to ignore obsolete callbacks from previos seek operations
+    std::vector<vivictpp::time::Time> seekEndPos;
+    int remainingSeeks;
+    vivictpp::SeekCallback callback;
+    std::mutex m;
 };
 
 class VideoInputs {
@@ -39,6 +55,7 @@ private:
         logger->debug("leftPtsOffset: {}", leftPtsOffset);
     }
     vivictpp::logging::Logger logger;
+    SeekState seekState;
 
 public:
     explicit VideoInputs(VivictPPConfig vivictPPConfig);
@@ -48,7 +65,7 @@ public:
     void dropIfFullAndOutOfRange(vivictpp::time::Time nextPts, int framesToDrop);
     void dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop);
     std::array<vivictpp::libav::Frame, 2> firstFrames();
-    void seek(vivictpp::time::Time pts);
+    void seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFinished);
     std::array<std::vector<VideoMetadata>, 2> metadata();
     vivictpp::time::Time duration();
     vivictpp::time::Time startTime();

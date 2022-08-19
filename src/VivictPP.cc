@@ -235,10 +235,18 @@ void VivictPP::seek(vivictpp::time::Time nextPts) {
     }
   } else {
     state.seeking = true;
-    videoInputs.seek(state.nextPts);
+    videoInputs.seek(state.nextPts, [this](vivictpp::time::Time pos) {
+      this->eventScheduler->scheduleSeekFinished(pos);
+    });
     eventScheduler->clearAdvanceFrame();
-    eventScheduler->scheduleAdvanceFrame(5);
+//    eventScheduler->scheduleAdvanceFrame(5);
   }
+}
+
+void VivictPP::onSeekFinished(vivictpp::time::Time seekedPos) {
+  this->seeklog->debug("Seek callback called with pos={}", seekedPos);
+  state.nextPts = seekedPos;
+  eventScheduler->scheduleAdvanceFrame(0);
 }
 
 void VivictPP::audioSeek(vivictpp::time::Time pts) {

@@ -13,6 +13,7 @@
 #include "workers/DecoderWorker.hh"
 #include "VideoMetadata.hh"
 #include "time/Time.hh"
+#include "Seeking.hh"
 
 namespace vivictpp {
 namespace workers {
@@ -23,8 +24,9 @@ public:
   virtual ~PacketWorker();
   void addDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   void removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
-  bool hasDecoders() { return !decoderWorkers.empty(); }
-  void seek(vivictpp::time::Time pos);
+  bool hasDecoders() { return !decoderWorkers.empty(); };
+  int nDecoders() { return decoderWorkers.size(); };
+  void seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback);
   const std::vector<VideoMetadata> &getVideoMetadata() {
     std::lock_guard<std::mutex> guard(videoMetadataMutex);
     return this->videoMetadata;

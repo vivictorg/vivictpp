@@ -25,18 +25,20 @@ struct MouseState {
   bool dragging{false};
 };
 
-class CustomEvent {
-public:
-  CustomEvent(unsigned int type, std::string name):
-    type(type),
-    name(name) {};
-  CustomEvent(const CustomEvent &other) = default;
-  bool operator==(const CustomEvent other) const { return this->type == other.type; };
-public:
-  const unsigned int type;
-  const std::string name;
+struct CustomEvent {
+  CustomEvent(uint32_t type, std::string name):
+    type(type), name(name) {};
+  virtual ~CustomEvent() {};
+  uint32_t type;
+  std::string name;
 };
 
+struct SeekFinishedEvent: CustomEvent {
+  SeekFinishedEvent(const CustomEvent &prototype, vivictpp::time::Time seekedPos):
+    CustomEvent(prototype),
+    seekedPos(seekedPos) {};
+  vivictpp::time::Time seekedPos;
+};
 
 class SDLEventLoop : public vivictpp::ui::VivictPPUI {
 public:
@@ -47,6 +49,7 @@ public:
   void scheduleRefreshDisplay(int delay) override;
   void scheduleQueueAudio(int delay) override;
   void scheduleFade(int delay) override;
+  void scheduleSeekFinished(vivictpp::time::Time pts) override;
   void clearAdvanceFrame() override;
   void start(EventListener &eventListener) override;
   void stop() override;
@@ -71,18 +74,21 @@ public:
     screenOutput.setRightMetadata(metadata);
   }
  private:
-  void scheduleEvent(const CustomEvent &eventType, const int delay);
+  void scheduleEvent(const CustomEvent &event, const int delay);
+  void scheduleEvent(CustomEvent *event, const int delay);
+  bool isCustomEvent(const SDL_Event &event);
+  void handleCustomEvent(const SDL_Event &event, EventListener &eventListener);
  private:
   SDLInitializer sdlInitializer;
   vivictpp::ui::ScreenOutput screenOutput;
   std::atomic<bool> quit;
   MouseState mouseState;
-  CustomEvent refreshEventType;
-  CustomEvent advanceFrameEventType;
-  CustomEvent checkMouseDragEventType;
-  CustomEvent queueAudioEventType;
-  CustomEvent fadeEventType;
-
+  const CustomEvent refreshEventType;
+  const CustomEvent advanceFrameEventType;
+  const CustomEvent checkMouseDragEventType;
+  const CustomEvent queueAudioEventType;
+  const CustomEvent fadeEventType;
+  const CustomEvent seekFinishedEventType;
   SDL_TimerID advanceFrameTimerId;
   std::shared_ptr<spdlog::logger> logger;
 };

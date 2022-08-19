@@ -3,8 +3,30 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "VideoInputs.hh"
+#include "Seeking.hh"
 #include "spdlog/spdlog.h"
 #include <libavcodec/avcodec.h>
+
+int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
+  std::lock_guard<std::mutex> lg(m);
+  remainingSeeks = nSeeks;
+  seekEndPos.clear();
+  callback = onFinished;
+  seekId++;
+  return seekId;
+}
+
+void SeekState::handleSeekFinished(int seekId, int seekPos) {
+  std::lock_guard<std::mutex> lg(m);
+  if(seekId != this->seekId) return;
+  seekEndPos.push_back(seekPos);
+  remainingSeeks--;
+  if (remainingSeeks == 0) {
+    vivictpp::time::Time minPos = *std::min_element(seekEndPos.begin(), seekEndPos.end());
+    callback(minPos);
+  }
+}
+
 
 VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
   _leftFrameOffset(0),
@@ -112,12 +134,23 @@ std::array<vivictpp::libav::Frame, 2> VideoInputs::firstFrames() {
   return result;
 }
 
-void VideoInputs::seek(vivictpp::time::Time pts) {
+void VideoInputs::seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFinished) {
+  int nDecoders = 0;
+  for (auto packetWorker : packetWorkers) {
+    nDecoders += packetWorker->nDecoders();
+  }
+  int seekId = seekState.reset(nDecoders, onSeekFinished);
   for (auto packetWorker : packetWorkers) {
     if (packetWorker == leftInput.packetWorker) {
-      packetWorker->seek(pts + leftPtsOffset);
+      vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos) {
+        this->seekState.handleSeekFinished(seekId, seekEndPos - leftPtsOffset);
+      };
+      packetWorker->seek(pts + leftPtsOffset, seekCallback);
     } else {
-      packetWorker->seek(pts);
+      vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos) {
+        this->seekState.handleSeekFinished(seekId, seekEndPos);
+      };
+      packetWorker->seek(pts, seekCallback);
     }
   }
 }
@@ -144,7 +177,7 @@ void VideoInputs::selectStream(MediaPipe &input, int streamIndex) {
   input.decoder.reset(
     new vivictpp::workers::DecoderWorker(input.packetWorker->getVideoStreams()[streamIndex]));
   input.packetWorker->addDecoderWorker(input.decoder);
-  input.packetWorker->seek(currentPts);
+  input.packetWorker->seek(currentPts, [](vivictpp::time::Time _) { (void) _; });
   input.packetWorker->start();
   input.decoder->start();
 }

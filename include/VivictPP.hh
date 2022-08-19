@@ -97,6 +97,7 @@ public:
     }
     return value;
   }
+  void onSeekFinished(vivictpp::time::Time seekedPos);
 
  private:
   PlayerState state;

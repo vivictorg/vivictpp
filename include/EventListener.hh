@@ -5,7 +5,11 @@
 #ifndef EVENT_LISTENER_H_
 #define EVENT_LISTENER_H_
 
+#include <cstdint>
 #include <string>
+
+#include "ui/Events.hh"
+#include "time/Time.hh"
 
 namespace vivictpp {
 
@@ -27,6 +31,7 @@ class EventListener {
   virtual void queueAudio() = 0;
   virtual void refreshDisplay() = 0;
   virtual void fade() = 0;
+  virtual void seekFinished(vivictpp::time::Time seekedPos) = 0;
 
 };
 

@@ -12,12 +12,14 @@
 #include "workers/FrameBuffer.hh"
 #include "libav/Decoder.hh"
 #include "time/Time.hh"
+#include "Seeking.hh"
 
 #include <memory>
 #include <queue>
 #include <atomic>
 #include <string>
 #include "spdlog/spdlog.h"
+
 
 namespace vivictpp {
 namespace workers {
@@ -29,7 +31,7 @@ public:
                 int frameBufferSize = 50,
                 int packetQueueSize = 256);
   virtual ~DecoderWorker();
-  void seek(vivictpp::time::Time pos);
+  void seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback);
   AVStream *getStream() { return stream; };
   AVCodecContext *getCodecContext() { return decoder->getCodecContext(); }
   FrameBuffer &frames() { return frameBuffer; }
@@ -60,6 +62,7 @@ private:
   std::queue<vivictpp::libav::Frame> frameQueue;
   vivictpp::time::Time seekPos;
   vivictpp::time::Time lastSeenPts;
+  vivictpp::SeekCallback seekCallback;
 
 };
 }  // namespace workers

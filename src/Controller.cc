@@ -62,6 +62,10 @@ void vivictpp::Controller::fade() {
   }
 }
 
+void vivictpp::Controller::seekFinished(vivictpp::time::Time seekedPos) {
+  vivictPP.onSeekFinished(seekedPos);
+}
+
 void vivictpp::Controller::refreshDisplay() {
   logger->trace("vivictpp::Controller::refreshDisplay");
   std::array<vivictpp::libav::Frame, 2> frames = vivictPP.getVideoInputs().firstFrames();

@@ -44,7 +44,8 @@ vivictpp::workers::DecoderWorker::~DecoderWorker() {
   quit();
 }
 
-void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos) {
+void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback) {
+  seeklog->debug("vivictpp::workers::DecoderWorker::seek pos={}", pos);
   DecoderWorker *dw(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
         dw->messageQueue.clearDataOlderThan(serialNo);
@@ -52,6 +53,7 @@ void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos) {
         dw->decoder->flush();
         dw->frameBuffer.clear();
         dw->seekPos = pos;
+        dw->seekCallback = callback;
         return true;
                                              }, "seek"));
 }
@@ -122,8 +124,12 @@ void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::F
     logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({})",
                   pts, frame.pts());
     frameBuffer.write(frame, pts);
-    if( seeking() && pts >= seekPos) {
-      logger->debug("DecoderWorker::doWork seekFinished", pts);
-      this->state = InputWorkerState::ACTIVE;
+    if(seeking()) {
+      seeklog->debug("vivictpp::workers::DecoderWorker::addFrameToBuffer written pts={} seekPos={}", pts, seekPos);
+      if (pts >= seekPos) {
+        seeklog->debug("DecoderWorker::doWork seekFinished", pts);
+        this->seekCallback(pts);
+        this->state = InputWorkerState::ACTIVE;
+      }
     }
 }
