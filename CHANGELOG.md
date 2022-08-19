@@ -3,6 +3,12 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+### Added
+- Implement proper seekbar
+
+### Changed
+- Updated to C++17
+
 ## 0.1.14 2022-07-07
 
 ### Added
