@@ -337,9 +337,9 @@ void vivictpp::ui::ScreenOutput::displayFrame(
 const vivictpp::ui::MouseClicked vivictpp::ui::ScreenOutput::getClickTarget(int x, int y) {
   // TODO: Handle plot
   if (seekBar.getBox().contains(x,y)) {
-    return {"seekbar", x, y, std::ref(seekBar)};
+    return {"seekbar", x, y, std::ref<vivictpp::ui::Component>(seekBar)};
   }
   else {
-    return {"default", x, y, std::ref(timeTextBox)}; // TODO: Use actual root component
+    return {"default", x, y, std::ref<vivictpp::ui::Component>(timeTextBox)}; // TODO: Use actual root component
   }
 }
