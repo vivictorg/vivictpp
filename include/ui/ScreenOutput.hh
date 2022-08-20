@@ -19,6 +19,8 @@ extern "C" {
 #include "ui/TextBox.hh"
 #include "ui/VmafGraph.hh"
 #include "ui/Container.hh"
+#include "ui/SeekBar.hh"
+#include "ui/Events.hh"
 #include "vmaf/VmafLog.hh"
 #include "VideoMetadata.hh"
 #include "sdl/SDLUtils.hh"
@@ -35,30 +37,6 @@ extern "C" {
 namespace vivictpp {
 namespace ui {
 
-class ClickTarget {
-public:
-  ClickTarget(std::string name, int x, int y, int w, int h):
-    name(name),
-    x(x),
-    y(y),
-    w(w),
-    h(h) { };
-  const std::string name;
-  const int x;
-  const int y;
-  const int w;
-  const int h;
-  bool contains(int x, int y) {
-    return x >= this->x && x < this->x + this->w && y >= this->y && y < this->y + this->h;
-  }
-  std::string toString() {
-    std::ostringstream oss;
-    oss << "vivictpp::ui::ClickTarget [name=" << name
-        << ",x=" << x << ",y=" << y << ",w=" << w << ",h=" << h << "]";
-    return oss.str();
-  }
-};
-
 class ScreenOutput {
 public:
   ScreenOutput(std::vector<SourceConfig> sourceConfigs);
@@ -71,10 +49,11 @@ public:
   int getHeight() { return height; }
   void setFullscreen(bool fullscreen);
   void setCursorHand();
+  void setCursorPan();
   void setCursorDefault();
   void setLeftMetadata(const VideoMetadata &metadata);
   void setRightMetadata(const VideoMetadata &metadata);
-  ClickTarget getClickTarget(int x, int y, const vivictpp::ui::DisplayState &displayState);
+  const MouseClicked getClickTarget(int x, int y);
 
 private:
   std::shared_ptr<VideoMetadata> leftVideoMetadata;
@@ -92,24 +71,17 @@ private:
   std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> leftTexture;
   std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> rightTexture;
   std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>> handCursor;
+    std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>> panCursor;
   SDL_Cursor *defaultCursor;
 
   SDL_Rect sourceRectLeft, sourceRectRight, zoomedView, destRectLeft, destRectRight, destRect;
   FixedPositionContainer timeTextBox;
-//  TextBox timeTextBox;
   bool wasMaximized;
   FixedPositionContainer leftMetaDisplay;
   FixedPositionContainer rightMetaDisplay;
-  /*
-  TextBox leftMetadataBox;
-  TextBox rightMetadataBox;
-  TextBox leftFrameBox;
-  TextBox rightFrameBox;
-  TextBox frameOffsetBox;
-  */
-  //TextBox splashText;
   FixedPositionContainer splashText;
   VmafGraph vmafGraph;
+  SeekBar seekBar;
   vivictpp::logging::Logger logger;
 
  private:

@@ -13,6 +13,7 @@
 #include "VivictPP.hh"
 #include <string>
 #include "time/Time.hh"
+#include "ui/Events.hh"
 
 namespace vivictpp {
 
@@ -22,15 +23,18 @@ public:
              std::shared_ptr<vivictpp::ui::Display> display,
              VivictPPConfig vivictPPConfig);
   int run();
-  void mouseDrag(const int xrel, const int yrel) override;
+  void mouseDrag(const ui::MouseDragged mouseDragged) override;
+  void mouseDragStarted(const ui::MouseDragStarted mouseDragStarted) override;
+  void mouseDragStopped(const ui::MouseDragStopped mouseDragStopped) override;
   void mouseMotion(const int x, const int y) override;
   void mouseWheel(const int x, const int y) override;
-  void mouseClick(const int x, const int y) override;
+  void mouseClick(const ui::MouseClicked mouseClicked) override;
   void keyPressed(const std::string &key, const vivictpp::KeyModifiers &modifiers) override;
   void advanceFrame() override;
   void refreshDisplay() override;
   void queueAudio() override;
   void fade() override;
+  void seekFinished(vivictpp::time::Time seekedPos) override;
   void onQuit();
   const PlayerState &getPlayerState() { return vivictPP.getPlayerState(); }
   

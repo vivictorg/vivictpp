@@ -32,12 +32,21 @@ struct Margin {
   int left;
 };
 
+struct Box {
+  int x;
+  int y;
+  int w;
+  int h;
+  bool contains(int x, int y) const {
+    return x >= this->x && x < this->x + this->w && y >= this->y && y < this->y + this->h;
+  }
+};
+
 class Component {
 public:
-    virtual ~Component() = default;
-    virtual void render(SDL_Renderer *renderer, int x, int y) = 0;
-    virtual int getRenderedWidth() = 0;
-    virtual int getRenderedHeight() = 0;
+  virtual ~Component() = default;
+  virtual void render(SDL_Renderer *renderer, int x, int y) = 0;
+  virtual const Box& getBox() const = 0;
 };
 
 }  // namespace ui

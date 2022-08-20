@@ -25,9 +25,8 @@ public:
     Container(std::vector<std::shared_ptr<vivictpp::ui::Component>> components = {}):
         components(components) {};
     virtual ~Container() = default;
-    virtual void render(SDL_Renderer *renderer, int x, int y);
-    virtual int getRenderedWidth();
-    virtual int getRenderedHeight();
+    void render(SDL_Renderer *renderer, int x, int y) override;
+    const Box& getBox() const override { return box; }
     void add(std::shared_ptr<Component> component) {
         components.push_back(component);
     }
@@ -35,9 +34,10 @@ public:
     template <typename T> T& getComponent(int index) {
         return dynamic_cast<T&>(*components[index]);
     }
-private:
+protected:
     std::vector<std::shared_ptr<Component>> components;
     int padding = 2;
+    Box box;
 };
 
 class FixedPositionContainer: public Container {

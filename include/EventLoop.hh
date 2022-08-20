@@ -6,6 +6,7 @@
 #define EVENT_LOOP_H_
 
 #include "EventListener.hh"
+#include "time/Time.hh"
 
 class EventScheduler {
 public:
@@ -14,6 +15,7 @@ public:
   virtual void scheduleRefreshDisplay(int delay) = 0;
   virtual void scheduleQueueAudio(int delay) = 0;
   virtual void scheduleFade(int delay) = 0;
+  virtual void scheduleSeekFinished(vivictpp::time::Time pts) = 0;
   virtual void clearAdvanceFrame() = 0;
 };
 

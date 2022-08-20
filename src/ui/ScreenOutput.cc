@@ -14,10 +14,8 @@
 #include <exception>
 #include <cmath>
 #include <stdexcept>
+#include <memory>
 
-const int seekBarHeight = 10;
-const int seekBarLeftMargin = 50;
-const int seekBarBottomMargin = 20;
 const int splashWidth = 640;
 const int splashHeight = 480;
 
@@ -53,6 +51,7 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
     leftTexture(nullptr, nullptr),
     rightTexture(nullptr, nullptr),
     handCursor(vivictpp::sdl::createHandCursor()),
+    panCursor(vivictpp::sdl::createPanCursor()),
     defaultCursor(SDL_GetCursor()),
     timeTextBox(Position::TOP_CENTER, {std::make_shared<TextBox>("00:00:00", "FreeMono", 24)}),
     leftMetaDisplay(Position::TOP_LEFT, {
@@ -66,6 +65,7 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
     }),
     splashText(Position::CENTER, {std::make_shared<TextBox>(SPLASH_TEXT, "FreeMono", 32)}),
     vmafGraph(vmafLogs(sourceConfigs), 1.0f, 0.3f),
+    seekBar(Margin{0,50,20,50}),
     logger(vivictpp::logging::getOrCreateLogger("ScreenOutput")) {
 
   /*
@@ -126,6 +126,8 @@ void vivictpp::ui::ScreenOutput::setSize() {
 }
 
 void vivictpp::ui::ScreenOutput::setCursorHand() { SDL_SetCursor(handCursor.get()); }
+
+void vivictpp::ui::ScreenOutput::setCursorPan() { SDL_SetCursor(panCursor.get()); }
 
 void vivictpp::ui::ScreenOutput::setCursorDefault() { SDL_SetCursor(defaultCursor); }
 
@@ -324,47 +326,20 @@ void vivictpp::ui::ScreenOutput::displayFrame(
     vmafGraph.render(renderer.get(), displayState.pts, leftVideoMetadata->startTime,
                      leftVideoMetadata->duration);
   }
-  if (displayState.seekBarVisible) {
-    int x0 = seekBarLeftMargin;
-    int y0 = height - seekBarHeight - seekBarBottomMargin;
-    int w = width - 2 * seekBarLeftMargin;
-    int h = seekBarHeight;
-    SDL_SetRenderDrawColor(renderer.get(), 125, 125, 125, displayState.seekBarOpacity);
-    SDL_Rect seekBarRect {x0, y0, w, h};
-    SDL_RenderFillRect(renderer.get(), &seekBarRect);
-    SDL_SetRenderDrawColor(renderer.get(), 125, 255, 125, displayState.seekBarOpacity);
-    seekBarRect.w = (int) (seekBarRect.w * displayState.seekBarRelativePos);
-    SDL_RenderFillRect(renderer.get(), &seekBarRect);
-    seekBarRect.x = seekBarLeftMargin + seekBarRect.w - 2;
-    seekBarRect.y = y0 - 3;
-    seekBarRect.w = 5;
-    seekBarRect.h = seekBarHeight + 6;
-    SDL_SetRenderDrawColor(renderer.get(), 255, 255, 255, displayState.seekBarOpacity);
-    SDL_RenderFillRect(renderer.get(), &seekBarRect);
-    SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, displayState.seekBarOpacity);
-    SDL_RenderDrawRect(renderer.get(), &seekBarRect);
+   if (displayState.seekBar.visible) {
+    seekBar.setState(displayState.seekBar);
+    int y = height - seekBar.preferredHeight();
+    seekBar.render(renderer.get(), 0, y);
   }
   SDL_RenderPresent(renderer.get());
 }
 
-vivictpp::ui::ClickTarget vivictpp::ui::ScreenOutput::getClickTarget(int x, int y, const vivictpp::ui::DisplayState &displayState) {
-  vivictpp::ui::ClickTarget seekBar("seekbar",
-                      seekBarLeftMargin,
-                      height - seekBarHeight - seekBarBottomMargin,
-                      width - 2 * seekBarLeftMargin,
-                      seekBarHeight);
-  vivictpp::ui::ClickTarget plot("plot",
-                   0,
-                   (int) height * 0.7,
-                   width,
-                   height - (int) height * 0.7);
-  vivictpp::ui::ClickTarget defaultTarget("default",0,0,width,height);
-
-  if (displayState.displayPlot && plot.contains(x,y)) {
-    return plot;
+const vivictpp::ui::MouseClicked vivictpp::ui::ScreenOutput::getClickTarget(int x, int y) {
+  // TODO: Handle plot
+  if (seekBar.getBox().contains(x,y)) {
+    return {"seekbar", x, y, std::ref<vivictpp::ui::Component>(seekBar)};
   }
-  if (seekBar.contains(x,y)) {
-    return seekBar;
+  else {
+    return {"default", x, y, std::ref<vivictpp::ui::Component>(timeTextBox)}; // TODO: Use actual root component
   }
-  return defaultTarget;
 }

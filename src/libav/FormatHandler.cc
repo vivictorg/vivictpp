@@ -39,7 +39,8 @@ void parseFormatOptions(std::string formatOptions, std::string &format, AVDictio
 
 vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string formatOptions)
     : formatContext(nullptr), inputFile(inputFile), packet(nullptr),
-      logger(vivictpp::logging::getOrCreateLogger("FormatHandler")) {
+      logger(vivictpp::logging::getOrCreateLogger("FormatHandler")),
+      seeklog(vivictpp::logging::getOrCreateLogger("seeklog")){
 #if LIBAVFORMAT_VERSION_MAJOR >= 59
   const AVInputFormat *inputFormat = nullptr;
 #else
@@ -124,7 +125,7 @@ AVStream* firstActive(const std::vector<AVStream*> &streams) {
 }
 
 void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
-  spdlog::debug("FormatHandler::seek t={}", t);
+  seeklog->debug("FormatHandler::seek t={}", t);
   AVStream *stream = firstActive(videoStreams);
   if (stream == nullptr) {
     stream = firstActive(audioStreams);
@@ -138,33 +139,33 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
     // Seeking in a hls stream seeks to the first keyframe after the given
     // timestamp To ensure we seek to a iframe before the point we want to reach
     // we seek to a point 5s before
-    spdlog::debug("Using hls seek");
+    seeklog->debug("Using hls seek");
     seek_t -= 10 * vivictpp::time::TIME_BASE;
-    spdlog::debug("FormatHandler::seek Adjusted seek: {}", seek_t);
+    seeklog->debug("FormatHandler::seek Adjusted seek: {}", seek_t);
     flags = AVSEEK_FLAG_BACKWARD;
   }
 
   int64_t ts = av_rescale_q(seek_t, vivictpp::time::TIME_BASE_Q, stream->time_base);
-
   if (stream->start_time != AV_NOPTS_VALUE && stream->start_time > ts) {
       ts = stream->start_time;
   } else {
       flags = AVSEEK_FLAG_BACKWARD;
   }
-  spdlog::debug("vivictpp::libav::FormatHandler::seek ts={}", ts);
+  seeklog->debug("vivictpp::libav::FormatHandler::seek ts={}", ts);
   vivictpp::libav::AVResult result = av_seek_frame(this->formatContext, stream->index,
                                                    ts, flags);
   if (result.error()) {
-      logger->error("Seek failed: {}", result.getMessage());
-      throw std::runtime_error("Seek failed: " + result.getMessage());
+    seeklog->error("Seek failed: {}", result.getMessage());
+    logger->error("Seek failed: {}", result.getMessage());
+    throw std::runtime_error("Seek failed: " + result.getMessage());
   }
 }
 
 AVPacket *vivictpp::libav::FormatHandler::nextPacket() {
   vivictpp::libav::AVResult ret;
   while ((ret = av_read_frame(this->formatContext, this->packet)).success()) {
-      spdlog::debug("FormatHandler::nextPacket  Got packet: dts={} stream_index={}",
-                   this->packet->dts, this->packet->stream_index);
+      spdlog::debug("FormatHandler::nextPacket  Got packet: dts={} stream_index={} keyframe={}",
+                    this->packet->dts, this->packet->stream_index, this->packet->flags & AV_PKT_FLAG_KEY);
     if (activeStreams.find(packet->stream_index) != activeStreams.end()) {
       return this->packet;
     }

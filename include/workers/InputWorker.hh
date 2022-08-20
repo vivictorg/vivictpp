@@ -50,6 +50,7 @@ private:
 
 protected:
   vivictpp::logging::Logger logger;
+  vivictpp::logging::Logger seeklog;
   InputWorkerState state;
   vivictpp::workers::Queue<T> messageQueue;
 
@@ -62,8 +63,9 @@ private:
 template<class T>
 InputWorker<T>::InputWorker(int queueDataLimit, std::string name):
     logger(vivictpp::logging::getOrCreateLogger(name)),
-  state(InputWorkerState::INACTIVE),
-  messageQueue(queueDataLimit) {
+    seeklog(vivictpp::logging::getOrCreateLogger("seeklog")),
+    state(InputWorkerState::INACTIVE),
+    messageQueue(queueDataLimit) {
 }
 
 template<class T>

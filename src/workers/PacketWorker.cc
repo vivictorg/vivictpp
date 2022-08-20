@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "workers/PacketWorker.hh"
+#include "Seeking.hh"
 #include "VideoMetadata.hh"
 #include "spdlog/spdlog.h"
 #include "workers/DecoderWorker.hh"
@@ -111,14 +112,15 @@ void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<
       }, "removeDecoder"));
 }
 
-void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos) {
+void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback) {
   PacketWorker *packetWorker(this);
+  seeklog->debug("PacketWorker::seek pos={}", pos);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
                                                (void) serialNo;
         packetWorker->formatHandler.seek(pos);
         packetWorker->unrefCurrentPacket();
         for (auto decoderWorker : packetWorker->decoderWorkers) {
-          decoderWorker->seek(pos);
+          decoderWorker->seek(pos, callback);
         }
         return true;
       }, "seek"));

@@ -40,6 +40,15 @@ class Zoom {
   void setMultiplier() { multiplier_ = pow(1.2, zoom_); }
 };
 
+struct SeekBarState {
+  bool visible{false};
+  int64_t hideTimer{0};
+  int opacity{255};
+  float relativePos{0};
+  float relativeSeekPos{0};
+  bool seeking{false};
+};
+
 struct DisplayState {
   float splitPercent{50};
   //  int zoom{0};
@@ -54,10 +63,7 @@ struct DisplayState {
   bool splitScreenDisabled{false};
   bool isPlaying{false};
   vivictpp::time::Time pts{0};
-  bool seekBarVisible{false};
-  int64_t hideSeekBar{0};
-  int seekBarOpacity{255};
-  float seekBarRelativePos{0};
+  SeekBarState seekBar;
   int leftFrameOffset{0};
 };
 
