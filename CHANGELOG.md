@@ -3,6 +3,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.2.0 - 2022-08-20
+
 ### Added
 - Implement proper seekbar
 
