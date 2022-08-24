@@ -10,8 +10,8 @@
   http://www.gnu.org/software/freefont
  */
 
-#ifndef FREEMONO_HH_
-#define FREEMONO_HH_
+#ifndef UI_FREEMONO_HH
+#define UI_FREEMONO_HH
 
 namespace vivictpp {
 namespace ui {
@@ -48724,4 +48724,4 @@ unsigned int FreeMono_ttf_len = 584424;
 }  // ui
 }  // vivictpp
 
-#endif // FREEMONO_HH_
+#endif // UI_FREEMONO_HH

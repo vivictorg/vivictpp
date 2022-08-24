@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef SCREENOUTPUT_HH_
-#define SCREENOUTPUT_HH_
+#ifndef UI_SCREENOUTPUT_HH
+#define UI_SCREENOUTPUT_HH
 
 extern "C" {
 #include <SDL.h>
@@ -109,4 +109,4 @@ void debugRectangle(std::string msg, const SDL_Rect &rect);
 }  // ui
 }  // vivictpp
 
-#endif // SCREENOUTPUT_HH_
+#endif // UI_SCREENOUTPUT_HH

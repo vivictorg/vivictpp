@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICT_PP_CONFIG_HH_
-#define VIVICT_PP_CONFIG_HH_
+#ifndef VIVICTPPCONFIG_HH
+#define VIVICTPPCONFIG_HH
 
 #include <string>
 #include <vector>
@@ -29,4 +29,4 @@ public:
   }
 };
 
-#endif  // #VIVICT_PP_CONFIG_HH_
+#endif // VIVICTPPCONFIG_HH

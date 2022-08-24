@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef RESOLUTION_H_
-#define RESOLUTION_H_
+#ifndef RESOLUTION_HH
+#define RESOLUTION_HH
 
 struct Resolution {
   Resolution(int w, int h):
@@ -21,4 +21,4 @@ struct Resolution {
   }
 };
 
-#endif  // RESOLUTION_H_
+#endif // RESOLUTION_HH

@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VMAF_GRAPH_HH_
-#define VMAF_GRAPH_HH_
+#ifndef UI_VMAFGRAPH_HH
+#define UI_VMAFGRAPH_HH
 
 #include "vmaf/VmafLog.hh"
 #include "logging/Logging.hh"
@@ -43,4 +43,4 @@ private:
 }  // namespace vivictpp
 }  // namespace ui
 
-#endif  // ifndef
+#endif // UI_VMAFGRAPH_HH

@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef PACKET_QUEUE_HH_
-#define PACKET_QUEUE_HH_
+#ifndef WORKERS_PACKETQUEUE_HH
+#define WORKERS_PACKETQUEUE_HH
 
 #include <queue>
 #include <mutex>
@@ -41,4 +41,4 @@ private:
 }  // namespace workers
 }  // namespace vivictpp
 
-#endif  // PACKET_QUEUE_HH_
+#endif // WORKERS_PACKETQUEUE_HH

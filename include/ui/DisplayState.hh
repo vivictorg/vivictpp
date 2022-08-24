@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef DISPLAYSTATE_HH_
-#define DISPLAYSTATE_HH_
+#ifndef UI_DISPLAYSTATE_HH
+#define UI_DISPLAYSTATE_HH
 
 #include <string>
 #include <cmath>
@@ -70,4 +70,4 @@ struct DisplayState {
 }  // ui
 }  // vivictpp
 
-#endif // DISPLAYSTATE_HH_
+#endif // UI_DISPLAYSTATE_HH

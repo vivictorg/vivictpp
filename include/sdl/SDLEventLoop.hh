@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef SDL_EVENT_LOOP_H_
-#define SDL_EVENT_LOOP_H_
+#ifndef SDL_SDLEVENTLOOP_HH
+#define SDL_SDLEVENTLOOP_HH
 
 #include "EventLoop.hh"
 #include "sdl/SDLUtils.hh"
@@ -100,4 +100,4 @@ public:
 }  // ui
 }  // vivictpp
 
-#endif  // SDL_EVENT_LOOP_H_
+#endif // SDL_SDLEVENTLOOP_HH

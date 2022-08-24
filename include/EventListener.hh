@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef EVENT_LISTENER_H_
-#define EVENT_LISTENER_H_
+#ifndef EVENTLISTENER_HH
+#define EVENTLISTENER_HH
 
 #include <cstdint>
 #include <string>
@@ -39,4 +39,4 @@ class EventListener {
 
 }  // namespace vivictpp
 
-#endif  // #ifndef EVENT_LISTENER_H_
+#endif // EVENTLISTENER_HH

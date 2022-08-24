@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef CONTAINER_HH_
-#define CONTAINER_HH_
+#ifndef UI_CONTAINER_HH
+#define UI_CONTAINER_HH
 
 #include <vector>
 #include <memory>
@@ -56,4 +56,4 @@ private:
 }  // namespace vivictpp
 
 
-#endif  // CONTAINER_HH_
+#endif // UI_CONTAINER_HH

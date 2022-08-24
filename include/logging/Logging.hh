@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 
-#ifndef LOGGING_HH_
-#define LOGGING_HH_
+#ifndef LOGGING_LOGGING_HH
+#define LOGGING_LOGGING_HH
 
 #include "spdlog/spdlog.h"
 
@@ -21,4 +21,4 @@ Logger getOrCreateLogger(std::string name);
 }  // namespace logging
 }  // namespace vivictpp
 
-#endif  // LOGGING_HH_
+#endif // LOGGING_LOGGING_HH

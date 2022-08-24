@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef TEXTBOX_HH_
-#define TEXTBOX_HH_
+#ifndef UI_TEXTBOX_HH
+#define UI_TEXTBOX_HH
 
 #include <libavutil/pixfmt.h>
 extern "C" {
@@ -59,4 +59,4 @@ private:
 }  // ui
 }  // vivictpp
 
-#endif // TEXTBOX_HH_
+#endif // UI_TEXTBOX_HH

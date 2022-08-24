@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICTPPUI_HH_
-#define VIVICTPPUI_HH_
+#ifndef UI_VIVICTPPUI_HH
+#define UI_VIVICTPPUI_HH
 
 #include "libav/Frame.hh"
 #include "VideoMetadata.hh"
@@ -64,4 +64,4 @@ class VivictPPUI: public Display, public EventLoop {
 }  // ui
 }  // vivictpp
 
-#endif  // VIVICTPPUI
+#endif // UI_VIVICTPPUI_HH

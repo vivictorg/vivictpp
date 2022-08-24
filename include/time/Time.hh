@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef TIME_HH_
-#define TIME_HH_
+#ifndef TIME_TIME_HH
+#define TIME_TIME_HH
 
 #include <libavutil/rational.h>
 extern "C" {
@@ -38,4 +38,4 @@ namespace time {
 }  // namepsace time
 }  // namespace vivictpp
 
-#endif // TIME_HH_
+#endif // TIME_TIME_HH

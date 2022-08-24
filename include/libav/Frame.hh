@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef FRAME_HH_
-#define FRAME_HH_
+#ifndef LIBAV_FRAME_HH
+#define LIBAV_FRAME_HH
 
 #include <memory>
 
@@ -41,4 +41,4 @@ void freeFrame(AVFrame* avFrame);
 }  // namespace libav
 }  // namespace vivictpp
 
-#endif  // FRAME_HH_
+#endif // LIBAV_FRAME_HH

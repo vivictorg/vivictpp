@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef AUDIO_OUTPUT_HH_
-#define AUDIO_OUTPUT_HH_
+#ifndef SDL_SDLAUDIOOUTPUT_HH
+#define SDL_SDLAUDIOOUTPUT_HH
 
 #include "sdl/SDLUtils.hh"
 #include "workers/FrameBuffer.hh"

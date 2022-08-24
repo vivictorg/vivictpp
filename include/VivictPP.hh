@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICTPP_H_
-#define VIVICTPP_H_
+#ifndef VIVICTPP_HH
+#define VIVICTPP_HH
 
 #include <string>
 
@@ -109,4 +109,4 @@ public:
   vivictpp::logging::Logger seeklog;
 };
 
-#endif  // VIVICTPP_H_
+#endif // VIVICTPP_HH

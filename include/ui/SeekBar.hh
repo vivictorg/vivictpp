@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef SEEKBAR_HH
-#define SEEKBAR_HH
+#ifndef UI_SEEKBAR_HH
+#define UI_SEEKBAR_HH
 
 #include "ui/DisplayState.hh"
 #include "ui/Ui.hh"

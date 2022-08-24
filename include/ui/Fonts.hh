@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef FONTS_HH_
-#define FONTS_HH_
+#ifndef UI_FONTS_HH
+#define UI_FONTS_HH
 
 
 extern "C" {
@@ -37,4 +37,4 @@ private:
 }  // namespace ui
 }  // namespace vivictpp
 
-#endif  // FONTS_HH_
+#endif // UI_FONTS_HH

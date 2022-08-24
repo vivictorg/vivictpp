@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef TIMEUTIL_HH_
-#define TIMEUTIL_HH_
+#ifndef TIME_TIMEUTILS_HH
+#define TIME_TIMEUTILS_HH
 
 #include <string>
 #include "time/Time.hh"
@@ -27,4 +27,4 @@ std::string formatTime(vivictpp::time::Time pts);
 }  // namespace time
 }  // namespace vivictpp
 
-#endif // TIMEUTIL_HH_
+#endif // TIME_TIMEUTILS_HH

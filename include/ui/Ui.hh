@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 
-#ifndef UI_HH_
-#define UI_HH_
+#ifndef UI_UI_HH
+#define UI_UI_HH
 
 extern "C" {
 #include <SDL.h>
@@ -53,4 +53,4 @@ public:
 }  // namespace vivictpp
 
 
-#endif  // UI_HH_
+#endif // UI_UI_HH

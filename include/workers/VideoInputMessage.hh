@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIDEOINPUTCOMMAND_HH_
-#define VIDEOINPUTCOMMAND_HH_
+#ifndef WORKERS_VIDEOINPUTMESSAGE_HH
+#define WORKERS_VIDEOINPUTMESSAGE_HH
 
 #include <memory>
 #include <mutex>
@@ -159,4 +159,4 @@ void Queue<T>::pop() {
 }  // namespace workers
 }  // namespace vivictpp
 
-#endif // VIDEOINPUTCOMMAND_HH_
+#endif // WORKERS_VIDEOINPUTMESSAGE_HH
