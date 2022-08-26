@@ -91,7 +91,8 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
   SDL_SetRenderTarget(renderer, nullptr);
 }
 
-void vivictpp::ui::TextBox::render(SDL_Renderer *renderer, int x, int y) {
+void vivictpp::ui::TextBox::render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) {
+  (void) displayState;
   if (!display) {
     box = {x,y,0,0};
     return;

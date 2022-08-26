@@ -9,8 +9,9 @@ extern "C" {
 }
 
 
-void vivictpp::ui::SeekBar::render(SDL_Renderer *renderer, int x, int y) {
-    (void) y;
+void vivictpp::ui::SeekBar::render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) {
+  (void) displayState;
+  (void) y;
     int width, height;
     SDL_GetRendererOutputSize(renderer, &width, &height);
     int x0 = x + margin.left;

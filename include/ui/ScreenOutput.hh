@@ -15,18 +15,21 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-#include "ui/DisplayState.hh"
-#include "ui/TextBox.hh"
-#include "ui/VmafGraph.hh"
-#include "ui/Container.hh"
-#include "ui/SeekBar.hh"
-#include "ui/Events.hh"
-#include "vmaf/VmafLog.hh"
+#include "SourceConfig.hh"
 #include "VideoMetadata.hh"
-#include "sdl/SDLUtils.hh"
 #include "libav/Frame.hh"
 #include "logging/Logging.hh"
-#include "SourceConfig.hh"
+#include "sdl/SDLUtils.hh"
+#include "ui/Container.hh"
+#include "ui/DisplayState.hh"
+#include "ui/Events.hh"
+#include "ui/MetadataDisplay.hh"
+#include "ui/SeekBar.hh"
+#include "ui/Splash.hh"
+#include "ui/TextBox.hh"
+#include "ui/VideoDisplay.hh"
+#include "ui/VmafGraph.hh"
+#include "vmaf/VmafLog.hh"
 
 #include <string>
 #include <memory>
@@ -34,8 +37,7 @@ extern "C" {
 
 // https://stackoverflow.com/questions/17579286/sdl2-0-alternative-for-sdl-overlay
 
-namespace vivictpp {
-namespace ui {
+namespace vivictpp::ui {
 
 class ScreenOutput {
 public:
@@ -43,8 +45,7 @@ public:
   ScreenOutput(const ScreenOutput&) = delete;
   ScreenOutput& operator=(const ScreenOutput&) = delete;
   virtual ~ScreenOutput();
-  void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                    const vivictpp::ui::DisplayState &displayState);
+  void displayFrame(const vivictpp::ui::DisplayState &displayState);
   int getWidth() { return width; }
   int getHeight() { return height; }
   void setFullscreen(bool fullscreen);
@@ -56,8 +57,6 @@ public:
   const MouseClicked getClickTarget(int x, int y);
 
 private:
-  std::shared_ptr<VideoMetadata> leftVideoMetadata;
-  std::shared_ptr<VideoMetadata> rightVideoMetadata;
   std::vector<SourceConfig> sourceConfigs;
   Resolution targetResolution;
 
@@ -67,33 +66,27 @@ private:
   vivictpp::sdl::SDLInitializer sdlInitializer;
   std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>> screen;
   std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>> renderer;
-
-  std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> leftTexture;
-  std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> rightTexture;
   std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>> handCursor;
-    std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>> panCursor;
+  std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>> panCursor;
   SDL_Cursor *defaultCursor;
 
-  SDL_Rect sourceRectLeft, sourceRectRight, zoomedView, destRectLeft, destRectRight, destRect;
+  VideoDisplay videoDisplay;
   FixedPositionContainer timeTextBox;
   bool wasMaximized;
-  FixedPositionContainer leftMetaDisplay;
-  FixedPositionContainer rightMetaDisplay;
-  FixedPositionContainer splashText;
+  MetadataDisplay leftMetaDisplay;
+  MetadataDisplay rightMetaDisplay;
+  Splash splashText;
   VmafGraph vmafGraph;
   SeekBar seekBar;
   vivictpp::logging::Logger logger;
+  int videoMetadataVersion{-1};
 
  private:
-  Resolution getTargetResolution();
+  Resolution getTargetResolution(const VideoMetadata &leftVideoMetadata,
+                                 const VideoMetadata &rightVideoMetadata);
+  void initialize(const DisplayState &displayState);
   void renderSplash();
-  void setSize();
-  void calcZoomedSrcRect(const vivictpp::ui::DisplayState &displayState,
-                         const Resolution &scaledResolution,
-                         const std::shared_ptr<VideoMetadata> &videoMetadata,
-                         SDL_Rect &rect);
-  void setDefaultSourceRectangles(const DisplayState &displayState);
-  void updateRectangles(const DisplayState &displayState);
+  void setSize(Resolution targetResolution);
   void initText();
   void drawTime(const vivictpp::ui::DisplayState &displayState);
   Uint8 *offsetPlaneRight(const AVFrame *frame, const int plane,
@@ -106,7 +99,6 @@ void setRectangle(SDL_Rect &rect, int x, int y, int w, int h);
 
 void debugRectangle(std::string msg, const SDL_Rect &rect);
 
-}  // ui
-}  // vivictpp
+}  // vivictpp::ui
 
 #endif // UI_SCREENOUTPUT_HH

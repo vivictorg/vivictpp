@@ -7,6 +7,8 @@
 #define RESOLUTION_HH
 
 struct Resolution {
+  Resolution():
+    Resolution(0,0) {};
   Resolution(int w, int h):
     w(w), h(h) {};
   Resolution(const Resolution &other) = default;

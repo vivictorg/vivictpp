@@ -1,0 +1,12 @@
+[wrap-file]
+directory = SDL2-2.24.0
+source_url = https://libsdl.org/release/SDL2-2.24.0.tar.gz
+source_filename = SDL2-2.24.0.tar.gz
+source_hash = 91e4c34b1768f92d399b078e171448c6af18cafda743987ed2064a28954d6d97
+patch_filename = sdl2_2.24.0-2_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/sdl2_2.24.0-2/get_patch
+patch_hash = ec296ed9a577b42131d2fdbfe5ca73a0cf133793c0290e1ccd825675464bfe32
+wrapdb_version = 2.24.0-2
+
+[provide]
+sdl2 = sdl2_dep

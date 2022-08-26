@@ -58,9 +58,8 @@ public:
   void start(EventListener &eventListener) override;
   void stop() override;
 
-  void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                    const vivictpp::ui::DisplayState &displayState) override {
-    screenOutput.displayFrame(frames, displayState);
+  void displayFrame(const vivictpp::ui::DisplayState &displayState) override {
+    screenOutput.displayFrame(displayState);
   }
   int getWidth() override {
     return screenOutput.getWidth();
@@ -70,12 +69,6 @@ public:
   }
   void setFullscreen(bool fullscreen) override {
     screenOutput.setFullscreen(fullscreen);
-  }
-  void setLeftMetadata(const VideoMetadata &metadata) override {
-    screenOutput.setLeftMetadata(metadata);
-  }
-  void setRightMetadata(const VideoMetadata &metadata) override {
-    screenOutput.setRightMetadata(metadata);
   }
  private:
   void scheduleEvent(const CustomEvent &event, const int delay);

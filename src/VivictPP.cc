@@ -60,7 +60,6 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
     frameDuration =
       std::min(metadata[0][0].frameDuration, metadata[1][0].frameDuration);
   }
-  eventScheduler->scheduleRefreshDisplay(0);
 }
 
 int VivictPP::nextFrameDelay() {

@@ -1,13 +1,13 @@
 #include "ui/Container.hh"
 #include <cstddef>
 
-void vivictpp::ui::Container::render(SDL_Renderer *renderer, int x, int y) {
+void vivictpp::ui::Container::render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) {
   box.x = x;
   box.y = y;
   int w = 0;
   for (size_t i = 0; i < components.size(); i++) {
     auto &c = components[i];
-    c->render(renderer, x, y);
+    c->render(displayState, renderer, x, y);
     if (c->getBox().h > 0) {
       y += c->getBox().h + padding;
     }
@@ -29,7 +29,7 @@ vivictpp::ui::FixedPositionContainer::FixedPositionContainer(
   position(position),
   offset(offset) { }
 
-void vivictpp::ui::FixedPositionContainer::render(SDL_Renderer *renderer, int x, int y) {
+void vivictpp::ui::FixedPositionContainer::render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) {
   int rendererWidth;
   int rendererHeight;
   SDL_GetRendererOutputSize(renderer, &rendererWidth, &rendererHeight);
@@ -55,6 +55,6 @@ void vivictpp::ui::FixedPositionContainer::render(SDL_Renderer *renderer, int x,
     y = this->offset.y + (rendererHeight - box.h) / 2;
   }
 
-  Container::render(renderer, x, y);
+  Container::render(displayState, renderer, x, y);
 }
 

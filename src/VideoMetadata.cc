@@ -27,6 +27,11 @@ vivictpp::time::Time getStartTime(AVStream *stream) {
     av_rescale_q(stream->start_time, stream->time_base, vivictpp::time::TIME_BASE_Q);
 }
 
+VideoMetadata::VideoMetadata():
+  resolution(0,0),
+  filteredResolution(0,0),
+  _empty(true) {}
+
 VideoMetadata::VideoMetadata(
     std::string source,
     AVFormatContext *formatContext,
@@ -45,7 +50,8 @@ VideoMetadata::VideoMetadata(
       startTime(getStartTime(videoStream)),
       duration(formatContext->duration), // allready in av_time_base
       endTime(startTime - frameDuration + duration),
-      codec(avcodec_get_name(videoStream->codecpar->codec_id)) {}
+      codec(avcodec_get_name(videoStream->codecpar->codec_id)),
+      _empty(false) {}
 
 std::string VideoMetadata::resolutionAsString() const {
   std::ostringstream oss;

@@ -10,7 +10,9 @@
 #include <cmath>
 #include <iostream>
 
+#include "VideoMetadata.hh"
 #include "time/Time.hh"
+#include "libav/Frame.hh"
 
 namespace vivictpp {
 namespace ui {
@@ -65,6 +67,11 @@ struct DisplayState {
   vivictpp::time::Time pts{0};
   SeekBarState seekBar;
   int leftFrameOffset{0};
+  vivictpp::libav::Frame leftFrame;
+  vivictpp::libav::Frame rightFrame;
+  VideoMetadata leftVideoMetadata;
+  VideoMetadata rightVideoMetadata;
+  int videoMetadataVersion{0};
 };
 
 }  // ui

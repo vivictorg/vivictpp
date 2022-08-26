@@ -12,6 +12,8 @@ extern "C" {
 #include <SDL_ttf.h>
 }
 
+#include "ui/DisplayState.hh"
+
 namespace vivictpp {
 namespace ui {
 
@@ -45,7 +47,7 @@ struct Box {
 class Component {
 public:
   virtual ~Component() = default;
-  virtual void render(SDL_Renderer *renderer, int x, int y) = 0;
+  virtual void render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) = 0;
   virtual const Box& getBox() const = 0;
 };
 

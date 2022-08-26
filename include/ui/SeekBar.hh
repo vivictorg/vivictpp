@@ -16,7 +16,7 @@ public:
     SeekBar(Margin margin={0,0,0,0}):
         margin(margin){ }
 
-    void render(SDL_Renderer *renderer, int x, int y) override;
+  void render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) override;
     const Box& getBox() const override { return box; }
     int preferredHeight() { return seekBarHeight + margin.top + margin.bottom; }
   void setState(const SeekBarState &state) {
