@@ -35,7 +35,6 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
     targetResolution(splashWidth, splashHeight),
     width(splashWidth),
     height(splashHeight),
-    sdlInitializer(),
     screen(vivictpp::sdl::createWindow(width, height)),
     renderer(vivictpp::sdl::createRenderer(screen.get())),
     handCursor(vivictpp::sdl::createHandCursor()),

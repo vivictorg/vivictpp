@@ -42,7 +42,6 @@ private:
   void nextFrame();
 private:
   vivictpp::time::Time lastPts;
-  SDLInitializer sdlInitializer;
   SDL_AudioSpec obtainedSpec;
   SDL_AudioDeviceID audioDevice;
   AudioBuffer audioBuffer;

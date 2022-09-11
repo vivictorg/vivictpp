@@ -76,7 +76,6 @@ public:
   bool isCustomEvent(const SDL_Event &event);
   void handleCustomEvent(const SDL_Event &event, EventListener &eventListener);
  private:
-  SDLInitializer sdlInitializer;
   vivictpp::ui::ScreenOutput screenOutput;
   std::atomic<bool> quit;
   MouseState mouseState;

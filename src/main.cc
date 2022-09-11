@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 
+#include "sdl/SDLUtils.hh"
 #include "spdlog/spdlog.h"
 
 #include "Version.hh"
@@ -107,6 +108,7 @@ int main(int argc, char **argv) {
     }
 
     VivictPPConfig vivictPPConfig(sourceConfigs, !enableAudio);
+    vivictpp::sdl::SDLInitializer sdlInitializer(enableAudio);
     auto sdlEventLoop = std::make_shared<vivictpp::sdl::SDLEventLoop>(vivictPPConfig.sourceConfigs);
     vivictpp::Controller controller(sdlEventLoop, sdlEventLoop, vivictPPConfig);
     return controller.run();

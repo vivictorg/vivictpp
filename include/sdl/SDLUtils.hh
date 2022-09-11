@@ -29,7 +29,7 @@ class SDLInitializer {
  private:
   static std::atomic<int> instanceCount;
  public:
-  SDLInitializer();
+  SDLInitializer(bool enableAudio = true);
   ~SDLInitializer();
 };
 

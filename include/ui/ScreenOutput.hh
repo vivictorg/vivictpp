@@ -63,7 +63,6 @@ private:
   int width;
   int height;
 
-  vivictpp::sdl::SDLInitializer sdlInitializer;
   std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>> screen;
   std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>> renderer;
   std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>> handCursor;

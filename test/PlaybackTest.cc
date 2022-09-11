@@ -70,13 +70,14 @@ VivictPPConfig testConfig() {
 
 class EventFilterInitializer {
 public:
-    EventFilterInitializer() {
-        SDL_SetEventFilter(my_event_filter, nullptr);
-    }
+  EventFilterInitializer():
+    sdlInitializer(false) {
+    SDL_SetEventFilter(my_event_filter, nullptr);
+  }
 
-    ~EventFilterInitializer() {
-        SDL_SetEventFilter(nullptr, nullptr);
-    }
+  ~EventFilterInitializer() {
+    SDL_SetEventFilter(nullptr, nullptr);
+  }
 
 private:
     vivictpp::sdl::SDLInitializer sdlInitializer;
