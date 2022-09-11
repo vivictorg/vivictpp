@@ -6,7 +6,6 @@
 #ifndef VIDEOMETADATA_HH_
 #define VIDEOMETADATA_HH_
 
-#include <bits/stdint-intn.h>
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
