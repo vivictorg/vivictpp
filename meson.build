@@ -1,11 +1,18 @@
 project('vivict++', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'])
 
-spdlog_proj = subproject('spdlog')
-cli11_proj = subproject('cli11')
-catch2_proj = subproject('catch2')
-fmt_proj = subproject('fmt')
-sdl2_proj = subproject('sdl2')
-sdl2_ttf_proj = subproject('sdl2_ttf')
+#if meson.get_compiler('cpp').get_id() == 'gcc'
+  extra_args=['-Wno-shadow', '-Wno-declaration-after-statement']
+#else
+#  extra_args=[]
+#endif
+
+  
+spdlog_proj = subproject('spdlog', default_options: 'warning_level=0')
+cli11_proj = subproject('cli11', default_options: 'warning_level=0')
+catch2_proj = subproject('catch2', default_options: 'warning_level=0')
+fmt_proj = subproject('fmt', default_options: 'warning_level=0')
+sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false'])
+sdl2_ttf_proj = subproject('sdl2_ttf', default_options: 'warning_level=0')
 
 deps = [
   sdl2_proj.get_variable('sdl2_dep'),
@@ -69,12 +76,16 @@ sources = [
 vivictpplib = static_library('vivictpplib',
                              sources: sources,
                              dependencies: deps,
-                             include_directories: incdir)
+                             include_directories: incdir,
+                             cpp_args: extra_args)
+
+vpp_extra_args = extra_args
+vpp_extra_args += '-DVPP_GIT_HASH="' + git_hash + '"'
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps,
-           include_directories: incdir, install: true, cpp_args : '-DVPP_GIT_HASH="' + git_hash + '"', link_args: '-g')
+           include_directories: incdir, install: true, cpp_args : vpp_extra_args, link_args: '-g')
 
 #seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
 # test('FormatHandler.seek', seekTest)
-playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
+playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
 test('Playback', playbackTest)
