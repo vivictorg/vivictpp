@@ -10,6 +10,7 @@
 #include "Resolution.hh"
 #include "ui/DisplayState.hh"
 #include "ui/FrameMetadataBox.hh"
+#include "ui/SpeedDisplay.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/Ui.hh"
 
@@ -40,7 +41,9 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
     handCursor(vivictpp::sdl::createHandCursor()),
     panCursor(vivictpp::sdl::createPanCursor()),
     defaultCursor(SDL_GetCursor()),
-    timeTextBox(Position::TOP_CENTER, {std::make_shared<TextBox>("00:00:00", "FreeMono", 24)}),
+    timeTextBox(Position::TOP_CENTER, {
+      std::make_shared<TimeDisplay>(),
+      std::make_shared<SpeedDisplay>()}),
     leftMetaDisplay(Position::TOP_LEFT, true,
                     [](const DisplayState &displayState) -> const VideoMetadata& { return displayState.leftVideoMetadata; },
                     [](const DisplayState &displayState) { return displayState.leftFrame.metadata(); }),
@@ -89,11 +92,6 @@ void vivictpp::ui::ScreenOutput::setFullscreen(bool fullscreen) {
   }
 }
 
-void vivictpp::ui::ScreenOutput::drawTime(const DisplayState &displayState) {
-  timeTextBox.getComponent<TextBox>(0).setText(displayState.timeStr);
-  timeTextBox.render(displayState, renderer.get());
-}
-
 void vivictpp::ui::debugRectangle(std::string msg, const SDL_Rect &rect) {
   spdlog::info("{}: x={},y={},w={},h={}", msg, rect.x,
                 rect.y, rect.w, rect.h);
@@ -131,9 +129,7 @@ void vivictpp::ui::ScreenOutput::displayFrame(
 
   videoDisplay.render(displayState, renderer.get(), 0, 0);
 
-  if (displayState.displayTime) {
-    drawTime(displayState);
-  }
+  timeTextBox.render(displayState, renderer.get());
 
   leftMetaDisplay.update(displayState);
   if (!displayState.splitScreenDisabled) {

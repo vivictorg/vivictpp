@@ -40,6 +40,7 @@ public:
   
 private:
   void togglePlaying();
+  void adjustPlaybackSpeed(int delta);
 
 private:
   std::shared_ptr<EventLoop> eventLoop;

@@ -248,10 +248,27 @@ void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::Ke
     case '2':
       vivictPP.switchStream(1);
       break;
+    case '[':
+      adjustPlaybackSpeed(1);
+      break;
+    case ']':
+      adjustPlaybackSpeed(-1);
+      break;
     }
   } else {
     if (key == "Space") {
       togglePlaying();
     }
   }
+}
+
+void vivictpp::Controller::adjustPlaybackSpeed(int delta) {
+  int speed = vivictPP.adjustPlaybackSpeed(delta);
+  if (speed == 0) {
+    displayState.playbackSpeedStr = "";
+  } else {
+    float speedFloat = std::pow(std::sqrt(2), -1 * speed);
+    displayState.playbackSpeedStr =  fmt::format("{:.2f}", speedFloat);
+  }
+  eventLoop->scheduleRefreshDisplay(0);
 }

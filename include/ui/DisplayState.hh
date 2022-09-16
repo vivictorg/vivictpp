@@ -72,6 +72,7 @@ struct DisplayState {
   VideoMetadata leftVideoMetadata;
   VideoMetadata rightVideoMetadata;
   int videoMetadataVersion{0};
+  std::string playbackSpeedStr;
 };
 
 }  // ui

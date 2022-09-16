@@ -39,6 +39,8 @@ Alt-?  Seek Forward 10min
 Alt-M  Seek Backward 10min
 <      Decrease left frame offset
 >      Increase left frame offset
+[      Decrease playback speed
+]      Increase playback speed
 
 f      Toggle full screen
 u      Zoom in

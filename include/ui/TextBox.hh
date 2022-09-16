@@ -34,6 +34,7 @@ public:
   void render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) override;
   const Box& getBox() const override { return box; }
   void setText(std::string newText);
+  const std::string &getText() { return text; }
   SDL_Color fg = {255, 255, 255, 255};
   SDL_Color bg = {50, 50, 50, 255};
   bool border = true;
@@ -50,7 +51,7 @@ private:
   int minWidth = 0;
   int minHeight = 0;
   Margin margin;
-  bool changed = false;
+  bool changed = true;
   Box box;
 private:
   void initTexture(SDL_Renderer *renderer);
