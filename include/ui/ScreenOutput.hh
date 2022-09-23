@@ -48,6 +48,7 @@ public:
   void displayFrame(const vivictpp::ui::DisplayState &displayState);
   int getWidth() { return width; }
   int getHeight() { return height; }
+  void onResize();
   void setFullscreen(bool fullscreen);
   void setCursorHand();
   void setCursorPan();

@@ -27,7 +27,7 @@ public:
   }
 private:
   void initTextures(SDL_Renderer *renderer, const DisplayState &displayState);
-    void calcZoomedSrcRect(const vivictpp::ui::DisplayState &displayState,
+  void calcZoomedSrcRect(const vivictpp::ui::DisplayState &displayState,
                          const Resolution &scaledResolution,
                          const VideoMetadata &videoMetadata,
                          SDL_Rect &rect);

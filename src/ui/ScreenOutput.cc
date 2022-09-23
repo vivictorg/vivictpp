@@ -78,6 +78,10 @@ void vivictpp::ui::ScreenOutput::setSize(Resolution targetResolution) {
   SDL_SetWindowSize(screen.get(), width, height);
 }
 
+void vivictpp::ui::ScreenOutput::onResize() {
+  SDL_GetWindowSize(screen.get(), &width, &height);
+}
+
 void vivictpp::ui::ScreenOutput::setCursorHand() { SDL_SetCursor(handCursor.get()); }
 
 void vivictpp::ui::ScreenOutput::setCursorPan() { SDL_SetCursor(panCursor.get()); }
@@ -86,7 +90,7 @@ void vivictpp::ui::ScreenOutput::setCursorDefault() { SDL_SetCursor(defaultCurso
 
 void vivictpp::ui::ScreenOutput::setFullscreen(bool fullscreen) {
   if (fullscreen) {
-    SDL_SetWindowFullscreen(screen.get(), SDL_WINDOW_FULLSCREEN);
+    SDL_SetWindowFullscreen(screen.get(), SDL_WINDOW_FULLSCREEN_DESKTOP);
   } else {
     SDL_SetWindowFullscreen(screen.get(), 0);
   }

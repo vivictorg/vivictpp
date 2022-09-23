@@ -21,6 +21,16 @@ struct Resolution {
     return Resolution(static_cast<int>(w * scaleFactor),
                       static_cast<int>(h * scaleFactor));
   }
+  Resolution scaleToWidth(const int width) const {
+    return Resolution(width, h * width / w);
+  }
+  Resolution scaleKeepingAspectRatio(int maxw, int maxh) {
+      if (w * maxh < h * maxw) {
+          return Resolution(w * maxh / h, maxh);
+      } else {
+          return Resolution(maxw, h * maxw / w);
+      }
+  }
 };
 
 #endif // RESOLUTION_HH

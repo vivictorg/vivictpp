@@ -37,17 +37,23 @@ void vivictpp::ui::VideoDisplay::setDefaultSourceRectangles(const DisplayState &
 }
 
 void vivictpp::ui::VideoDisplay::updateRectangles(const DisplayState &displayState, SDL_Renderer *renderer) {
-  float splitPercent = displayState.splitScreenDisabled ? 100 : displayState.splitPercent;
-  Resolution scaledResolution = targetResolution.scale(displayState.zoom.multiplier());
   SDL_GetRendererOutputSize(renderer, &box.w, &box.h);
   int width = box.w, height = box.h;
+
+  float splitPercent = displayState.splitScreenDisabled ? 100 : displayState.splitPercent;
+  Resolution renderResolution(targetResolution);
+  if (displayState.fitToScreen) {
+    renderResolution = renderResolution.scaleKeepingAspectRatio(width, height);
+  }
+  Resolution scaledResolution = renderResolution.scale(displayState.zoom.multiplier());
+
   logger->debug("vivictpp::ui::VideoDisplay::updateRectangles scaledResolution={}x{}", scaledResolution.w, scaledResolution.h);
-  bool fitToScreen = displayState.zoom.get() == 0;
+  bool keepAspectRatio = displayState.zoom.get() == 0;
   if (width >= scaledResolution.w && height >= scaledResolution.h ) {
     destRect.w = scaledResolution.w;
     destRect.h = scaledResolution.h;
     setDefaultSourceRectangles(displayState);
-  } else if(fitToScreen) {
+  } else if(keepAspectRatio) {
     if (width / static_cast<double>(height) <= scaledResolution.aspectRatio()) {
       destRect.w = width;
       destRect.h = scaledResolution.h * width / scaledResolution.w;

@@ -123,6 +123,7 @@ Run with the -h flag to see the commandline options
     u      Zoom in
     i      Zoom out
     0      Reset pan and zoom to default
+    s      Toggle scale content to fit window
     t      Toggle visibility of time
     d      Toggle visibility of Stream and Frame metadata
     p      Toggle visibility of vmaf plot (if vmaf data present)

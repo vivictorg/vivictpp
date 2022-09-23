@@ -242,6 +242,10 @@ void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::Ke
       displayState.displayPlot = !displayState.displayPlot;
       eventLoop->scheduleRefreshDisplay(0);
       break;
+    case 'S':
+      displayState.fitToScreen = !displayState.fitToScreen;
+      eventLoop->scheduleRefreshDisplay(0);
+      break;
     case '1':
       vivictPP.switchStream(-1);
       break;
