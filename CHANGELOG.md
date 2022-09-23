@@ -3,6 +3,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.2.1 - 2022-09-23
+
 ### Added
  - Scaling of fonts based on display dpi
  - Scaling of content to fit window
