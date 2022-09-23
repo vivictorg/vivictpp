@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef SDL_EVENT_LOOP_H_
-#define SDL_EVENT_LOOP_H_
+#ifndef SDL_SDLEVENTLOOP_HH
+#define SDL_SDLEVENTLOOP_HH
 
 #include "EventLoop.hh"
 #include "sdl/SDLUtils.hh"
@@ -58,9 +58,8 @@ public:
   void start(EventListener &eventListener) override;
   void stop() override;
 
-  void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                    const vivictpp::ui::DisplayState &displayState) override {
-    screenOutput.displayFrame(frames, displayState);
+  void displayFrame(const vivictpp::ui::DisplayState &displayState) override {
+    screenOutput.displayFrame(displayState);
   }
   int getWidth() override {
     return screenOutput.getWidth();
@@ -71,19 +70,12 @@ public:
   void setFullscreen(bool fullscreen) override {
     screenOutput.setFullscreen(fullscreen);
   }
-  void setLeftMetadata(const VideoMetadata &metadata) override {
-    screenOutput.setLeftMetadata(metadata);
-  }
-  void setRightMetadata(const VideoMetadata &metadata) override {
-    screenOutput.setRightMetadata(metadata);
-  }
  private:
   void scheduleEvent(const CustomEvent &event, const int delay);
   void scheduleEvent(CustomEvent *event, const int delay);
   bool isCustomEvent(const SDL_Event &event);
   void handleCustomEvent(const SDL_Event &event, EventListener &eventListener);
  private:
-  SDLInitializer sdlInitializer;
   vivictpp::ui::ScreenOutput screenOutput;
   std::atomic<bool> quit;
   MouseState mouseState;
@@ -100,4 +92,4 @@ public:
 }  // ui
 }  // vivictpp
 
-#endif  // SDL_EVENT_LOOP_H_
+#endif // SDL_SDLEVENTLOOP_HH

@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef AV_ERROR_UTILS_HH_
-#define AV_ERROR_UTILS_HH_
+#ifndef LIBAV_AVERRORUTILS_HH
+#define LIBAV_AVERRORUTILS_HH
 
 #include <string>
 
@@ -39,4 +39,4 @@ private:
 }  // namespace libav
 }  // namespace vivictpp
 
-#endif  // AV_ERROR_UTILS_HH_
+#endif // LIBAV_AVERRORUTILS_HH

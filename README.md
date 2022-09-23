@@ -116,11 +116,14 @@ Run with the -h flag to see the commandline options
     Alt-M  Seek Backward 10min
     <      Decrease left frame offset
     >      Increase left frame offset
+    [      Decrease playback speed
+    ]      Increase playback speed
     
     f      Toggle full screen
     u      Zoom in
     i      Zoom out
     0      Reset pan and zoom to default
+    s      Toggle scale content to fit window
     t      Toggle visibility of time
     d      Toggle visibility of Stream and Frame metadata
     p      Toggle visibility of vmaf plot (if vmaf data present)
@@ -163,6 +166,9 @@ In case your input file is in a format this not easily identified, ie raw video,
 Example for playing a file containing raw video data:
 
     vivictpp --left-format format=rawvideo:pixel_format=yuv422p10:video_size=1280x720:framerate=50 my-file.yuv
+
+### Controlling playback speed
+Playback speed can be controlled with `[` and `]`.
 
 ### Logging
 

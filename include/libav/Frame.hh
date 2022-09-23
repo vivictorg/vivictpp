@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef FRAME_HH_
-#define FRAME_HH_
+#ifndef LIBAV_FRAME_HH
+#define LIBAV_FRAME_HH
 
 #include <memory>
 
@@ -12,15 +12,18 @@ extern "C" {
 #include <libavutil/frame.h>
 }
 
-namespace vivictpp {
-namespace libav {
+#include "VideoMetadata.hh"
+
+namespace vivictpp::libav {
 
 class Frame {
 private:
   std::shared_ptr<AVFrame> frame;
 public:
   Frame();
+  Frame(const Frame &frame);
   ~Frame() = default;
+  Frame &operator=(const Frame &frame);
   AVFrame* avFrame() const { return frame.get(); }
   bool empty() const { return !frame; }
   void reset();
@@ -31,14 +34,20 @@ public:
     } else {
       return AV_NOPTS_VALUE;
     }
-}
+  }
+  FrameMetadata metadata() const {
+    if (frame) {
+      return { av_get_picture_type_char(frame->pict_type), frame->pts, frame->pkt_size };
+    } else {
+      return { '?', 0, 0 };
+    }
+  }
 private:
   Frame(AVFrame *avFrame);
 };
 
 void freeFrame(AVFrame* avFrame);
 
-}  // namespace libav
-}  // namespace vivictpp
+}  // namespace vivictpp::libav
 
-#endif  // FRAME_HH_
+#endif // LIBAV_FRAME_HH

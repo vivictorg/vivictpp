@@ -6,9 +6,10 @@
 
 std::atomic<int> vivictpp::sdl::SDLInitializer::instanceCount(0);
 
-vivictpp::sdl::SDLInitializer::SDLInitializer() {
+vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio) {
   if (instanceCount++ == 0) {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER)) {
+    uint32_t flags = SDL_INIT_VIDEO | SDL_INIT_TIMER | (enableAudio ? SDL_INIT_AUDIO : 0);
+    if (SDL_Init(flags)) {
       throw SDLException("Failed to initialize SDL");
     }
   }

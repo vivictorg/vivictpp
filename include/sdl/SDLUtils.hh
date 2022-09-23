@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef SDL_UTILS_H_
-#define SDL_UTILS_H_
+#ifndef SDL_SDLUTILS_HH
+#define SDL_SDLUTILS_HH
 
 extern "C" {
 #include <SDL.h>
@@ -29,7 +29,7 @@ class SDLInitializer {
  private:
   static std::atomic<int> instanceCount;
  public:
-  SDLInitializer();
+  SDLInitializer(bool enableAudio = true);
   ~SDLInitializer();
 };
 
@@ -51,4 +51,4 @@ std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
 }  // sdl
 }  // vivictpp
 
-#endif  // SDL_UTILS_H
+#endif // SDL_SDLUTILS_HH

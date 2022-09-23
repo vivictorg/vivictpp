@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef INPUT_WORKER_HH_
-#define INPUT_WORKER_HH_
+#ifndef WORKERS_INPUTWORKER_HH
+#define WORKERS_INPUTWORKER_HH
 
 #include "workers/VideoInputMessage.hh"
 #include <memory>
@@ -167,4 +167,4 @@ void InputWorker<T>::run() {
 
 }  // namespace workers
 }  // namespace vivictpp
-#endif  // INPUT_WORKER_HH_
+#endif // WORKERS_INPUTWORKER_HH

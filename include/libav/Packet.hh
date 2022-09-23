@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef PACKET_HH_
-#define PACKET_HH_
+#ifndef LIBAV_PACKET_HH
+#define LIBAV_PACKET_HH
 
 #include <memory>
 
@@ -29,4 +29,4 @@ private:
 }  // namespace libav
 }  // namespace vivictpp
 
-#endif  // PACKET_HH_
+#endif // LIBAV_PACKET_HH

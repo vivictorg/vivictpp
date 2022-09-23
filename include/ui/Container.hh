@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef CONTAINER_HH_
-#define CONTAINER_HH_
+#ifndef UI_CONTAINER_HH
+#define UI_CONTAINER_HH
 
 #include <vector>
 #include <memory>
@@ -25,7 +25,7 @@ public:
     Container(std::vector<std::shared_ptr<vivictpp::ui::Component>> components = {}):
         components(components) {};
     virtual ~Container() = default;
-    void render(SDL_Renderer *renderer, int x, int y) override;
+    void render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) override;
     const Box& getBox() const override { return box; }
     void add(std::shared_ptr<Component> component) {
         components.push_back(component);
@@ -46,7 +46,7 @@ public:
                            std::vector<std::shared_ptr<Component>> components = {},
                            Offset offset = {0,0});
     virtual ~FixedPositionContainer() = default;
-    virtual void render(SDL_Renderer *renderer, int x = 0, int y = 0);
+    virtual void render(const DisplayState &displayState, SDL_Renderer *renderer, int x = 0, int y = 0);
 private:
     Position position;
     Offset offset;
@@ -56,4 +56,4 @@ private:
 }  // namespace vivictpp
 
 
-#endif  // CONTAINER_HH_
+#endif // UI_CONTAINER_HH

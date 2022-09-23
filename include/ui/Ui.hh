@@ -4,13 +4,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 
-#ifndef UI_HH_
-#define UI_HH_
+#ifndef UI_UI_HH
+#define UI_UI_HH
 
 extern "C" {
 #include <SDL.h>
 #include <SDL_ttf.h>
 }
+
+#include "ui/DisplayState.hh"
 
 namespace vivictpp {
 namespace ui {
@@ -45,7 +47,7 @@ struct Box {
 class Component {
 public:
   virtual ~Component() = default;
-  virtual void render(SDL_Renderer *renderer, int x, int y) = 0;
+  virtual void render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) = 0;
   virtual const Box& getBox() const = 0;
 };
 
@@ -53,4 +55,4 @@ public:
 }  // namespace vivictpp
 
 
-#endif  // UI_HH_
+#endif // UI_UI_HH

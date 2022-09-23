@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef QUEUEPOINTER_HH_
-#define QUEUEPOINTER_HH_
+#ifndef WORKERS_QUEUEPOINTER_HH
+#define WORKERS_QUEUEPOINTER_HH
 
 #include <iostream>
 
@@ -33,4 +33,4 @@ std::ostream &operator<<(std::ostream &out, QueuePointer qp);
 }  // namespace workers
 }  // namespace vivictpp
 
-#endif // QUEUEPOINTER_HH_
+#endif // WORKERS_QUEUEPOINTER_HH

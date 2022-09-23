@@ -6,7 +6,7 @@
 #include "ui/Fonts.hh"
 #include "ui/TextTexture.hh"
 
-vivictpp::ui::TextBox::TextBox(std::string text, std::string font, int fontSize,
+vivictpp::ui::TextBox::TextBox(std::string text, std::string font, FontSize fontSize,
                                 std::string title, int minWidth, int minHeight,
                                Margin margin)
     : texture(nullptr), text(text), font(font), fontSize(fontSize),
@@ -91,7 +91,8 @@ void vivictpp::ui::TextBox::initTexture(SDL_Renderer *renderer) {
   SDL_SetRenderTarget(renderer, nullptr);
 }
 
-void vivictpp::ui::TextBox::render(SDL_Renderer *renderer, int x, int y) {
+void vivictpp::ui::TextBox::render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) {
+  (void) displayState;
   if (!display) {
     box = {x,y,0,0};
     return;

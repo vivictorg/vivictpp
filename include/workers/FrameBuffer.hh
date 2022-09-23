@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef FRAMEBUFFER_HH_
-#define FRAMEBUFFER_HH_
+#ifndef WORKERS_FRAMEBUFFER_HH
+#define WORKERS_FRAMEBUFFER_HH
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -85,5 +85,5 @@ private:
 };
 }  // namespace workers
 }  // namespace vivictpp
-#endif // FRAMEBUFFER_HH_
+#endif // WORKERS_FRAMEBUFFER_HH
 

@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICTPP_H_
-#define VIVICTPP_H_
+#ifndef VIVICTPP_HH
+#define VIVICTPP_HH
 
 #include <string>
 
@@ -48,6 +48,7 @@ struct PlayerState {
   int leftVideoStreamIndex{0};
   bool updateVideoMetadata{false};
   vivictpp::AVSync avSync;
+  int playbackSpeed{0};
   PlaybackState togglePlaying();
 };
 /*
@@ -55,6 +56,7 @@ struct AudioFrames {
   std::vector<vivictpp::libav::Frame>
 };
 */
+
 
 
 class VivictPP  {
@@ -72,6 +74,7 @@ public:
   void seekPreviousFrame();
   void seekFrame(int delta);
   void switchStream(int delta);
+  int adjustPlaybackSpeed(int delta);
   int nextFrameDelay();
   vivictpp::time::Time getPts() { return state.pts; }
   void onQuit();
@@ -109,4 +112,4 @@ public:
   vivictpp::logging::Logger seeklog;
 };
 
-#endif  // VIVICTPP_H_
+#endif // VIVICTPP_HH

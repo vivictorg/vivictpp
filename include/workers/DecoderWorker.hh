@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef DECODER_WORKER_HH_
-#define DECODER_WORKER_HH_
+#ifndef WORKERS_DECODERWORKER_HH
+#define WORKERS_DECODERWORKER_HH
 
 #include "workers/InputWorker.hh"
 #include "workers/PacketQueue.hh"
@@ -69,4 +69,4 @@ private:
 }  // namespace workers
 }  // namespace workers
 
-#endif  // DECODER_WORKER_HH_
+#endif // WORKERS_DECODERWORKER_HH

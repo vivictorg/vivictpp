@@ -3,14 +3,16 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef DISPLAYSTATE_HH_
-#define DISPLAYSTATE_HH_
+#ifndef UI_DISPLAYSTATE_HH
+#define UI_DISPLAYSTATE_HH
 
 #include <string>
 #include <cmath>
 #include <iostream>
 
+#include "VideoMetadata.hh"
 #include "time/Time.hh"
+#include "libav/Frame.hh"
 
 namespace vivictpp {
 namespace ui {
@@ -61,13 +63,20 @@ struct DisplayState {
   bool displayMetadata{true};
   bool displayPlot{true};
   bool splitScreenDisabled{false};
+  bool fitToScreen{true};
   bool isPlaying{false};
   vivictpp::time::Time pts{0};
   SeekBarState seekBar;
   int leftFrameOffset{0};
+  vivictpp::libav::Frame leftFrame;
+  vivictpp::libav::Frame rightFrame;
+  VideoMetadata leftVideoMetadata;
+  VideoMetadata rightVideoMetadata;
+  int videoMetadataVersion{0};
+  std::string playbackSpeedStr;
 };
 
 }  // ui
 }  // vivictpp
 
-#endif // DISPLAYSTATE_HH_
+#endif // UI_DISPLAYSTATE_HH

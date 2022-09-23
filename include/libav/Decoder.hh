@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef DECODER_HH_
-#define DECODER_HH_
+#ifndef LIBAV_DECODER_HH
+#define LIBAV_DECODER_HH
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -42,4 +42,4 @@ void destroyCodecContext(AVCodecContext *codecContext);
 }  // namespace libav
 }  // namespace vivictpp
 
-#endif // DECODER_HH_
+#endif // LIBAV_DECODER_HH

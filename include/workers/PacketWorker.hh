@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef PACKET_WORKER_HH_
-#define PACKET_WORKER_HH_
+#ifndef WORKERS_PACKETWORKER_HH
+#define WORKERS_PACKETWORKER_HH
 
 #include <atomic>
 
@@ -51,4 +51,4 @@ private:
 };
 }  // namespace workers
 }  // namespace vivictpp
-#endif  // PACKET_WORKER_HH_
+#endif // WORKERS_PACKETWORKER_HH

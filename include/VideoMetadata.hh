@@ -15,6 +15,7 @@ extern "C" {
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <atomic>
 
 #include "Resolution.hh"
 #include "time/Time.hh"
@@ -33,6 +34,7 @@ public:
 
 class VideoMetadata {
 public:
+  VideoMetadata();
   VideoMetadata(std::string source,
                 AVFormatContext *formatContext,
                 AVStream *videoStream,
@@ -42,7 +44,7 @@ public:
   int streamIndex;
   std::string pixelFormat;
   Resolution resolution;
-    Resolution filteredResolution;
+  Resolution filteredResolution;
   FilteredVideoMetadata filteredVideoMetadata;
   int bitrate;
   double frameRate;
@@ -53,8 +55,16 @@ public:
   std::string codec;
 
   std::string toString() const;
+  bool empty() const { return _empty; }
 private:
-    std::string resolutionAsString() const;
+  std::string resolutionAsString() const;
+  bool _empty;
+};
+
+struct FrameMetadata {
+  char pictureType;
+  int64_t pts;
+  int64_t size;
 };
 
 #endif // VIDEOMETADATA_HH_

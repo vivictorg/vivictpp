@@ -31,14 +31,15 @@ vivictpp::Controller::Controller(std::shared_ptr<EventLoop> eventLoop,
     logger(vivictpp::logging::getOrCreateLogger("Controller")) {
   displayState.splitScreenDisabled = splitScreenDisabled;
   displayState.displayPlot = plotEnabled;
-  display->setLeftMetadata(vivictPP.getVideoInputs().metadata()[0][0]);
+  displayState.leftVideoMetadata = vivictPP.getVideoInputs().metadata()[0][0];
   if (! (vivictPP.getVideoInputs().metadata()[1]).empty()) {
-    display->setRightMetadata(vivictPP.getVideoInputs().metadata()[1][0]);
+    displayState.rightVideoMetadata = vivictPP.getVideoInputs().metadata()[1][0];
   }
+  displayState.videoMetadataVersion++;
+  eventLoop->scheduleRefreshDisplay(0);
 }
 
 int vivictpp::Controller::run() {
-//  eventLoop.scheduleAdvanceFrame(5);
   eventLoop->start(*this);
   logger->debug("vivictpp::Controller::run exit");
   return 0;
@@ -73,12 +74,14 @@ void vivictpp::Controller::seekFinished(vivictpp::time::Time seekedPos) {
 void vivictpp::Controller::refreshDisplay() {
   logger->trace("vivictpp::Controller::refreshDisplay");
   std::array<vivictpp::libav::Frame, 2> frames = vivictPP.getVideoInputs().firstFrames();
+  displayState.leftFrame = frames[0];
+  displayState.rightFrame = frames[1];
   if (displayState.displayTime) {
     displayState.timeStr = vivictpp::time::formatTime(vivictPP.getPts());
   }
   displayState.pts = vivictPP.getPts();
   displayState.seekBar.relativePos = (displayState.pts - startTime) / (float) inputDuration;
-  display->displayFrame(frames, displayState);
+  display->displayFrame(displayState);
 }
 
 
@@ -239,11 +242,21 @@ void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::Ke
       displayState.displayPlot = !displayState.displayPlot;
       eventLoop->scheduleRefreshDisplay(0);
       break;
+    case 'S':
+      displayState.fitToScreen = !displayState.fitToScreen;
+      eventLoop->scheduleRefreshDisplay(0);
+      break;
     case '1':
       vivictPP.switchStream(-1);
       break;
     case '2':
       vivictPP.switchStream(1);
+      break;
+    case '[':
+      adjustPlaybackSpeed(1);
+      break;
+    case ']':
+      adjustPlaybackSpeed(-1);
       break;
     }
   } else {
@@ -251,4 +264,15 @@ void vivictpp::Controller::keyPressed(const std::string &key, const vivictpp::Ke
       togglePlaying();
     }
   }
+}
+
+void vivictpp::Controller::adjustPlaybackSpeed(int delta) {
+  int speed = vivictPP.adjustPlaybackSpeed(delta);
+  if (speed == 0) {
+    displayState.playbackSpeedStr = "";
+  } else {
+    float speedFloat = std::pow(std::sqrt(2), -1 * speed);
+    displayState.playbackSpeedStr =  fmt::format("{:.2f}", speedFloat);
+  }
+  eventLoop->scheduleRefreshDisplay(0);
 }

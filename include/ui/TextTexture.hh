@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef TEXT_TEXTURE_HH_
-#define TEXT_TEXTURE_HH_
+#ifndef UI_TEXTTEXTURE_HH
+#define UI_TEXTTEXTURE_HH
 
 extern "C" {
 #include <SDL.h>
@@ -36,4 +36,4 @@ public:
 }  // namespace ui
 
 
-#endif  // TEXT_TEXTURE_HH_
+#endif // UI_TEXTTEXTURE_HH

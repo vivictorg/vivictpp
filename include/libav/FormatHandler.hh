@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef FORMATHANDLER_HH_
-#define FORMATHANDLER_HH_
+#ifndef LIBAV_FORMATHANDLER_HH
+#define LIBAV_FORMATHANDLER_HH
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -60,4 +60,4 @@ private:
 }  // namespace libav
 }  // namespace vivictpp
 
-#endif // FORMATHANDLER_HH_
+#endif // LIBAV_FORMATHANDLER_HH

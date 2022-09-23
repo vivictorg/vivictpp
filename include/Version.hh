@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VERSION_H_
-#define VERSION_H_
+#ifndef VERSION_HH
+#define VERSION_HH
 
 #define VPP_VERSION "0.2.0"
 

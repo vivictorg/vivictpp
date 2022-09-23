@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef EVENT_LOOP_H_
-#define EVENT_LOOP_H_
+#ifndef EVENTLOOP_HH
+#define EVENTLOOP_HH
 
 #include "EventListener.hh"
 #include "time/Time.hh"
@@ -26,4 +26,4 @@ class EventLoop: public EventScheduler {
   virtual void stop() = 0;
 };
 
-#endif  // EVENT_LOOP_H
+#endif // EVENTLOOP_HH

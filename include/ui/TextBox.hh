@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef TEXTBOX_HH_
-#define TEXTBOX_HH_
+#ifndef UI_TEXTBOX_HH
+#define UI_TEXTBOX_HH
 
 #include <libavutil/pixfmt.h>
 extern "C" {
@@ -20,20 +20,22 @@ extern "C" {
 #include <vector>
 
 #include "ui/Ui.hh"
+#include "ui/FontSize.hh"
 
 namespace vivictpp {
 namespace ui {
 
 class TextBox: public Component {
 public:
-  TextBox(std::string text, std::string font, int fontSize,
+  TextBox(std::string text, std::string font, FontSize fontSize,
           std::string title="",
           int minWidth = 0, int minHeight = 0,
           Margin margin = {2,2,2,2});
   ~TextBox();
-  void render(SDL_Renderer *renderer, int x, int y) override;
+  void render(const DisplayState &displayState, SDL_Renderer *renderer, int x, int y) override;
   const Box& getBox() const override { return box; }
   void setText(std::string newText);
+  const std::string &getText() { return text; }
   SDL_Color fg = {255, 255, 255, 255};
   SDL_Color bg = {50, 50, 50, 255};
   bool border = true;
@@ -50,7 +52,7 @@ private:
   int minWidth = 0;
   int minHeight = 0;
   Margin margin;
-  bool changed = false;
+  bool changed = true;
   Box box;
 private:
   void initTexture(SDL_Renderer *renderer);
@@ -59,4 +61,4 @@ private:
 }  // ui
 }  // vivictpp
 
-#endif // TEXTBOX_HH_
+#endif // UI_TEXTBOX_HH

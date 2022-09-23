@@ -60,7 +60,6 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
     frameDuration =
       std::min(metadata[0][0].frameDuration, metadata[1][0].frameDuration);
   }
-  eventScheduler->scheduleRefreshDisplay(0);
 }
 
 int VivictPP::nextFrameDelay() {
@@ -71,10 +70,37 @@ int VivictPP::nextFrameDelay() {
   int corr = vivictpp::time::toMillis(videoDiff);
   if (corr > 30) corr = 30;
   if (corr < -30) corr = -30;
-  int delay = std::max(5, (int)(av_rescale(state.nextPts - state.pts, 1000, vivictpp::time::TIME_BASE) + corr));
+  int speedFactorDen(1), speedFactorNum(1);
+  if (state.playbackSpeed != 0) {
+    corr = 0;
+    if (state.playbackSpeed > 0) {
+      // 99 / 70 is an aproximation of square root of 2
+      speedFactorDen <<= (state.playbackSpeed / 2);
+      if (state.playbackSpeed % 2) {
+        speedFactorDen *= 99;
+        speedFactorNum = 70;
+      }
+    } else {
+      speedFactorNum <<= (-1 * state.playbackSpeed / 2);
+      if ((-1 * state.playbackSpeed) % 2) {
+        speedFactorNum *= 99;
+        speedFactorDen = 70;
+      }
+    }
+  }
+  int delay = std::max(5, (int)(av_rescale(state.nextPts - state.pts, speedFactorDen * 1000, speedFactorNum * vivictpp::time::TIME_BASE) + corr));
   logger->debug("VivictPP::nextFrameDelay videoPts={} clockPts={} videoDelta={}ms corr = {}ms, delay = {}ms",
                state.pts, clockPts / 1e6, videoDiff/1e6, corr, delay);
   return delay;
+}
+
+int VivictPP::adjustPlaybackSpeed(int delta) {
+  //state.playbackSpeed = std::max(0, state.playbackSpeed + delta);
+  state.playbackSpeed += delta;
+  if (state.playbackSpeed == 0) {
+    state.avSync.playbackStart(state.pts);
+  }
+  return state.playbackSpeed;
 }
 
 void VivictPP::advanceFrame() {
@@ -93,6 +119,7 @@ void VivictPP::advanceFrame() {
     if (state.seeking) {
       audioSeek(state.nextPts);
     }
+    
     if (state.nextPts > state.pts || state.seeking) {
       videoInputs.stepForward(state.nextPts);
     } else {

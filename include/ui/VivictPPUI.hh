@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICTPPUI_HH_
-#define VIVICTPPUI_HH_
+#ifndef UI_VIVICTPPUI_HH
+#define UI_VIVICTPPUI_HH
 
 #include "libav/Frame.hh"
 #include "VideoMetadata.hh"
@@ -44,15 +44,12 @@ struct MouseClick {
 class Display {
 public:
   virtual ~Display() = default;
-  virtual void displayFrame(const std::array<vivictpp::libav::Frame, 2> &frames,
-                            const vivictpp::ui::DisplayState &displayState) = 0;
+  virtual void displayFrame(const vivictpp::ui::DisplayState &displayState) = 0;
   virtual int getWidth() = 0;
   virtual int getHeight() = 0;
   virtual void setFullscreen(bool fullscreen) = 0;
 //  void setCursorHand();
 //  void setCursorDefault();
-  virtual void setLeftMetadata(const VideoMetadata &metadata) = 0;
-  virtual void setRightMetadata(const VideoMetadata &metadata) = 0;
 };
 
 
@@ -64,4 +61,4 @@ class VivictPPUI: public Display, public EventLoop {
 }  // ui
 }  // vivictpp
 
-#endif  // VIVICTPPUI
+#endif // UI_VIVICTPPUI_HH

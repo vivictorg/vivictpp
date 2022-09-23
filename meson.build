@@ -1,12 +1,22 @@
 project('vivict++', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'])
 
-spdlog_proj = subproject('spdlog')
-cli11_proj = subproject('cli11')
-catch2_proj = subproject('catch2')
+#if meson.get_compiler('cpp').get_id() == 'gcc'
+  extra_args=['-Wno-shadow', '-Wno-declaration-after-statement']
+#else
+#  extra_args=[]
+#endif
+
+  
+spdlog_proj = subproject('spdlog', default_options: 'warning_level=0')
+cli11_proj = subproject('cli11', default_options: 'warning_level=0')
+catch2_proj = subproject('catch2', default_options: 'warning_level=0')
+fmt_proj = subproject('fmt', default_options: 'warning_level=0')
+sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false'])
+sdl2_ttf_proj = subproject('sdl2_ttf', default_options: 'warning_level=0')
 
 deps = [
-  dependency('sdl2', version: '>=2.0.8'),
-  dependency('SDL2_ttf', version: '>=2.0.14'),
+  sdl2_proj.get_variable('sdl2_dep'),
+  sdl2_ttf_proj.get_variable('sdl2_ttf_dep'),
   dependency('freetype2', version: '>=2.8.1'),
   dependency('threads'),
   dependency('libavformat'),
@@ -15,7 +25,8 @@ deps = [
   dependency('libavfilter'),
   dependency('libswscale'),
   spdlog_proj.get_variable('spdlog_dep'),
-  cli11_proj.get_variable('CLI11_dep')
+  cli11_proj.get_variable('CLI11_dep'),
+  fmt_proj.get_variable('fmt_dep')
 ]
 
 test_deps = [
@@ -27,25 +38,55 @@ incdir = include_directories('include')
 git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')
 git_hash = git_hash_cmd.stdout().strip()
 
-vivictpplib = static_library('vivictpplib', 'src/libav/Decoder.cc', 'src/libav/FormatHandler.cc',
-                             'src/ui/TextBox.cc', 'src/VideoInputs.cc', 'src/sdl/SDLAudioOutput.cc',
-                             'src/workers/FrameBuffer.cc', 'src/workers/QueuePointer.cc', 'src/VideoMetadata.cc',
-                             'src/workers/VideoInputMessage.cc', 'src/AVSync.cc',
-                             'src/ui/ScreenOutput.cc', 'src/VivictPP.cc', 'src/sdl/SDLUtils.cc',
-                             'src/sdl/SDLEventLoop.cc', 'src/time/TimeUtils.cc', 'src/sdl/SDLUtils.cc',
-                             'src/libav/Filter.cc', 'src/workers/PacketQueue.cc',
-                             'src/workers/DecoderWorker.cc', 'src/workers/PacketWorker.cc',
-                             'src/libav/Packet.cc', 'src/vmaf/VmafLog.cc',
-                             'src/libav/Frame.cc', 'src/logging/Logging.cc',
-                             'src/ui/VmafGraph.cc', 'src/ui/Fonts.cc', 'src/ui/TextTexture.cc',
-                             'src/Controller.cc', 'src/ui/Container.cc',
-                             'src/ui/SeekBar.cc',
-                             dependencies: deps, include_directories: incdir)
+sources = [
+  'src/AVSync.cc',
+  'src/Controller.cc',
+  'src/VideoInputs.cc',
+  'src/VideoMetadata.cc',
+  'src/VivictPP.cc',
+  'src/libav/Decoder.cc',
+  'src/libav/Filter.cc',
+  'src/libav/FormatHandler.cc',
+  'src/libav/Frame.cc',
+  'src/libav/Packet.cc',
+  'src/logging/Logging.cc',
+  'src/sdl/SDLAudioOutput.cc',
+  'src/sdl/SDLEventLoop.cc',
+  'src/sdl/SDLUtils.cc',
+  'src/sdl/SDLUtils.cc',
+  'src/time/TimeUtils.cc',
+  'src/ui/Container.cc',
+  'src/ui/FontSize.cc',
+  'src/ui/Fonts.cc',
+  'src/ui/MetadataDisplay.cc',
+  'src/ui/ScreenOutput.cc',
+  'src/ui/SeekBar.cc',
+  'src/ui/TextBox.cc',
+  'src/ui/TextTexture.cc',
+  'src/ui/VideoDisplay.cc',
+  'src/ui/VmafGraph.cc',
+  'src/vmaf/VmafLog.cc',
+  'src/workers/DecoderWorker.cc',
+  'src/workers/FrameBuffer.cc',
+  'src/workers/PacketQueue.cc',
+  'src/workers/PacketWorker.cc',
+  'src/workers/QueuePointer.cc',
+  'src/workers/VideoInputMessage.cc',
+]
+
+vivictpplib = static_library('vivictpplib',
+                             sources: sources,
+                             dependencies: deps,
+                             include_directories: incdir,
+                             cpp_args: extra_args)
+
+vpp_extra_args = extra_args
+vpp_extra_args += '-DVPP_GIT_HASH="' + git_hash + '"'
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps,
-           include_directories: incdir, install: true, cpp_args : '-DVPP_GIT_HASH="' + git_hash + '"', link_args: '-g')
+           include_directories: incdir, install: true, cpp_args : vpp_extra_args, link_args: '-g')
 
 #seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
 # test('FormatHandler.seek', seekTest)
-playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
+playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
 test('Playback', playbackTest)

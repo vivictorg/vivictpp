@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#ifndef VIVICTPP_UI_EVENTS_H_
-#define VIVICTPP_UI_EVENTS_H_
+#ifndef UI_EVENTS_HH
+#define UI_EVENTS_HH
 
 #include <memory>
 #include <string>
@@ -50,4 +50,4 @@ public:
 }  // namespace vivictpp
 
 
-#endif  // VIVICTPP_UI_EVENTS_H_
+#endif // UI_EVENTS_HH
