@@ -56,6 +56,7 @@ sources = [
   'src/sdl/SDLUtils.cc',
   'src/time/TimeUtils.cc',
   'src/ui/Container.cc',
+  'src/ui/FontSize.cc',
   'src/ui/Fonts.cc',
   'src/ui/MetadataDisplay.cc',
   'src/ui/ScreenOutput.cc',

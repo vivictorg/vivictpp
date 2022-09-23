@@ -20,13 +20,14 @@ extern "C" {
 #include <vector>
 
 #include "ui/Ui.hh"
+#include "ui/FontSize.hh"
 
 namespace vivictpp {
 namespace ui {
 
 class TextBox: public Component {
 public:
-  TextBox(std::string text, std::string font, int fontSize,
+  TextBox(std::string text, std::string font, FontSize fontSize,
           std::string title="",
           int minWidth = 0, int minHeight = 0,
           Margin margin = {2,2,2,2});

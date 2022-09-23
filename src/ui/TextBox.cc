@@ -6,7 +6,7 @@
 #include "ui/Fonts.hh"
 #include "ui/TextTexture.hh"
 
-vivictpp::ui::TextBox::TextBox(std::string text, std::string font, int fontSize,
+vivictpp::ui::TextBox::TextBox(std::string text, std::string font, FontSize fontSize,
                                 std::string title, int minWidth, int minHeight,
                                Margin margin)
     : texture(nullptr), text(text), font(font), fontSize(fontSize),

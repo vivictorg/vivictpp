@@ -7,8 +7,10 @@
 #include <iostream>
 #include <vector>
 
+#include "SDL_video.h"
 #include "sdl/SDLUtils.hh"
 #include "spdlog/spdlog.h"
+#include "ui/FontSize.hh"
 
 #include "Version.hh"
 #include "VivictPP.hh"
@@ -86,6 +88,11 @@ int main(int argc, char **argv) {
     app.add_option("--left-format", leftInputFormat, "Format options for left video input");
     app.add_option("--right-format", rightInputFormat, "Format options for right video input");
 
+    bool disableFontAutoScaling(false);
+    float fontCustomScaling{1};
+    app.add_flag("--disable-font-autoscaling", disableFontAutoScaling, "Disables autoscaling of fonts based on display dpi");
+    app.add_option("--custom-font-scaling", fontCustomScaling, "Custom scaling factor for fonts");
+
     CLI11_PARSE(app, argc, argv);
 
     std::vector<std::string> sources = {leftVideo};
@@ -112,6 +119,7 @@ int main(int argc, char **argv) {
 
     VivictPPConfig vivictPPConfig(sourceConfigs, !enableAudio);
     vivictpp::sdl::SDLInitializer sdlInitializer(enableAudio);
+    vivictpp::ui::FontSize::setScaling(!disableFontAutoScaling, fontCustomScaling);
     auto sdlEventLoop = std::make_shared<vivictpp::sdl::SDLEventLoop>(vivictPPConfig.sourceConfigs);
     vivictpp::Controller controller(sdlEventLoop, sdlEventLoop, vivictPPConfig);
     return controller.run();
