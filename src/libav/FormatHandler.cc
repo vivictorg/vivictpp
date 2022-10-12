@@ -135,6 +135,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   }
   vivictpp::time::Time seek_t = t;
   int flags = 0;
+  /*
   if (std::strcmp("hls", this->formatContext->iformat->name) == 0) {
     // Seeking in a hls stream seeks to the first keyframe after the given
     // timestamp To ensure we seek to a iframe before the point we want to reach
@@ -144,7 +145,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
     seeklog->debug("FormatHandler::seek Adjusted seek: {}", seek_t);
     flags = AVSEEK_FLAG_BACKWARD;
   }
-
+  */
   int64_t ts = av_rescale_q(seek_t, vivictpp::time::TIME_BASE_Q, stream->time_base);
   if (stream->start_time != AV_NOPTS_VALUE && stream->start_time > ts) {
       ts = stream->start_time;

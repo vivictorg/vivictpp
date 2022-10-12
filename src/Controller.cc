@@ -66,8 +66,8 @@ void vivictpp::Controller::fade() {
   }
 }
 
-void vivictpp::Controller::seekFinished(vivictpp::time::Time seekedPos) {
-  vivictPP.onSeekFinished(seekedPos);
+void vivictpp::Controller::seekFinished(vivictpp::time::Time seekedPos, bool error) {
+  vivictPP.onSeekFinished(seekedPos, error);
   displayState.seekBar.seeking = false;
 }
 

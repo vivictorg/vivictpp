@@ -6,7 +6,9 @@
 #include "Seeking.hh"
 #include "VideoMetadata.hh"
 #include "spdlog/spdlog.h"
+#include "time/Time.hh"
 #include "workers/DecoderWorker.hh"
+#include <stdexcept>
 
 std::shared_ptr<vivictpp::workers::DecoderWorker> findDecoderWorkerForStream(std::vector<std::shared_ptr<vivictpp::workers::DecoderWorker>> decoderWorkers,
                                                                              const AVStream* stream) {
@@ -116,13 +118,17 @@ void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos, vivictpp::S
   PacketWorker *packetWorker(this);
   seeklog->debug("PacketWorker::seek pos={}", pos);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
-                                               (void) serialNo;
+      (void) serialNo;
+      try {
         packetWorker->formatHandler.seek(pos);
         packetWorker->unrefCurrentPacket();
         for (auto decoderWorker : packetWorker->decoderWorkers) {
           decoderWorker->seek(pos, callback);
         }
-        return true;
+      } catch (std::runtime_error &e) {
+          callback(vivictpp::time::NO_TIME, true);
+      }
+      return true;
       }, "seek"));
 }
 

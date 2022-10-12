@@ -34,7 +34,7 @@ public:
   void refreshDisplay() override;
   void queueAudio() override;
   void fade() override;
-  void seekFinished(vivictpp::time::Time seekedPos) override;
+  void seekFinished(vivictpp::time::Time seekedPos, bool error) override;
   void onQuit();
   const PlayerState &getPlayerState() { return vivictPP.getPlayerState(); }
   

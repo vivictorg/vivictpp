@@ -132,7 +132,7 @@ void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::F
       seeklog->debug("vivictpp::workers::DecoderWorker::addFrameToBuffer written pts={} seekPos={}", pts, seekPos);
       if (pts >= seekPos) {
         seeklog->debug("DecoderWorker::doWork seekFinished", pts);
-        this->seekCallback(pts);
+        this->seekCallback(pts, false);
         this->state = InputWorkerState::ACTIVE;
       }
     }

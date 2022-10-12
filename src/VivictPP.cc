@@ -268,17 +268,21 @@ void VivictPP::seek(vivictpp::time::Time nextPts) {
   } else {
     seeklog->debug("VivictPP::seek Seek pts not in range");
     state.seeking = true;
-    videoInputs.seek(state.nextPts, [this](vivictpp::time::Time pos) {
-      this->eventScheduler->scheduleSeekFinished(pos);
+    videoInputs.seek(state.nextPts, [this](vivictpp::time::Time pos, bool error) {
+      this->eventScheduler->scheduleSeekFinished(pos, error);
     });
     eventScheduler->clearAdvanceFrame();
 //    eventScheduler->scheduleAdvanceFrame(5);
   }
 }
 
-void VivictPP::onSeekFinished(vivictpp::time::Time seekedPos) {
-  this->seeklog->debug("Seek callback called with pos={}", seekedPos);
-  state.nextPts = seekedPos;
+void VivictPP::onSeekFinished(vivictpp::time::Time seekedPos, bool error) {
+  this->seeklog->debug("Seek callback called with pos={}, error={}", seekedPos, error);
+  if (error) {
+    state.nextPts = state.pts;
+  } else {
+    state.nextPts = seekedPos;
+  }
   eventScheduler->scheduleAdvanceFrame(0);
 }
 
