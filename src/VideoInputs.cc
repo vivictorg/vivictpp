@@ -5,6 +5,7 @@
 #include "VideoInputs.hh"
 #include "Seeking.hh"
 #include "spdlog/spdlog.h"
+#include "time/Time.hh"
 #include <libavcodec/avcodec.h>
 
 int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
@@ -73,15 +74,17 @@ bool VideoInputs::ptsInRange(vivictpp::time::Time pts) {
 }
 
 vivictpp::time::Time VideoInputs::duration() {
-  vivictpp::time::Time duration = 1e9;
+  vivictpp::time::Time duration = vivictpp::time::NO_TIME;
   for( const auto &metadata : leftInput.packetWorker->getVideoMetadata()) {
-    if (metadata.duration < duration) {
+    if (metadata.duration != vivictpp::time::NO_TIME &&
+        (duration == vivictpp::time::NO_TIME || metadata.duration < duration)) {
       duration = metadata.duration;
     }
   }
   if (rightInput.packetWorker) {
     for( const auto &metadata : rightInput.packetWorker->getVideoMetadata()) {
-      if (metadata.duration < duration) {
+      if (metadata.duration != vivictpp::time::NO_TIME &&
+        (duration == vivictpp::time::NO_TIME || metadata.duration < duration)) {
         duration = metadata.duration;
       }
     }

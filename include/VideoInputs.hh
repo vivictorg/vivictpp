@@ -6,6 +6,7 @@
 #ifndef VIDEOINPUTS_HH_
 #define VIDEOINPUTS_HH_
 
+#include "time/Time.hh"
 extern "C" {
 #include <libavformat/avformat.h>
 }
@@ -69,6 +70,11 @@ public:
     std::array<std::vector<VideoMetadata>, 2> metadata();
     vivictpp::time::Time duration();
     vivictpp::time::Time startTime();
+    bool hasMaxPts() {
+        return leftInput.packetWorker->getVideoMetadata()[0].hasDuration()
+            || (rightInput.packetWorker &&
+                rightInput.packetWorker->getVideoMetadata()[0].hasDuration());
+    }
     vivictpp::time::Time minPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
         if (!rightInput.packetWorker) {
@@ -79,6 +85,9 @@ public:
     }
     vivictpp::time::Time maxPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
+        if (!meta1.hasDuration()) {
+          return vivictpp::time::NO_TIME;
+        }
         if (!rightInput.packetWorker) {
             return meta1.endTime - leftPtsOffset;
         }
