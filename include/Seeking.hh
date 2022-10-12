@@ -12,7 +12,7 @@
 
 namespace vivictpp {
 
-typedef std::function<void(vivictpp::time::Time)> SeekCallback;
+  typedef std::function<void(vivictpp::time::Time,bool)> SeekCallback;
 
 }  // namespace vivictpp
 

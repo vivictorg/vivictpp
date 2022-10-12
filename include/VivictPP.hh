@@ -100,7 +100,7 @@ public:
     }
     return value;
   }
-  void onSeekFinished(vivictpp::time::Time seekedPos);
+  void onSeekFinished(vivictpp::time::Time seekedPos, bool error);
 
  private:
   PlayerState state;

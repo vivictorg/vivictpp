@@ -38,10 +38,12 @@ struct CustomEvent {
 };
 
 struct SeekFinishedEvent: CustomEvent {
-  SeekFinishedEvent(const CustomEvent &prototype, vivictpp::time::Time seekedPos):
+  SeekFinishedEvent(const CustomEvent &prototype, vivictpp::time::Time seekedPos, bool error):
     CustomEvent(prototype),
-    seekedPos(seekedPos) {};
+    seekedPos(seekedPos),
+    error(error) {};
   vivictpp::time::Time seekedPos;
+  bool error;
 };
 
 class SDLEventLoop : public vivictpp::ui::VivictPPUI {
@@ -53,7 +55,7 @@ public:
   void scheduleRefreshDisplay(int delay) override;
   void scheduleQueueAudio(int delay) override;
   void scheduleFade(int delay) override;
-  void scheduleSeekFinished(vivictpp::time::Time pts) override;
+  void scheduleSeekFinished(vivictpp::time::Time pts, bool error) override;
   void clearAdvanceFrame() override;
   void start(EventListener &eventListener) override;
   void stop() override;

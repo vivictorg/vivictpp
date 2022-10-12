@@ -5,6 +5,7 @@
 #include "VideoInputs.hh"
 #include "Seeking.hh"
 #include "spdlog/spdlog.h"
+#include "time/Time.hh"
 #include <libavcodec/avcodec.h>
 
 int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
@@ -13,17 +14,21 @@ int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
   seekEndPos.clear();
   callback = onFinished;
   seekId++;
+  error = false;
   return seekId;
 }
 
-void SeekState::handleSeekFinished(int seekId, int seekPos) {
+void SeekState::handleSeekFinished(int seekId, int seekPos, bool error) {
   std::lock_guard<std::mutex> lg(m);
   if(seekId != this->seekId) return;
   seekEndPos.push_back(seekPos);
+  if (error) {
+    this->error = true;
+  }
   remainingSeeks--;
   if (remainingSeeks == 0) {
     vivictpp::time::Time minPos = *std::min_element(seekEndPos.begin(), seekEndPos.end());
-    callback(minPos);
+    callback(minPos, this->error);
   }
 }
 
@@ -73,15 +78,17 @@ bool VideoInputs::ptsInRange(vivictpp::time::Time pts) {
 }
 
 vivictpp::time::Time VideoInputs::duration() {
-  vivictpp::time::Time duration = 1e9;
+  vivictpp::time::Time duration = vivictpp::time::NO_TIME;
   for( const auto &metadata : leftInput.packetWorker->getVideoMetadata()) {
-    if (metadata.duration < duration) {
+    if (metadata.duration != vivictpp::time::NO_TIME &&
+        (duration == vivictpp::time::NO_TIME || metadata.duration < duration)) {
       duration = metadata.duration;
     }
   }
   if (rightInput.packetWorker) {
     for( const auto &metadata : rightInput.packetWorker->getVideoMetadata()) {
-      if (metadata.duration < duration) {
+      if (metadata.duration != vivictpp::time::NO_TIME &&
+        (duration == vivictpp::time::NO_TIME || metadata.duration < duration)) {
         duration = metadata.duration;
       }
     }
@@ -142,13 +149,13 @@ void VideoInputs::seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFi
   int seekId = seekState.reset(nDecoders, onSeekFinished);
   for (auto packetWorker : packetWorkers) {
     if (packetWorker == leftInput.packetWorker) {
-      vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos) {
-        this->seekState.handleSeekFinished(seekId, seekEndPos - leftPtsOffset);
+      vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos, bool error) {
+        this->seekState.handleSeekFinished(seekId, seekEndPos - leftPtsOffset, error);
       };
       packetWorker->seek(pts + leftPtsOffset, seekCallback);
     } else {
-      vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos) {
-        this->seekState.handleSeekFinished(seekId, seekEndPos);
+      vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos, bool error) {
+        this->seekState.handleSeekFinished(seekId, seekEndPos, error);
       };
       packetWorker->seek(pts, seekCallback);
     }
@@ -177,7 +184,7 @@ void VideoInputs::selectStream(MediaPipe &input, int streamIndex) {
   input.decoder.reset(
     new vivictpp::workers::DecoderWorker(input.packetWorker->getVideoStreams()[streamIndex]));
   input.packetWorker->addDecoderWorker(input.decoder);
-  input.packetWorker->seek(currentPts, [](vivictpp::time::Time _) { (void) _; });
+  input.packetWorker->seek(currentPts, [](vivictpp::time::Time _, bool b) { (void) _; (void) b; });
   input.packetWorker->start();
   input.decoder->start();
 }

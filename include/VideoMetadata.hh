@@ -9,6 +9,7 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavutil/avutil.h>
 #include <libavutil/pixdesc.h>
 }
 
@@ -56,6 +57,7 @@ public:
 
   std::string toString() const;
   bool empty() const { return _empty; }
+  bool hasDuration() const { return duration != vivictpp::time::NO_TIME; }
 private:
   std::string resolutionAsString() const;
   bool _empty;

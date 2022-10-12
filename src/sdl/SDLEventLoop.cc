@@ -85,9 +85,9 @@ void vivictpp::sdl::SDLEventLoop::scheduleFade(int delay) {
   scheduleEvent(fadeEventType, delay);
 }
 
-void vivictpp::sdl::SDLEventLoop::scheduleSeekFinished(vivictpp::time::Time seekedPos) {
-    logger->trace("scheduleFade");
-    SeekFinishedEvent *event = new SeekFinishedEvent(seekFinishedEventType, seekedPos);
+void vivictpp::sdl::SDLEventLoop::scheduleSeekFinished(vivictpp::time::Time seekedPos, bool error) {
+    logger->trace("scheduleSeekFinished seekedPos={} error={}", seekedPos, error);
+    SeekFinishedEvent *event = new SeekFinishedEvent(seekFinishedEventType, seekedPos, error);
     scheduleEvent(event, 0);
 }
 
@@ -139,7 +139,7 @@ void vivictpp::sdl::SDLEventLoop::handleCustomEvent(const SDL_Event &event, Even
     eventListener.fade();
   } else if(event.type == seekFinishedEventType.type) {
     std::shared_ptr<SeekFinishedEvent> seekFinished = std::dynamic_pointer_cast<SeekFinishedEvent>(customEvent);
-    eventListener.seekFinished(seekFinished->seekedPos);
+    eventListener.seekFinished(seekFinished->seekedPos, seekFinished->error);
   }
 }
 

@@ -6,6 +6,7 @@
 #ifndef VIDEOINPUTS_HH_
 #define VIDEOINPUTS_HH_
 
+#include "time/Time.hh"
 extern "C" {
 #include <libavformat/avformat.h>
 }
@@ -32,7 +33,7 @@ struct MediaPipe {
 class SeekState {
 public:
     int reset(int nSeeks, vivictpp::SeekCallback onFinished);
-    void handleSeekFinished(int seekId, int seekPos);
+    void handleSeekFinished(int seekId, int seekPos, bool error);
 
 private:
     int seekId{1}; // Used to ignore obsolete callbacks from previos seek operations
@@ -40,6 +41,7 @@ private:
     int remainingSeeks;
     vivictpp::SeekCallback callback;
     std::mutex m;
+    bool error;
 };
 
 class VideoInputs {
@@ -69,6 +71,11 @@ public:
     std::array<std::vector<VideoMetadata>, 2> metadata();
     vivictpp::time::Time duration();
     vivictpp::time::Time startTime();
+    bool hasMaxPts() {
+        return leftInput.packetWorker->getVideoMetadata()[0].hasDuration()
+            || (rightInput.packetWorker &&
+                rightInput.packetWorker->getVideoMetadata()[0].hasDuration());
+    }
     vivictpp::time::Time minPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
         if (!rightInput.packetWorker) {
@@ -79,6 +86,9 @@ public:
     }
     vivictpp::time::Time maxPts() {
         VideoMetadata meta1 = leftInput.packetWorker->getVideoMetadata()[0];
+        if (!meta1.hasDuration()) {
+          return vivictpp::time::NO_TIME;
+        }
         if (!rightInput.packetWorker) {
             return meta1.endTime - leftPtsOffset;
         }

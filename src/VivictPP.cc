@@ -5,6 +5,7 @@
 #include "VivictPP.hh"
 
 #include "logging/Logging.hh"
+#include "time/Time.hh"
 #include <cstdint>
 #include <utility>
 
@@ -119,7 +120,7 @@ void VivictPP::advanceFrame() {
     if (state.seeking) {
       audioSeek(state.nextPts);
     }
-    
+
     if (state.nextPts > state.pts || state.seeking) {
       videoInputs.stepForward(state.nextPts);
     } else {
@@ -132,7 +133,7 @@ void VivictPP::advanceFrame() {
       if (wasSeeking) {
         state.avSync.playbackStart(state.pts);
       }
-      if (state.pts >= videoInputs.maxPts()) {
+      if (videoInputs.hasMaxPts() && state.pts >= videoInputs.maxPts()) {
         togglePlaying();
       } else {
         state.nextPts = videoInputs.nextPts();
@@ -247,7 +248,9 @@ void VivictPP::seekRelative(vivictpp::time::Time deltaT) {
 
 void VivictPP::seek(vivictpp::time::Time nextPts) {
   nextPts = std::max(nextPts, videoInputs.minPts());
-  nextPts = std::min(nextPts, videoInputs.maxPts());
+  if (videoInputs.hasMaxPts()) {
+    nextPts = std::min(nextPts, videoInputs.maxPts());
+  }
   state.nextPts = nextPts;
   seeklog->debug("VivictPP::seek pts={} nextPts={} seeking={}", state.pts, state.nextPts, state.seeking);
   if (videoInputs.ptsInRange(state.nextPts) &&
@@ -265,17 +268,21 @@ void VivictPP::seek(vivictpp::time::Time nextPts) {
   } else {
     seeklog->debug("VivictPP::seek Seek pts not in range");
     state.seeking = true;
-    videoInputs.seek(state.nextPts, [this](vivictpp::time::Time pos) {
-      this->eventScheduler->scheduleSeekFinished(pos);
+    videoInputs.seek(state.nextPts, [this](vivictpp::time::Time pos, bool error) {
+      this->eventScheduler->scheduleSeekFinished(pos, error);
     });
     eventScheduler->clearAdvanceFrame();
 //    eventScheduler->scheduleAdvanceFrame(5);
   }
 }
 
-void VivictPP::onSeekFinished(vivictpp::time::Time seekedPos) {
-  this->seeklog->debug("Seek callback called with pos={}", seekedPos);
-  state.nextPts = seekedPos;
+void VivictPP::onSeekFinished(vivictpp::time::Time seekedPos, bool error) {
+  this->seeklog->debug("Seek callback called with pos={}, error={}", seekedPos, error);
+  if (error) {
+    state.nextPts = state.pts;
+  } else {
+    state.nextPts = seekedPos;
+  }
   eventScheduler->scheduleAdvanceFrame(0);
 }
 
