@@ -3,6 +3,10 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+### Changed
+- Failed seek operations now handled gracefully
+- Playback of hls live manifests now works
+
 ## 0.2.1 - 2022-09-23
 
 ### Added
