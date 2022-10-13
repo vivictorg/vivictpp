@@ -1,0 +1,1 @@
+option('use_sdl2_subproject', type : 'boolean', value : false, description: 'Prefer sdl2 and sdl2_ttf from subprojects instead of system libraries')

@@ -16,6 +16,7 @@ jobs:
         with:
           action: build
           meson-version: 0.63.1
+          setup-options: -Duse_sdl2_subproject=true
       - name: Run tests
         run: |
           cd build
