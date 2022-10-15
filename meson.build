@@ -11,12 +11,20 @@ spdlog_proj = subproject('spdlog', default_options: 'warning_level=0')
 cli11_proj = subproject('cli11', default_options: 'warning_level=0')
 catch2_proj = subproject('catch2', default_options: 'warning_level=0')
 fmt_proj = subproject('fmt', default_options: 'warning_level=0')
-sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false'])
-sdl2_ttf_proj = subproject('sdl2_ttf', default_options: 'warning_level=0')
+
+if get_option('use_sdl2_subproject')
+  sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false'])
+  sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
+  sdl2_ttf_proj = subproject('sdl2_ttf', default_options: 'warning_level=0')
+  sdl2_ttf_dep = sdl2_ttf_proj.get_variable('sdl2_ttf_dep')
+else
+  sdl2_dep = dependency('sdl2', fallback: ['sdl2', 'sdl2_dep'])
+  sdl2_ttf_dep = dependency('sdl2_ttf', fallback: ['sdl2_ttf', 'sdl2_ttf_dep'])
+endif
 
 deps = [
-  sdl2_proj.get_variable('sdl2_dep'),
-  sdl2_ttf_proj.get_variable('sdl2_ttf_dep'),
+  sdl2_dep,
+  sdl2_ttf_dep,
   dependency('freetype2', version: '>=2.8.1'),
   dependency('threads'),
   dependency('libavformat'),

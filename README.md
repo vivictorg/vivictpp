@@ -50,7 +50,7 @@ brew install vivictpp
 ```console
 
 $ apt-get --fix-missing install -y cmake python3-pip gcc python3-setuptools \
-  python3-wheel libsdl2-dev libsdl2-ttf-dev libfreetype6-dev libavformat-dev libavcodec-dev \
+  python3-wheel libfreetype6-dev libavformat-dev libavcodec-dev \
   libavfilter-dev libswscale-dev pkg-config
 
 ```
@@ -65,9 +65,13 @@ $ pip3 install ninja meson
 
 ```console
 
-$ meson builddir
+$ meson -Duse_sdl2_subproject=true builddir
 
 ```
+
+(Setting the `use_sdl2_subproject` option will cause meson to build sdl2 and sdl2_ttf
+as subprojects. This is recomended on ubuntu since the sdl2 version provided by ubuntu
+is not the most recent one)
 
 3. Compile
 
