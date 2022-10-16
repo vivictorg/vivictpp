@@ -10,7 +10,8 @@ project('vivict++', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'
 spdlog_proj = subproject('spdlog', default_options: 'warning_level=0')
 cli11_proj = subproject('cli11', default_options: 'warning_level=0')
 catch2_proj = subproject('catch2', default_options: 'warning_level=0')
-fmt_proj = subproject('fmt', default_options: 'warning_level=0')
+
+fmt_proj = subproject('fmt', default_options: ['warning_level=0', 'default_library=static'])
 
 if get_option('use_sdl2_subproject')
   sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false'])
