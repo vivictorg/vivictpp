@@ -62,7 +62,7 @@ void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos, vivictpp::
 void logPacket(vivictpp::libav::Packet pkt, const std::shared_ptr<spdlog::logger> &logger) {
   AVPacket *packet = pkt.avPacket();
   if (packet) {
-    logger->trace("Packet: size={} data={} pts={}", packet->size, packet->data, packet->pts);
+    logger->trace("Packet: size={} pts={}", packet->size, packet->pts);
   } else {
     logger->trace("Packet: nullptr");
   }

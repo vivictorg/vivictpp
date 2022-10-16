@@ -3,6 +3,9 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## Fixed
+- Fixed incorrect logging statement that caused problem when building on arch
+
 ## 0.2.2 - 2022-10-16
 
 ### Changed
