@@ -3,6 +3,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.2.2 - 2022-10-16
+
 ### Changed
 - fmt library subproject is now build as static library
 - Dependencies on sdl2 and sdl2_ttf are now resolved from system as default
