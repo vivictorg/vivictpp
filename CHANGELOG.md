@@ -4,6 +4,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 ## Current
 
 ### Changed
+- fmt library subproject is now build as static library
+- Dependencies on sdl2 and sdl2_ttf are now resolved from system as default
 - Failed seek operations now handled gracefully
 - Playback of hls live manifests now works
 
