@@ -93,11 +93,11 @@ Run with the -h flag to see the commandline options
 
     > vivictpp -h
     Vivict++ - Vivict Video Comparison Tool ++
-    Usage: vpp [OPTIONS] leftVideo [rightVideo]
+    Usage: ./build/vivictpp [OPTIONS] leftVideo [rightVideo]
     
     Positionals:
       leftVideo TEXT REQUIRED     Path or url to first (left) video
-      rightVideo TEXT             Path or url to first (right) video
+      rightVideo TEXT             Path or url to second (right) video
     
     Options:
       -h,--help                   Print this help message and exit
@@ -106,16 +106,25 @@ Run with the -h flag to see the commandline options
       --enable-audio              Enable audio
       --left-vmaf TEXT            Path to csv-file containing vmaf data for left video
       --right-vmaf TEXT           Path to csv-file containing vmaf data for right video
-
+      --left-format TEXT          Format options for left video input
+      --right-format TEXT         Format options for right video input
+      --disable-font-autoscaling  Disables autoscaling of fonts based on display dpi
+      --custom-font-scaling FLOAT Custom scaling factor for fonts
+      --hwaccel TEXT              Select device type to use for hardware accelerated decoding. Valid values are:
+                                    auto    Use any available device type (default)
+                                    none    Disable hardware accelerated decoding
+                                    TYPE    Name of devicetype, see https://trac.ffmpeg.org/wiki/HWAccelIntro
+    
+    
     KEYBOARD SHORTCUTS
     
     SPACE  Play/Pause video
     ,      Step forward 1 frame
     .      Step backward 1 frame
-    / or - Step forward 5 seconds
-    m      Step backward 5 seconds
-    ?      Step Forward 60s
-    M      Step backward 60s
+    / or - Seek forward 5 seconds
+    m      Seek backward 5 seconds
+    ?      Seek Forward 60s
+    M      Seek backward 60s
     Alt-?  Seek Forward 10min
     Alt-M  Seek Backward 10min
     <      Decrease left frame offset
@@ -135,6 +144,8 @@ Run with the -h flag to see the commandline options
     q      Quit application
     
     See also  https://github.com/svt/vivictpp#readme
+    
+    Vivict++ 0.2.4
 
 
 To visually compare two videos in files (or urls) VIDEO1 and VIDEO2 respectively:
@@ -158,6 +169,13 @@ For example, to compare an interlaced source with a transcoded and deinterlaced 
 
     > vivictpp --left-filter yadif SOURCEVIDEO TRANSCODEDVIDEO
 
+
+### Hardware accelerated decoding
+Vivict++ can use hardware accelerated decoding if it is available in the version of libav* used.
+Hardware accelerated decoding can be controlled with the `--hwaccel` option. By default it is set to `auto` which mean
+any available api for hardware accelerated decoding will be used. If `none` is passed to the `--hwaccel` option
+hardware accelerated decoding will be disabled. It is also possible to specify a specific hardware acceleration api to use
+, such as `vaapi`, `videotoolbox` etc. See https://trac.ffmpeg.org/wiki/HWAccelIntro .
 
 ### Displaying video quality (VMAF) data
 

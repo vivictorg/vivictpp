@@ -45,13 +45,15 @@ VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
       if (!leftInput.decoder) {
         leftInput.packetWorker = packetWorker;
         leftInput.decoder.reset(
-          new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0], source.filter));
+          new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
+                                               source.filter, source.decoderOptions));
         packetWorker->addDecoderWorker(leftInput.decoder);
         leftInput.decoder->start();
       } else if (!rightInput.decoder) {
         rightInput.packetWorker = packetWorker;
         rightInput.decoder.reset(
-          new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0], source.filter));
+          new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
+                                               source.filter, source.decoderOptions));
         packetWorker->addDecoderWorker(rightInput.decoder);
         rightInput.decoder->start();
       }

@@ -3,6 +3,9 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+### Added
+- Support for hardware accelerated decoding
+
 ## 0.2.3 - 2022-10-16
 
 ## Fixed

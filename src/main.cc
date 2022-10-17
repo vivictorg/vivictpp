@@ -93,6 +93,13 @@ int main(int argc, char **argv) {
     app.add_flag("--disable-font-autoscaling", disableFontAutoScaling, "Disables autoscaling of fonts based on display dpi");
     app.add_option("--custom-font-scaling", fontCustomScaling, "Custom scaling factor for fonts");
 
+    std::string hwAccel("auto");
+    app.add_option("--hwaccel", hwAccel,
+                   std::string("Select device type to use for hardware accelerated decoding. Valid values are:\n") +
+                   "  auto    Use any available device type (default)\n" +
+                   "  none    Disable hardware accelerated decoding\n" +
+                   "  TYPE    Name of devicetype, see https://trac.ffmpeg.org/wiki/HWAccelIntro");
+
     CLI11_PARSE(app, argc, argv);
 
     std::vector<std::string> sources = {leftVideo};
@@ -110,7 +117,7 @@ int main(int argc, char **argv) {
         std::string filter = i < filters.size() ? filters[i] : "";
         std::string vmafLogFile = i < vmafLogfiles.size() ? vmafLogfiles[i] : "";
         std::string format = i < formatOptions.size() ? formatOptions[i] : "";
-        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format));
+        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format, {hwAccel}));
     }
 
     for (auto sourceConfig : sourceConfigs) {

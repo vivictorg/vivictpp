@@ -29,13 +29,14 @@ vivictpp::libav::Filter *createFilter(AVStream *stream, AVCodecContext *codecCon
 
 vivictpp::workers::DecoderWorker::DecoderWorker(AVStream *stream,
                                                 std::string customFilter,
+                                                vivictpp::libav::DecoderOptions decoderOptions,
                                                 int frameBufferSize,
                                                 int packetQueueSize) :
   InputWorker(packetQueueSize, "DecoderWorker"),
   streamIndex(stream->index),
   stream(stream),
   frameBuffer(frameBufferSize),
-  decoder(new vivictpp::libav::Decoder(stream->codecpar)),
+  decoder(new vivictpp::libav::Decoder(stream->codecpar, decoderOptions)),
   filter(createFilter(stream, decoder->getCodecContext(), customFilter)),
   lastSeenPts(AV_NOPTS_VALUE)
 {}

@@ -28,6 +28,7 @@ class DecoderWorker : public InputWorker<vivictpp::libav::Packet> {
 public:
   DecoderWorker(AVStream *stream,
                 std::string customFilter = "",
+                vivictpp::libav::DecoderOptions decoderOptions = {},
                 int frameBufferSize = 50,
                 int packetQueueSize = 256);
   virtual ~DecoderWorker();

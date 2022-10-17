@@ -61,7 +61,7 @@ void vivictpp::logging::initializeLogging() {
   if (std::getenv("SPDLOG_LEVEL")) {
       spdlog::cfg::load_env_levels();
   } else {
-      spdlog::set_level(spdlog::level::warn);
+      spdlog::set_level(spdlog::level::info);
   }
   spdlog::set_pattern("%H:%M:%S.%e %^%=8l%$ %-20n thread-%t  %v");
   setAvLogLevel();
