@@ -4,6 +4,8 @@
 
 #include "sdl/SDLAudioOutput.hh"
 
+#include "libav/Utils.hh"
+
 extern "C" {
 #include <SDL.h>
 #include <libavutil/avutil.h>
@@ -14,10 +16,10 @@ extern "C" {
 
 vivictpp::sdl::SDLAudioOutput::SDLAudioOutput(AVCodecContext *codecContext) :
   sampleFormat(codecContext->sample_fmt),
-  channels(codecContext->channels),
+  channels(vivictpp::libav::getChannels(codecContext)),
   bytesPerSample(av_get_bytes_per_sample(sampleFormat) * channels) {
   SDL_AudioSpec wantedSpec;
-  wantedSpec.channels = codecContext->channels;
+  wantedSpec.channels = vivictpp::libav::getChannels(codecContext);
   wantedSpec.freq = codecContext->sample_rate;
   wantedSpec.format = AUDIO_S16SYS;
   wantedSpec.samples = 1024;
@@ -36,7 +38,7 @@ vivictpp::sdl::SDLAudioOutput::~SDLAudioOutput() {
 }
 
 void vivictpp::sdl::SDLAudioOutput::queueAudio(const vivictpp::libav::Frame &frame) {
-  uint32_t size = (uint32_t) av_samples_get_buffer_size(NULL, frame.avFrame()->channels,
+  uint32_t size = (uint32_t) av_samples_get_buffer_size(NULL, vivictpp::libav::getChannels(frame.avFrame()),
                                                 frame.avFrame()->nb_samples,
                                                 (AVSampleFormat) frame.avFrame()->format, 1);
   SDL_QueueAudio(audioDevice, frame.avFrame()->data[0], size);

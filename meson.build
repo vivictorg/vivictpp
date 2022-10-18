@@ -56,6 +56,7 @@ sources = [
   'src/libav/FormatHandler.cc',
   'src/libav/Frame.cc',
   'src/libav/Packet.cc',
+  'src/libav/Utils.cc',
   'src/logging/Logging.cc',
   'src/sdl/SDLAudioOutput.cc',
   'src/sdl/SDLEventLoop.cc',

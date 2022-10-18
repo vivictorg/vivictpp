@@ -4,6 +4,7 @@
 
 #include "libav/Decoder.hh"
 #include "libav/AVErrorUtils.hh"
+#include "libav/Utils.hh"
 
 extern "C" {
 #include <libavutil/channel_layout.h>
@@ -57,11 +58,12 @@ std::shared_ptr<AVCodecContext> vivictpp::libav::createCodecContext(AVCodecParam
     throw std::runtime_error("Failed to open codec");
   }
   if (codecContext->codec_type == AVMEDIA_TYPE_AUDIO) {
-    char buf[512];
-    av_get_channel_layout_string(buf, 512, codecContext->channels, codecContext->channel_layout);
+    int channels = getChannels(codecContext);
+    std::string channelLayout = getChannelLayout(codecContext);
+
     spdlog::debug("Audio Codec Context: sample_rate={}, channels={}, channel_layout={}, format={}",
-                 codecContext->sample_rate, codecContext->channels,
-                 std::string(buf),
+                 codecContext->sample_rate, channels,
+                 channelLayout,
                  std::string(av_get_sample_fmt_name(codecContext->sample_fmt)));
   }
   return std::shared_ptr<AVCodecContext>(codecContext, &destroyCodecContext);

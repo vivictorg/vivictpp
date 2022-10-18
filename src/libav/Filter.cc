@@ -22,6 +22,7 @@ extern "C" {
 
 #include "spdlog/spdlog.h"
 #include "libav/AVErrorUtils.hh"
+#include "libav/Utils.hh"
 
 int64_t getValidChannelLayout(int64_t channelLayout, int channels);
 
@@ -141,6 +142,7 @@ vivictpp::libav::AudioFilter::AudioFilter(AVCodecContext *codecContext, std::str
 }
 
 
+
 void vivictpp::libav::AudioFilter::configure(AVCodecContext *codecContext, std::string definition) {
   spdlog::debug("Audiovivictpp::libav::Filter::configure  filter definition: {}", definition);
 
@@ -150,13 +152,16 @@ void vivictpp::libav::AudioFilter::configure(AVCodecContext *codecContext, std::
 
   enum AVSampleFormat sample_fmts[] =  { AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE };
 
+  int channels = getChannels(codecContext);
+  std::string channelLayout = getChannelLayout(codecContext);
+
   snprintf(args, sizeof(args),
-           "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d:channel_layout=0x%" PRIx64,
+           "sample_rate=%d:sample_fmt=%s:channels=%d:time_base=%d/%d:channel_layout=%s",
            codecContext->sample_rate,
            av_get_sample_fmt_name(codecContext->sample_fmt),
-           codecContext->channels,
+           channels,
            1, codecContext->sample_rate,
-           getValidChannelLayout(codecContext->channel_layout, codecContext->channels));
+           channelLayout.c_str());
 
   spdlog::debug("AudioFilter::configure abuffer args: {}", args);
 
@@ -171,15 +176,4 @@ void vivictpp::libav::AudioFilter::configure(AVCodecContext *codecContext, std::
   }
 
   configureGraph(definition);
-}
-
-int64_t getValidChannelLayout(int64_t channelLayout, int channels)
-{
-  if (channelLayout && av_get_channel_layout_nb_channels(channelLayout) == channels)
-    return channelLayout;
-  else if (channels == 1) {
-    return 1;
-  } else {
-    return 0;
-  }
 }
