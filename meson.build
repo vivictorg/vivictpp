@@ -83,6 +83,18 @@ sources = [
   'src/workers/VideoInputMessage.cc',
 ]
 
+imgui_sources=[
+  'imgui/imgui_demo.cpp',
+  'imgui/imgui_widgets.cpp',
+  'imgui/imgui.cpp',
+  'imgui/imgui_draw.cpp',
+  'imgui/imgui_tables.cpp',
+  'imgui/backends/imgui_impl_sdl.cpp',
+  #  'imgui/backends/imgui_impl_opengl3.cpp',
+  'imgui/backends/imgui_impl_sdlrenderer.cpp',
+  'src/main_imgui.cc'
+]
+
 vivictpplib = static_library('vivictpplib',
                              sources: sources,
                              dependencies: deps,
@@ -99,3 +111,21 @@ executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps
 # test('FormatHandler.seek', seekTest)
 playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
 test('Playback', playbackTest)
+
+
+imgui_deps = deps
+#=[
+#  sdl2_dep,
+#  sdl2_ttf_dep
+#  dependency('GL'),
+#  dependency('glew')
+#]
+
+imgui_incdir = include_directories('include', 'imgui', 'imgui/backends')
+
+executable('imguivpp',
+           sources: imgui_sources,
+           include_directories: imgui_incdir,
+           link_with: vivictpplib,
+           dependencies: imgui_deps)
+#           link_args: ['-lGL'])
