@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
     app.add_flag("--disable-font-autoscaling", disableFontAutoScaling, "Disables autoscaling of fonts based on display dpi");
     app.add_option("--custom-font-scaling", fontCustomScaling, "Custom scaling factor for fonts");
 
-    std::string hwAccel("auto");
+    std::string hwAccel("none");
     app.add_option("--hwaccel", hwAccel,
                    std::string("Select device type to use for hardware accelerated decoding. Valid values are:\n") +
                    "  auto    Use any available device type (default)\n" +

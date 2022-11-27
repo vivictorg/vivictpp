@@ -170,12 +170,16 @@ For example, to compare an interlaced source with a transcoded and deinterlaced 
     > vivictpp --left-filter yadif SOURCEVIDEO TRANSCODEDVIDEO
 
 
-### Hardware accelerated decoding
-Vivict++ can use hardware accelerated decoding if it is available in the version of libav* used.
-Hardware accelerated decoding can be controlled with the `--hwaccel` option. By default it is set to `auto` which mean
-any available api for hardware accelerated decoding will be used. If `none` is passed to the `--hwaccel` option
-hardware accelerated decoding will be disabled. It is also possible to specify a specific hardware acceleration api to use
+### Hardware accelerated decoding (experimental)
+Vivict++ has experimental support for using hardware accelerated decoding if it is available in the version of libav* used.
+Hardware accelerated decoding can be controlled with the `--hwaccel` option. By default it is set to `none` which mean
+hardware accelerated decoding will be disabled. If `auto` is passed to the `--hwaccel` option any available api
+for hardware accelerated decoding will be used. It is also possible to specify a specific hardware acceleration api to use
 , such as `vaapi`, `videotoolbox` etc. See https://trac.ffmpeg.org/wiki/HWAccelIntro .
+
+Note that even with hardware accelerated decoding, depending of the format of the source video, vivict++ might still
+use quite a bit of cpu to do pixel format conversion.
+
 
 ### Displaying video quality (VMAF) data
 
