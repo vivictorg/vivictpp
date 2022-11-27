@@ -17,27 +17,41 @@ extern "C" {
 
 #include "libav/Packet.hh"
 #include "libav/Frame.hh"
+#include "logging/Logging.hh"
 
 namespace vivictpp {
 namespace libav {
 
+struct  DecoderOptions {
+  std::string hwAccel;
+};
+
 class Decoder {
 public:
-  explicit Decoder(AVCodecParameters *codecParameters);
+  explicit Decoder(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
   ~Decoder() = default;
 
   std::vector<vivictpp::libav::Frame> handlePacket(vivictpp::libav::Packet packet);
   void flush();
   AVCodecContext *getCodecContext() { return this->codecContext.get(); }
-
+private:
+  void initCodecContext(AVCodecParameters *codecParameters);
+  void initHardwareContext(std::string hwAccel);
+  void openCodec();
+  void logAudioCodecInfo();
 private:
   std::shared_ptr<AVCodecContext> codecContext;
   vivictpp::libav::Frame nextFrame;
+  vivictpp::logging::Logger logger;
+  std::shared_ptr<AVBufferRef> hwDeviceContext;
+  AVPixelFormat hwPixelFormat;
 };
 
 std::shared_ptr<AVCodecContext> createCodecContext(AVCodecParameters *codecParameters);
 
 void destroyCodecContext(AVCodecContext *codecContext);
+
+void unrefBuffer(AVBufferRef *bufferRef);
 
 }  // namespace libav
 }  // namespace vivictpp

@@ -8,17 +8,20 @@
 
 #include <string>
 #include "vmaf/VmafLog.hh"
+#include "libav/Decoder.hh"
 
 class SourceConfig {
 public:
   SourceConfig(std::string path,
                std::string filter = "",
                std::string vmafLogFile = "",
-               std::string formatOptions = ""):
+               std::string formatOptions = "",
+               vivictpp::libav::DecoderOptions decoderOptions = {}):
     path(path),
     filter(filter),
     vmafLog(vmafLogFile),
-    formatOptions(formatOptions)
+    formatOptions(formatOptions),
+    decoderOptions(decoderOptions)
     {
     }
 
@@ -26,6 +29,7 @@ public:
   const std::string filter;
   const vivictpp::vmaf::VmafLog vmafLog;
   const std::string formatOptions;
+  const vivictpp::libav::DecoderOptions decoderOptions;
 };
 
 #endif  // SOURCECONFIG_HH_

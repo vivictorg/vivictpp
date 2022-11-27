@@ -4,6 +4,8 @@
 
 #include "libav/Frame.hh"
 
+#include "libav/AVErrorUtils.hh"
+
 void vivictpp::libav::freeFrame(AVFrame* avFrame) {
   if (avFrame) {
     av_frame_free(&avFrame);
@@ -33,6 +35,20 @@ vivictpp::libav::Frame &vivictpp::libav::Frame::operator=(const Frame &otherFram
     frame.reset((AVFrame*) nullptr, &freeFrame);
   }
   return *this;
+}
+
+vivictpp::libav::Frame vivictpp::libav::Frame::transferHwData(AVPixelFormat swPixelFormat) {
+  Frame swFrame;
+  swFrame.avFrame()->format = swPixelFormat;
+  AVResult ret = av_hwframe_transfer_data(swFrame.avFrame(), avFrame(), 0);
+  if (ret.error()) {
+    throw std::runtime_error("Failed to transfer hw frame");
+  }
+  ret = av_frame_copy_props(swFrame.avFrame(), avFrame());
+  if (ret.error()) {
+    throw std::runtime_error("Failed to copy frame props");
+  }
+  return swFrame;
 }
 
 /*

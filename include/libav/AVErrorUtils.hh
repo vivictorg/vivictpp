@@ -6,6 +6,7 @@
 #define LIBAV_AVERRORUTILS_HH
 
 #include <string>
+#include <exception>
 
 #include "libavutil/error.h"
 
@@ -31,6 +32,11 @@ public:
   bool error() { return code != 0; }
   bool eagain() { return code == AVERROR(EAGAIN); }
   bool eof() { return code == AVERROR_EOF; }
+  void throwOnError(std::string message) {
+    if (error()) {
+      throw std::runtime_error(message + ": " + getMessage());
+    }
+  }
 
 private:
   int code;

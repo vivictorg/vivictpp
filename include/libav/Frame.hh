@@ -42,6 +42,7 @@ public:
       return { '?', 0, 0 };
     }
   }
+  Frame transferHwData(AVPixelFormat swPixelFormat);
 private:
   Frame(AVFrame *avFrame);
 };
