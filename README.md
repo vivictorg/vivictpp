@@ -114,7 +114,9 @@ Run with the -h flag to see the commandline options
                                     auto    Use any available device type (default)
                                     none    Disable hardware accelerated decoding
                                     TYPE    Name of devicetype, see https://trac.ffmpeg.org/wiki/HWAccelIntro
-    
+      --preferred-decoders TEXT ... Comma separated codecs that should be preferred over default decoder when applicable
+
+
     
     KEYBOARD SHORTCUTS
     
@@ -180,6 +182,11 @@ for hardware accelerated decoding will be used. It is also possible to specify a
 Note that even with hardware accelerated decoding, depending of the format of the source video, vivict++ might still
 use quite a bit of cpu to do pixel format conversion.
 
+### Specify preferred decoder
+In some cases it might be preferable to use a different decoder than the libav default. For instance, the libopenjpeg may give
+better performance than libav's native jpeg2000 decoder. A comma separated list of preferred codecs can be specified on the commandline.
+The codec name should be as listed by `ffmpeg -codecs` . The first, if any, of the listed preferred codecs that is aplicable
+for the input will be used for decoding.
 
 ### Displaying video quality (VMAF) data
 

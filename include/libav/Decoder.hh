@@ -24,6 +24,7 @@ namespace libav {
 
 struct  DecoderOptions {
   std::string hwAccel;
+  std::vector<std::string> preferredDecoders;
 };
 
 class Decoder {
@@ -35,7 +36,7 @@ public:
   void flush();
   AVCodecContext *getCodecContext() { return this->codecContext.get(); }
 private:
-  void initCodecContext(AVCodecParameters *codecParameters);
+  void initCodecContext(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
   void initHardwareContext(std::string hwAccel);
   void openCodec();
   void logAudioCodecInfo();

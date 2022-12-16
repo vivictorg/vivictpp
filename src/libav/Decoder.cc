@@ -5,6 +5,7 @@
 #include "libav/Decoder.hh"
 #include "libav/AVErrorUtils.hh"
 #include "libav/Utils.hh"
+#include <libavcodec/codec.h>
 #include <set>
 
 extern "C" {
@@ -35,21 +36,29 @@ vivictpp::libav::Decoder::Decoder(AVCodecParameters *codecParameters,
       logger(vivictpp::logging::getOrCreateLogger("Decoder")),
       hwDeviceContext(nullptr),
       hwPixelFormat(AV_PIX_FMT_NONE){
-  initCodecContext(codecParameters);
+  initCodecContext(codecParameters, decoderOptions);
   initHardwareContext(decoderOptions.hwAccel);
   openCodec();
 }
 
+const AVCodec* findDecoder(AVCodecID codecId, const vivictpp::libav::DecoderOptions &decoderOptions) {
+  for (const auto &codecName: decoderOptions.preferredDecoders) {
+    const AVCodec *codec = avcodec_find_decoder_by_name(codecName.c_str());
+    if (codec && codec->id == codecId) {
+      return codec;
+    }
 
-void vivictpp::libav::Decoder::initCodecContext(AVCodecParameters *codecParameters) {
-    AVCodecID codecId = codecParameters->codec_id;
-  const AVCodec *codec = avcodec_find_decoder(codecId);
+  }
+  return avcodec_find_decoder(codecId);
+}
+
+void vivictpp::libav::Decoder::initCodecContext(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions) {
+  AVCodecID codecId = codecParameters->codec_id;
+  const AVCodec *codec = findDecoder(codecId, decoderOptions);
   if (codec == nullptr) {
     throw std::runtime_error(std::string("No codec found for codec ID: ") + std::string(avcodec_get_name(codecId)));
   }
   logger->info("Using codec {} ({})", codec->name, codec->long_name);
-  AVDictionary *decoderOptions = nullptr;
-  av_dict_set(&decoderOptions, "threads", "auto", 0);
   AVCodecContext *codecContext = avcodec_alloc_context3(codec);
   vivictpp::libav::AVResult ret = avcodec_parameters_to_context(codecContext,
                                             codecParameters);
