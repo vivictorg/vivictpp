@@ -173,20 +173,33 @@ For example, to compare an interlaced source with a transcoded and deinterlaced 
 
 
 ### Hardware accelerated decoding (experimental)
-Vivict++ has experimental support for using hardware accelerated decoding if it is available in the version of libav* used.
-Hardware accelerated decoding can be controlled with the `--hwaccel` option. By default it is set to `none` which mean
-hardware accelerated decoding will be disabled. If `auto` is passed to the `--hwaccel` option any available api
+There are two kind of hardware accelerated decoders in ffmpeg/libav, internal hwaccel decoders and external wrapper
+decoders. Vivict++ has support for both, allthough this should be considered an experimental feature.
+
+To use libav internal hwaccel decoders, the `--hwaccel` option can be used. By default it is set to `none` which mean
+internal hardware accelerated decoders will be disabled. If `auto` is passed to the `--hwaccel` option any available api
 for hardware accelerated decoding will be used. It is also possible to specify a specific hardware acceleration api to use
-, such as `vaapi`, `videotoolbox` etc. See https://trac.ffmpeg.org/wiki/HWAccelIntro .
+, such as `vaapi`, `videotoolbox` etc.
+
+To use external wrapper decoders, use the `--preferred-decoders` option (see below) to specify the decoders to use.
+
+For more info on harware accelerating decoding, see https://trac.ffmpeg.org/wiki/HWAccelIntro .
 
 Note that even with hardware accelerated decoding, depending of the format of the source video, vivict++ might still
 use quite a bit of cpu to do pixel format conversion.
 
 ### Specify preferred decoder
-In some cases it might be preferable to use a different decoder than the libav default. For instance, the libopenjpeg may give
-better performance than libav's native jpeg2000 decoder. A comma separated list of preferred codecs can be specified on the commandline.
+In some cases it might be preferable to use a different decoder than the libav default. For instance, `libopenjpeg` may give
+better performance than libav's native jpeg2000 decoder, and one may want to use `hevc_cuvid` instead of the x265 decoder.
+A comma separated list of preferred codecs can be specified on the commandline with the `--preferred-decoders` option.
 The codec name should be as listed by `ffmpeg -codecs` . The first, if any, of the listed preferred codecs that is aplicable
-for the input will be used for decoding.
+for the input will be used for decoding. Non-applicable codecs will simply be ignored.
+
+For instance, to use cuvid decoders for h264 and h265, and libopenjpeg for jpeg 2000 input,  one would call vivictpp like below.
+
+```
+vivictpp --preferred-decoders h264_cuvid,hevc_cuvid,libopenjpeg video.mp4
+```
 
 ### Displaying video quality (VMAF) data
 
