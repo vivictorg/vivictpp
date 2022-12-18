@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "SDL_video.h"
 #include "sdl/SDLUtils.hh"
@@ -59,6 +60,22 @@ See also  https://github.com/svt/vivictpp#readme
 
 Vivict++ )" + std::string(VPP_VERSION) + " " + std::string(VPP_GIT_HASH);
 
+
+std::vector<std::string> splitString(const std::string &input) {
+  std::vector<std::string> result;;
+  if (input.empty()) {
+    return result;
+  }
+
+  std::istringstream ss(input);
+  std::string token;
+
+  while(std::getline(ss, token, ',')) {
+    result.push_back(token);
+  }
+  return result;
+}
+
 int main(int argc, char **argv) {
   try {
     CLI::App app{"Vivict++ - Vivict Video Comparison Tool ++"};
@@ -100,7 +117,12 @@ int main(int argc, char **argv) {
                    "  none    Disable hardware accelerated decoding\n" +
                    "  TYPE    Name of devicetype, see https://trac.ffmpeg.org/wiki/HWAccelIntro");
 
+    std::string preferredDecodersStr;
+    app.add_option("--preferred-decoders", preferredDecodersStr,
+                   std::string("Comma separated list of decoders that should be preferred over default decoder when applicable"));
+
     CLI11_PARSE(app, argc, argv);
+
 
     std::vector<std::string> sources = {leftVideo};
     if (!rightVideo.empty()) {
@@ -109,6 +131,7 @@ int main(int argc, char **argv) {
     std::vector<std::string> filters = {leftFilter, rightFilter};
     std::vector<std::string> vmafLogfiles = {leftVmaf, rightVmaf};
     std::vector<std::string> formatOptions = {leftInputFormat, rightInputFormat};
+    std::vector<std::string> preferredDecoders = splitString(preferredDecodersStr);
 
     vivictpp::logging::initializeLogging();
 
@@ -117,7 +140,7 @@ int main(int argc, char **argv) {
         std::string filter = i < filters.size() ? filters[i] : "";
         std::string vmafLogFile = i < vmafLogfiles.size() ? vmafLogfiles[i] : "";
         std::string format = i < formatOptions.size() ? formatOptions[i] : "";
-        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format, {hwAccel}));
+        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format, {hwAccel, preferredDecoders}));
     }
 
     for (auto sourceConfig : sourceConfigs) {
