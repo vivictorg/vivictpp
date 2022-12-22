@@ -25,7 +25,7 @@ namespace libav {
 class Filter {
 public:
   virtual ~Filter() = default;
-  Frame filterFrame(const Frame &frame);
+  virtual Frame filterFrame(const Frame &frame);
   bool eof() { return eof_; };
   Resolution getFilteredResolution();
 protected:
@@ -41,14 +41,27 @@ private:
   Frame nextFrame;
 };
 
+struct VideoFilterFormatParameters {
+  AVRational timeBase;
+  int width;
+  int height;
+  AVPixelFormat pixelFormat;
+  AVPixelFormat sourcePixelFormat;
+  AVRational sampleAspectRatio;
+  AVBufferRef *hwFramesContext{nullptr};
+};
+
+
 class VideoFilter: public Filter {
 public:
   VideoFilter(AVStream *avStream, AVCodecContext *codecContext, std::string definition);
   ~VideoFilter() = default;
   FilteredVideoMetadata getFilteredVideoMetadata();
+  Frame filterFrame(const Frame &frame) override;
 private:
-    void configure(AVStream *videoStream, AVCodecContext *codecContext,
-             std::string definition);
+    void configure();
+private:
+  VideoFilterFormatParameters formatParameters;
 };
 
 class AudioFilter: public Filter {

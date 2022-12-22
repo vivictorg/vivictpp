@@ -128,6 +128,7 @@ void vivictpp::ui::VideoDisplay::render(const DisplayState &displayState, SDL_Re
   float splitPercent = displayState.splitPercent;
 
   updateRectangles(displayState, renderer);
+
   leftTexture.update(displayState.leftFrame);
   if (!displayState.rightFrame.empty()) {
     rightTexture.update(displayState.rightFrame);

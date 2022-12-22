@@ -6,6 +6,7 @@
 #include "libav/AVErrorUtils.hh"
 #include "libav/Utils.hh"
 #include <libavcodec/codec.h>
+#include <libavutil/pixfmt.h>
 #include <set>
 
 extern "C" {
@@ -35,7 +36,8 @@ vivictpp::libav::Decoder::Decoder(AVCodecParameters *codecParameters,
     : codecContext(nullptr),
       logger(vivictpp::logging::getOrCreateLogger("Decoder")),
       hwDeviceContext(nullptr),
-      hwPixelFormat(AV_PIX_FMT_NONE){
+      hwPixelFormat(AV_PIX_FMT_NONE),
+      swPixelFormat(AV_PIX_FMT_NONE){
   initCodecContext(codecParameters, decoderOptions);
   initHardwareContext(decoderOptions.hwAccel);
   openCodec();
@@ -152,7 +154,6 @@ void vivictpp::libav::Decoder::initHardwareContext(std::string hwAccel) {
   ret.throwOnError("Failed to create specified HW device");
   this->hwDeviceContext.reset(hwDeviceContext, &unrefBuffer);
   codecContext->hw_device_ctx = av_buffer_ref(this->hwDeviceContext.get());
-
 }
 
 void vivictpp::libav::Decoder::openCodec() {
@@ -178,7 +179,7 @@ void vivictpp::libav::Decoder::logAudioCodecInfo() {
 void vivictpp::libav::Decoder::flush() { avcodec_flush_buffers(this->codecContext.get()); }
 
 std::vector<vivictpp::libav::Frame> vivictpp::libav::Decoder::handlePacket(Packet packet) {
-    logger->trace("handlePacket");
+  logger->trace("handlePacket");
   vivictpp::libav::AVResult ret = avcodec_send_packet(this->codecContext.get(),
                                                       packet.avPacket());
   if (ret.error()) {
@@ -186,30 +187,35 @@ std::vector<vivictpp::libav::Frame> vivictpp::libav::Decoder::handlePacket(Packe
   }
   std::vector<Frame> result;
   while ((ret = avcodec_receive_frame(this->codecContext.get(), nextFrame.avFrame())).success()) {
-      if (nextFrame.avFrame()->format == hwPixelFormat) {
-          logger->debug("hw frame detected: pts={}", nextFrame.avFrame()->pts);
-          /*
-          enum AVPixelFormat *pixelFormats;
-          av_hwframe_transfer_get_formats(nextFrame.avFrame()->hw_frames_ctx, AV_HWFRAME_TRANSFER_DIRECTION_FROM,
-                                          &pixelFormats, 0);
-
-          for(enum AVPixelFormat *curr = pixelFormats; *curr != AV_PIX_FMT_NONE; curr++) {
-              logger->info("possible target format: {}", av_get_pix_fmt_name(*curr));
-          }
-          av_free(pixelFormats);
-          */
-          Frame swFrame = nextFrame.transferHwData(AV_PIX_FMT_YUV420P); // TODO: Shouldnt hardcode pixel format
-          logger->debug("swFrame->pts={} hwFrame->pts={}", swFrame.avFrame()->pts, nextFrame.avFrame()->pts);
-          result.push_back(swFrame);
-      } else {
-          result.push_back(nextFrame);
-      }
-      nextFrame.reset();
+    result.push_back(nextFrame);
+    nextFrame.reset();
   }
   if (ret.error() && !ret.eagain()) {
     throw std::runtime_error(std::string("Receive frame failed: ") + ret.getMessage());
   }
   return result;
+}
+
+static const std::vector<AVPixelFormat> preferredPixelFormats = {AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUV420P10, AV_PIX_FMT_NV12, AV_PIX_FMT_P010};
+
+void vivictpp::libav::Decoder::selectSwPixelFormat() {
+  std::vector<AVPixelFormat> availableTargetFormats;
+  enum AVPixelFormat *pixelFormats;
+  av_hwframe_transfer_get_formats(nextFrame.avFrame()->hw_frames_ctx, AV_HWFRAME_TRANSFER_DIRECTION_FROM,
+                                  &pixelFormats, 0);
+
+  for(enum AVPixelFormat *curr = pixelFormats; *curr != AV_PIX_FMT_NONE; curr++) {
+    availableTargetFormats.push_back(*curr);
+    logger->info("possible target format: {}", av_get_pix_fmt_name(*curr));
+  }
+  av_free(pixelFormats);
+  for(const auto &format : preferredPixelFormats) {
+    if(std::find(availableTargetFormats.begin(), availableTargetFormats.end(), format) != availableTargetFormats.end()) {
+      this->swPixelFormat = format;
+      return;
+    }
+  }
+  this->swPixelFormat = availableTargetFormats[0];
 }
 
 void vivictpp::libav::destroyCodecContext(AVCodecContext *codecContext) {

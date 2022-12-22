@@ -1,0 +1,41 @@
+// SPDX-FileCopyrightText: 2022 Gustav Grusell
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+
+#include "libav/HwAccelUtils.hh"
+
+extern "C" {
+#include <libavutil/pixdesc.h>
+}
+
+#include <vector>
+#include <algorithm>
+
+#include "logging/Logging.hh"
+
+static const std::vector<AVPixelFormat> preferredPixelFormats = {AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUV420P10, AV_PIX_FMT_NV12, AV_PIX_FMT_P010};
+
+AVPixelFormat vivictpp::libav::selectSwPixelFormat(AVBufferRef *hwFramesCtx) {
+  std::vector<AVPixelFormat> availableTargetFormats;
+  enum AVPixelFormat *pixelFormats;
+  av_hwframe_transfer_get_formats(hwFramesCtx, AV_HWFRAME_TRANSFER_DIRECTION_FROM,
+                                  &pixelFormats, 0);
+
+  for(enum AVPixelFormat *curr = pixelFormats; *curr != AV_PIX_FMT_NONE; curr++) {
+    availableTargetFormats.push_back(*curr);
+    spdlog::info("possible target format: {}", av_get_pix_fmt_name(*curr));
+  }
+  av_free(pixelFormats);
+  for(const auto &format : preferredPixelFormats) {
+    if(std::find(availableTargetFormats.begin(), availableTargetFormats.end(), format) != availableTargetFormats.end()) {
+      return format;
+    }
+  }
+  return availableTargetFormats[0];
+}
+
+bool vivictpp::libav::isHwAccelFormat(AVPixelFormat pixelFormat) {
+  const AVPixFmtDescriptor *descriptor = av_pix_fmt_desc_get(pixelFormat);
+  return descriptor->flags & AV_PIX_FMT_FLAG_HWACCEL;
+}
