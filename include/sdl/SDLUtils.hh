@@ -16,6 +16,8 @@ extern "C" {
 #include <string>
 #include <stdexcept>
 
+#include "libav/Frame.hh"
+
 namespace vivictpp {
 namespace sdl {
 
@@ -33,14 +35,32 @@ class SDLInitializer {
   ~SDLInitializer();
 };
 
+//typedef std::shared_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> TexturePtr;
+typedef std::shared_ptr<SDL_Texture> TexturePtr;
+
+class SDLTexture {
+public:
+  SDLTexture() {}
+  SDLTexture(SDL_Renderer* renderer, int w, int h, SDL_PixelFormatEnum pixelFormat);
+  void update(const vivictpp::libav::Frame &frame);
+  bool operator!() const { return !texturePtr; }
+  TexturePtr &operator->() { return texturePtr; }
+  SDL_Texture *get() { return texturePtr.get(); }
+
+private:
+  TexturePtr texturePtr;
+  SDL_PixelFormatEnum pixelFormat;
+
+};
+
 std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>
   createWindow(int width, int height);
 
 std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>
   createRenderer(SDL_Window* window);
 
-std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
-  createTexture(SDL_Renderer* renderer, int w, int h);
+TexturePtr
+createTexture(SDL_Renderer* renderer, int w, int h, SDL_PixelFormatEnum pixelFormat = SDL_PIXELFORMAT_NV12);
 
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
   createHandCursor();
