@@ -136,9 +136,8 @@ void vivictpp::libav::VideoFilter::configure() {
       hwFilter = "scale_cuda=format=yuv420p";
       hwDownloadFormat = AV_PIX_FMT_YUV420P;
     } else if (formatParameters.pixelFormat == AV_PIX_FMT_VAAPI && avfilter_get_by_name("scale_vaapi")) {
-      // Disabled because cannot get scale_vaapi to work
-      //hwFilter = "scale_vaapi=format=yuv420p";
-      //hwDownloadFormat = AV_PIX_FMT_YUV420P;
+      hwFilter = "scale_vaapi=format=nv12";
+      hwDownloadFormat = AV_PIX_FMT_NV12;
     }
 
     if (hwDownloadFormat == AV_PIX_FMT_NONE) {

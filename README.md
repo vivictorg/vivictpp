@@ -186,7 +186,7 @@ To use external wrapper decoders, use the `--preferred-decoders` option (see bel
 For more info on harware accelerating decoding, see https://trac.ffmpeg.org/wiki/HWAccelIntro .
 
 Note that even with hardware accelerated decoding, depending of the format of the source video, vivict++ might still
-use quite a bit of cpu to do pixel format conversion. With `--hwaccel cuda` pixel format conversion may be done on
+use quite a bit of cpu to do pixel format conversion. With `--hwaccel cuda` or `--hwaccel vaapi` pixel format conversion may be done on
 the gpu.
 
 ### Specify preferred decoder
