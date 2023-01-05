@@ -19,7 +19,7 @@ std::string filterStr(std::string stdFilter, std::string customFilter) {
 vivictpp::libav::Filter *createFilter(AVStream *stream, AVCodecContext *codecContext, std::string customFilter) {
   switch (stream->codecpar->codec_type) {
   case AVMEDIA_TYPE_VIDEO:
-    return new vivictpp::libav::VideoFilter(stream, codecContext, filterStr("format=yuv420p", customFilter));
+    return new vivictpp::libav::VideoFilter(stream, codecContext, filterStr("null", customFilter));
   case AVMEDIA_TYPE_AUDIO:
     return new vivictpp::libav::AudioFilter(codecContext, "aformat=sample_fmts=s16");
   default:

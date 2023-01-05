@@ -6,6 +6,8 @@
 
 #include <exception>
 #include <cstdio>
+#include <libavutil/pixfmt.h>
+#include <locale>
 #include <memory>
 #include <functional>
 
@@ -23,6 +25,7 @@ extern "C" {
 #include "spdlog/spdlog.h"
 #include "libav/AVErrorUtils.hh"
 #include "libav/Utils.hh"
+#include "libav/HwAccelUtils.hh"
 
 int64_t getValidChannelLayout(int64_t channelLayout, int channels);
 
@@ -39,6 +42,7 @@ vivictpp::libav::Filter::Filter(std::string definition) :
 }
 
 void vivictpp::libav::Filter::configureGraph(std::string definition) {
+  spdlog::info("Configuration filter graph: {}", definition);
   int ret;
   AVFilterInOut *inputs = avfilter_inout_alloc();
   AVFilterInOut *outputs = avfilter_inout_alloc();
@@ -96,37 +100,101 @@ vivictpp::libav::Frame vivictpp::libav::Filter::filterFrame(const vivictpp::liba
 
 vivictpp::libav::VideoFilter::VideoFilter(AVStream *videoStream, AVCodecContext *codecContext,
                          std::string definition) :
-  Filter(definition) {
-  configure(videoStream, codecContext, definition);
+  Filter(definition),
+  formatParameters({videoStream->time_base, codecContext->width, codecContext->height, codecContext->pix_fmt, codecContext->pix_fmt, codecContext->sample_aspect_ratio})
+{
+  configure();
+}
+
+vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(const vivictpp::libav::Frame &inFrame) {
+  if (inFrame.avFrame()->format != formatParameters.pixelFormat) {
+    AVPixelFormat newFormat = (AVPixelFormat) inFrame.avFrame()->format;
+    spdlog::info("Reconfiguring filter, pixel format changed from {} to {}", av_get_pix_fmt_name(formatParameters.pixelFormat), av_get_pix_fmt_name(newFormat));
+    formatParameters.pixelFormat = newFormat;
+    formatParameters.hwFramesContext = inFrame.avFrame()->hw_frames_ctx;
+    configure();
+  }
+  return Filter::filterFrame(inFrame);
 }
 
 
-void vivictpp::libav::VideoFilter::configure(AVStream *videoStream, AVCodecContext *codecContext,
-                            std::string definition) {
-  char args[512];
-  AVRational timeBase = videoStream->time_base;
+void vivictpp::libav::VideoFilter::configure() {
+  char args[1024];
   int ret;
 
   graph.reset(avfilter_graph_alloc(), &freeFilterGraph);
 
-  enum AVPixelFormat pix_fmts[] = { AV_PIX_FMT_YUV420P, AV_PIX_FMT_NONE };
+
+  AVPixelFormat hwDownloadFormat = AV_PIX_FMT_NONE;
+  AVPixelFormat outputFormat = AV_PIX_FMT_YUV420P;
+  std::string hwFilter = "";
+
+  std::string filterStr;
+
+  if (isHwAccelFormat(formatParameters.pixelFormat)) {
+    if (formatParameters.pixelFormat == AV_PIX_FMT_CUDA && avfilter_get_by_name("scale_cuda")) {
+      hwFilter = "scale_cuda=format=yuv420p";
+      hwDownloadFormat = AV_PIX_FMT_YUV420P;
+    } else if (formatParameters.pixelFormat == AV_PIX_FMT_VAAPI && avfilter_get_by_name("scale_vaapi")) {
+      hwFilter = "scale_vaapi=format=nv12";
+      hwDownloadFormat = AV_PIX_FMT_NV12;
+    }
+
+    if (hwDownloadFormat == AV_PIX_FMT_NONE) {
+      if (formatParameters.pixelFormat == AV_PIX_FMT_VAAPI) {
+        switch (formatParameters.sourcePixelFormat) {
+        case AV_PIX_FMT_YUV420P10LE:
+        case AV_PIX_FMT_YUV420P10BE:
+          hwDownloadFormat = AV_PIX_FMT_P010;
+          break;
+        default:
+          hwDownloadFormat = AV_PIX_FMT_NV12;
+        }
+      } else {
+        hwDownloadFormat = selectSwPixelFormat(formatParameters.hwFramesContext);
+      }
+    }
+    if (hwDownloadFormat == AV_PIX_FMT_NV12 || hwDownloadFormat == AV_PIX_FMT_P010) {
+      outputFormat = AV_PIX_FMT_NV12;
+    }
+  }
+
+  enum AVPixelFormat pix_fmts[] = { AV_PIX_FMT_NV12, AV_PIX_FMT_NONE };
+  pix_fmts[0] = outputFormat;
 
   snprintf(args, sizeof(args),
            "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-           codecContext->width, codecContext->height, codecContext->pix_fmt,
-           timeBase.num, timeBase.den,
-           codecContext->sample_aspect_ratio.num, codecContext->sample_aspect_ratio.den);
+           formatParameters.width, formatParameters.height, formatParameters.pixelFormat,
+           formatParameters.timeBase.num, formatParameters.timeBase.den,
+           formatParameters.sampleAspectRatio.num, formatParameters.sampleAspectRatio.den);
 
   createFilter( &bufferSrcCtx, "buffer", "in", args, nullptr);
   createFilter( &bufferSinkCtx, "buffersink", "out", nullptr, nullptr);
-
+  if (formatParameters.hwFramesContext) {
+    AVBufferSrcParameters* bufferSrcParameters = av_buffersrc_parameters_alloc();
+    bufferSrcParameters->hw_frames_ctx = formatParameters.hwFramesContext;
+    vivictpp::libav::AVResult res = av_buffersrc_parameters_set(bufferSrcCtx, bufferSrcParameters);
+  }
   ret = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
                             AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     throw std::runtime_error("cannot set output pixel format");
   }
 
-  configureGraph(definition);
+  if (!hwFilter.empty()) {
+    filterStr = hwFilter + ",";
+  }
+  if (hwDownloadFormat != AV_PIX_FMT_NONE) {
+    filterStr += std::string("hwdownload,format=") + av_get_pix_fmt_name(hwDownloadFormat) + ",";
+  }
+
+  filterStr += std::string("format=") + av_get_pix_fmt_name(outputFormat);
+
+  if (!definition.empty()) {
+    filterStr += std::string(",") + definition;
+  }
+
+  configureGraph(filterStr);
 }
 
 FilteredVideoMetadata vivictpp::libav::VideoFilter::getFilteredVideoMetadata() {

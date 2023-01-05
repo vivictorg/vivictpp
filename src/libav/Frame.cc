@@ -38,6 +38,9 @@ vivictpp::libav::Frame &vivictpp::libav::Frame::operator=(const Frame &otherFram
 }
 
 vivictpp::libav::Frame vivictpp::libav::Frame::transferHwData(AVPixelFormat swPixelFormat) {
+  // av_hwframe_transfer_get_formats(src, AV_HWFRAME_TRANSFER_DIRECTION_FROM)
+
+  
   Frame swFrame;
   swFrame.avFrame()->format = swPixelFormat;
   AVResult ret = av_hwframe_transfer_data(swFrame.avFrame(), avFrame(), 0);

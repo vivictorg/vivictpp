@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "sdl/SDLUtils.hh"
+#include "SDL_pixels.h"
 
 std::atomic<int> vivictpp::sdl::SDLInitializer::instanceCount(0);
 
@@ -18,6 +19,28 @@ vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio) {
 vivictpp::sdl::SDLInitializer::~SDLInitializer() {
   if (--instanceCount == 0) {
     SDL_Quit();
+  }
+}
+
+//vivictpp::sdl::SDLTexture::SDLTexture() {}
+
+vivictpp::sdl::SDLTexture::SDLTexture(SDL_Renderer* renderer, int w, int h, SDL_PixelFormatEnum pixelFormat) :
+  texturePtr(createTexture(renderer, w, h, pixelFormat)),
+  pixelFormat(pixelFormat) {
+}
+
+void vivictpp::sdl::SDLTexture::update(const vivictpp::libav::Frame &frame) {
+  if (pixelFormat == SDL_PIXELFORMAT_YV12) {
+    SDL_UpdateYUVTexture(
+    texturePtr.get(), nullptr,
+    frame->data[0], frame->linesize[0],
+    frame->data[1], frame->linesize[1],
+    frame->data[2], frame->linesize[2]);
+  } else {
+    SDL_UpdateNVTexture(
+      texturePtr.get(), nullptr,
+      frame->data[0], frame->linesize[0],
+      frame->data[1], frame->linesize[1]);
   }
 }
 
@@ -45,10 +68,11 @@ vivictpp::sdl::createRenderer(SDL_Window* window) {
   return renderer;
 }
 
-std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
-vivictpp::sdl::createTexture(SDL_Renderer* renderer, int w, int h) {
-  auto texture = std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
-    (SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12,
+
+vivictpp::sdl::TexturePtr
+vivictpp::sdl::createTexture(SDL_Renderer* renderer, int w, int h, SDL_PixelFormatEnum pixelFormat) {
+  auto texture = std::shared_ptr<SDL_Texture>
+    (SDL_CreateTexture(renderer, pixelFormat,
                        SDL_TEXTUREACCESS_STREAMING, w, h),
      SDL_DestroyTexture);
   if (!texture) {

@@ -55,6 +55,7 @@ sources = [
   'src/libav/Filter.cc',
   'src/libav/FormatHandler.cc',
   'src/libav/Frame.cc',
+  'src/libav/HwAccelUtils.cc',
   'src/libav/Packet.cc',
   'src/libav/Utils.cc',
   'src/logging/Logging.cc',

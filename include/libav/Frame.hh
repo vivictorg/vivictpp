@@ -25,6 +25,7 @@ public:
   ~Frame() = default;
   Frame &operator=(const Frame &frame);
   AVFrame* avFrame() const { return frame.get(); }
+  std::shared_ptr<AVFrame> operator->() const { return frame; }
   bool empty() const { return !frame; }
   void reset();
   Frame static emptyFrame() { return Frame(nullptr); }

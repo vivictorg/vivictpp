@@ -40,12 +40,14 @@ private:
   void initHardwareContext(std::string hwAccel);
   void openCodec();
   void logAudioCodecInfo();
+  void selectSwPixelFormat();
 private:
   std::shared_ptr<AVCodecContext> codecContext;
   vivictpp::libav::Frame nextFrame;
   vivictpp::logging::Logger logger;
   std::shared_ptr<AVBufferRef> hwDeviceContext;
   AVPixelFormat hwPixelFormat;
+  AVPixelFormat swPixelFormat;
 };
 
 std::shared_ptr<AVCodecContext> createCodecContext(AVCodecParameters *codecParameters);

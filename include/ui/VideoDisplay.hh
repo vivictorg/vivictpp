@@ -34,8 +34,8 @@ private:
   void setDefaultSourceRectangles(const DisplayState &displayState);
   void updateRectangles(const DisplayState &displayState, SDL_Renderer *renderer);
 private:
-  std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> leftTexture;
-  std::unique_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> rightTexture;
+  vivictpp::sdl::SDLTexture leftTexture;
+  vivictpp::sdl::SDLTexture rightTexture;
   SDL_Rect sourceRectLeft, sourceRectRight, zoomedView, destRectLeft, destRectRight, destRect;
   Box box;
   vivictpp::logging::Logger logger;

@@ -1,12 +1,18 @@
 #include "ui/VideoDisplay.hh"
+#include "SDL_pixels.h"
 
 int inline fitToRange(int value, int min, int max) {
   return std::max(min, std::min(max, value));
 }
 
+SDL_PixelFormatEnum getTexturePixelFormat(const vivictpp::libav::Frame &frame) {
+  if (!frame.empty() && (AVPixelFormat) frame.avFrame()->format == AV_PIX_FMT_NV12) {
+    return SDL_PIXELFORMAT_NV12;
+  }
+  return SDL_PIXELFORMAT_YV12;
+}
+
 vivictpp::ui::VideoDisplay::VideoDisplay():
-   leftTexture(nullptr, nullptr),
-   rightTexture(nullptr, nullptr),
    logger(vivictpp::logging::getOrCreateLogger("VideoDisplay")){
 }
 
@@ -17,13 +23,15 @@ void vivictpp::ui::VideoDisplay::initTextures(SDL_Renderer *renderer, const Disp
   } else {
     targetResolution = displayState.rightVideoMetadata.filteredResolution;
   }
-  leftTexture = vivictpp::sdl::createTexture(renderer,
-                                             displayState.leftVideoMetadata.filteredResolution.w,
-                                             displayState.leftVideoMetadata.filteredResolution.h);
+  leftTexture = vivictpp::sdl::SDLTexture(renderer,
+                                          displayState.leftVideoMetadata.filteredResolution.w,
+                                          displayState.leftVideoMetadata.filteredResolution.h,
+                                          getTexturePixelFormat(displayState.leftFrame));
   if (!displayState.rightVideoMetadata.empty()) {
-    rightTexture = vivictpp::sdl::createTexture(renderer,
-                                                displayState.rightVideoMetadata.filteredResolution.w,
-                                                displayState.rightVideoMetadata.filteredResolution.h);
+    rightTexture = vivictpp::sdl::SDLTexture(renderer,
+                                             displayState.rightVideoMetadata.filteredResolution.w,
+                                             displayState.rightVideoMetadata.filteredResolution.h,
+                                             getTexturePixelFormat(displayState.rightFrame));
   }
 }
 
@@ -118,24 +126,14 @@ void vivictpp::ui::VideoDisplay::render(const DisplayState &displayState, SDL_Re
     videoMetadataVersion = displayState.videoMetadataVersion;
   }
   float splitPercent = displayState.splitPercent;
-  AVFrame *frame1 = displayState.leftFrame.avFrame();
-  AVFrame *frame2 = displayState.rightFrame.avFrame();
-//  SDL_GetRendererOutputSize(renderer.get(), &width, &height);
-  //logger->trace("renderWidth={} renderHeight={}", width, height);
+
   updateRectangles(displayState, renderer);
-  SDL_UpdateYUVTexture(
-    leftTexture.get(), nullptr,
-    frame1->data[0], frame1->linesize[0],
-    frame1->data[1], frame1->linesize[1],
-    frame1->data[2], frame1->linesize[2]);
-  if (frame2 != nullptr) {
-    SDL_UpdateYUVTexture(
-      rightTexture.get(), nullptr,
-      frame2->data[0], frame2->linesize[0],
-      frame2->data[1], frame2->linesize[1],
-      frame2->data[2], frame2->linesize[2]);
+
+  leftTexture.update(displayState.leftFrame);
+  if (!displayState.rightFrame.empty()) {
+    rightTexture.update(displayState.rightFrame);
   }
-//    SDL_GetRendererOutputSize(renderer.get(), &box.w, &box.h);
+
   SDL_RenderSetClipRect(renderer, &destRectLeft);
   SDL_RenderCopy(renderer, leftTexture.get(), &sourceRectLeft, &destRect);
   if (!displayState.splitScreenDisabled) {

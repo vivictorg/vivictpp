@@ -6,11 +6,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
       - name: Install ffmpeg and ssl
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
           brew update
-          brew install meson ninja cmake sdl2 sdl2_ttf ffmpeg
+          brew install --overwrite python@3.11
+          brew install --overwrite meson ninja cmake sdl2 sdl2_ttf ffmpeg
       - name: Meson build
         env:
           PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
