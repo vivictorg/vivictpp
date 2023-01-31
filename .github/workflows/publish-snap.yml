@@ -1,10 +1,11 @@
-name: VivictPP
+name: Publish snap
 
 # Run this workflow every time a new commit pushed to your repository
 on:
   push:
     tags:
-      - 'release-[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'snap-[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   # Set the job key. The key is displayed as the job name
@@ -25,10 +26,11 @@ jobs:
 
       - name: Build snap
         uses: snapcore/action-build@v1
-        id: snapcraft
-        
-      - name: Save snap
-        uses: actions/upload-artifact@v2
+        id: build
+
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          name: vivictpp-${{ steps.get_version.outputs.VERSION }}.snap
-          path: ${{ steps.snapcraft.outputs.snap }}
+          snap: ${{ steps.build.outputs.snap }}
+          release: edge
