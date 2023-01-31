@@ -16,7 +16,9 @@
 #include "VivictPP.hh"
 #include "Controller.hh"
 #include "SourceConfig.hh"
+#include "time/TimeUtils.hh"
 #include "ui/DisplayState.hh"
+#include "sdl/SDLUtils.hh"
 #include <vector>
 
 
@@ -54,7 +56,9 @@ int main(int, char**)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+    io.DeltaTime = 1.0f/24.0f;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -103,9 +107,14 @@ int main(int, char**)
     displayState.splitScreenDisabled = true;
     displayState.leftVideoMetadata = videoInputs.metadata()[0][0];
 
+    vivictpp::sdl::SDLTexture texture(renderer, 1920, 800, SDL_PIXELFORMAT_YV12);
+    
     
     vivictpp::time::Time pts{0};
     vivictpp::time::Time nextPts{0};
+
+    int64_t t0 = 0;
+    int64_t pts0 = videoInputs.startTime();
     
     while (!done)
     {
@@ -125,12 +134,11 @@ int main(int, char**)
         }
 
         // Start the Dear ImGui frame
+
         ImGui_ImplSDLRenderer_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-
-        
         {
               ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
                                               ImGuiWindowFlags_AlwaysAutoResize |
@@ -153,7 +161,17 @@ int main(int, char**)
 
               if (ImGui::Begin("Example: Simple overlay", &myBool, window_flags)) {
                 if (ImGui::Button(playing ? "Pause" : "Play")) {
+                  pts0 = pts;
+                  t0 = vivictpp::time::relativeTimeMicros();
                   playing = !playing;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Step")) {
+                  if (videoInputs.ptsInRange(videoInputs.nextPts())) {
+                    pts = videoInputs.nextPts();
+                    spdlog::info("Stepping to {}", pts);
+                    videoInputs.stepForward(pts);
+                  }
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Fullscreen")) {
@@ -168,12 +186,21 @@ int main(int, char**)
               ImGui::End();
 
         }
-        
-        ImGui::GetBackgroundDrawList()->AddImage((void*)(intptr_t)my_image_texture,
-                                                 ImVec2(0,0), ImVec2(my_image_width,my_image_height));
-
-
-        
+        nextPts = videoInputs.nextPts();
+        if (playing && videoInputs.ptsInRange(nextPts)) {
+          int64_t t = vivictpp::time::relativeTimeMicros();
+          spdlog::info("pts: {} nextPts: {}", vivictpp::time::formatTime(pts),
+                       vivictpp::time::formatTime(nextPts));
+          spdlog::info("t - t0 = {}, nextPts - pts = {}", t - t0, nextPts - pts0);
+          if ((t - t0) >= (nextPts - pts0)) {
+            pts = nextPts;
+            videoInputs.stepForward(nextPts);
+            spdlog::info("Step forward");
+          }
+        }
+        texture.update(videoInputs.firstFrames()[0]);
+        ImGui::GetBackgroundDrawList()->AddImage((void*)(intptr_t)texture.get(),
+                                                 ImVec2(0,0), ImVec2(1920,800));
 
         // Rendering
         ImGui::Render();
@@ -182,8 +209,13 @@ int main(int, char**)
         ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
 
-        
+
         SDL_RenderPresent(renderer);
+//        if (videoInputs.ptsInRange(videoInputs.nextPts())) {
+//          nextPts = videoInputs.nextPts();
+//        }
+//        spdlog::info("pts: {} nextPts: {}", vivictpp::time::formatTime(pts),
+//                     vivictpp::time::formatTime(nextPts));
     }
 
     // Cleanup
