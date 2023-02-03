@@ -6,7 +6,9 @@
 #include "Seeking.hh"
 #include "spdlog/spdlog.h"
 #include "time/Time.hh"
+extern "C" {
 #include <libavcodec/avcodec.h>
+}
 
 int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
   std::lock_guard<std::mutex> lg(m);

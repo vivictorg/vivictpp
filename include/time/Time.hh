@@ -5,8 +5,9 @@
 #ifndef TIME_TIME_HH
 #define TIME_TIME_HH
 
-#include <libavutil/rational.h>
+
 extern "C" {
+#include <libavutil/rational.h>
 #include <libavutil/avutil.h>
 }
 

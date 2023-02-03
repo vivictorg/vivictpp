@@ -5,11 +5,11 @@
 #include "libav/Decoder.hh"
 #include "libav/AVErrorUtils.hh"
 #include "libav/Utils.hh"
-#include <libavcodec/codec.h>
-#include <libavutil/pixfmt.h>
 #include <set>
 
 extern "C" {
+#include <libavcodec/codec.h>
+#include <libavutil/pixfmt.h>
 #include <libavutil/channel_layout.h>
 }
 
