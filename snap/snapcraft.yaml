@@ -14,9 +14,9 @@ apps:
   vivictpp:
     command: usr/local/bin/vivictpp.wrapper
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:${SNAP}/usr/local/lib/$SNAPCRAFT_ARCH_TRIPLET/
-      LIBVA_DRIVERS_PATH: $SNAP/va-driver-non-free/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
-      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+      LD_LIBRARY_PATH: ${LD_LIBRARY_PATH}:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/pulseaudio
+      LIBVA_DRIVERS_PATH: ${SNAP}/va-driver-non-free/dri:${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
     plugs:
       - audio-playback
       - alsa
@@ -29,8 +29,8 @@ apps:
   ffmpeg:
     command: usr/local/bin/ffmpeg
     environment:
-      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
-      LIBVA_DRIVERS_PATH: $SNAP/va-driver-non-free/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+      LIBVA_DRIVERS_PATH: ${SNAP}/va-driver-non-free/dri:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
     plugs:
       - network
       - x11
@@ -40,7 +40,7 @@ apps:
   vainfo:
     environment:
 #      LD_DEBUG: libs
-      LIBVA_DRIVERS_PATH: $SNAP/va-driver-non-free/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+      LIBVA_DRIVERS_PATH: ${SNAP}/va-driver-non-free/dri:${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
     command: usr/bin/vainfo
     plugs:
       - opengl
@@ -159,10 +159,6 @@ parts:
       - C_INCLUDE_PATH: $SNAPCRAFT_STAGE/usr/local/include
       - CPLUS_INCLUDE_PATH: $SNAPCRAFT_STAGE/usr/local/include
       - LIBRARY_PATH: $SNAPCRAFT_STAGE/usr/local/lib
-    override-build: |
-      snapcraftctl build
-      cp -t $SNAPCRAFT_PART_INSTALL/lib/x86_64-linux-gnu $SNAPCRAFT_PART_BUILD/subprojects/SDL2_ttf-2.0.12/libsdl2_ttf.so $SNAPCRAFT_PART_BUILD/subprojects/SDL2-2.24.0/libsdl2.so
-      ldconfig
 
     after:
       - ffmpeg
