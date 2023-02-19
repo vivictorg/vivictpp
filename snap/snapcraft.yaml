@@ -1,6 +1,6 @@
 name: vivictpp # you probably want to 'snapcraft register <name>'
 license: GPL-2.0-or-later
-base: core20 # the base snap is the execution environment for this snap
+base: core22 # the base snap is the execution environment for this snap
 version: git
 summary: Vivict video comparison tool++
 description: |
@@ -9,11 +9,13 @@ description: |
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
+
 apps:
   vivictpp:
     command: usr/local/bin/vivictpp.wrapper
     environment:
-      LD_LIBRARY_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio
+      LD_LIBRARY_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:${SNAP}/usr/local/lib/$SNAPCRAFT_ARCH_TRIPLET/
+      LIBVA_DRIVERS_PATH: $SNAP/va-driver-non-free/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
       LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
     plugs:
       - audio-playback
@@ -25,50 +27,145 @@ apps:
       - home
       - removable-media
   ffmpeg:
-    command: usr/bin/ffmpeg
+    command: usr/local/bin/ffmpeg
+    environment:
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+      LIBVA_DRIVERS_PATH: $SNAP/va-driver-non-free/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+    plugs:
+      - network
+      - x11
+      - opengl
+      - home
+      - removable-media
+  vainfo:
+    environment:
+#      LD_DEBUG: libs
+      LIBVA_DRIVERS_PATH: $SNAP/va-driver-non-free/dri:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+    command: usr/bin/vainfo
+    plugs:
+      - opengl
+      - x11
 
 layout:
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio
-
   /usr/share/alsa:
     bind: $SNAP/usr/share/alsa
   /etc/alsa/conf.d:
     bind: $SNAP/etc/alsa/conf.d
-    
+
 parts:
   scripts:
     source: scripts/
     plugin: dump
     organize:
       vivictpp.wrapper : usr/local/bin/vivictpp.wrapper
-  
+
+  ffmpeg:
+    build-packages:
+      - autoconf
+      - automake
+      - build-essential
+      - cmake
+      - git-core
+      - libass-dev
+      - libfreetype6-dev
+      - libgnutls28-dev
+      - libmp3lame-dev
+      - libtool
+      - libva-dev
+      - libvdpau-dev
+      - libvorbis-dev
+      - libxcb1-dev
+      - libxcb-shm0-dev
+      - libxcb-xfixes0-dev
+      - meson
+      - ninja-build
+      - pkg-config
+      - texinfo
+      - wget
+      - yasm
+      - zlib1g-dev
+      - libx264-dev
+      - libx265-dev
+      - libvpx-dev
+      - libxext-dev
+    stage-packages:
+      - libass9
+      - libdrm2
+      - libfontconfig1
+      - libfreetype6
+      - libfribidi0
+      - libgraphite2-3
+      - libharfbuzz0b
+      - libmp3lame0
+      - libnuma1
+      - libogg0
+      - libpng16-16
+      - libva-drm2
+      - libva-x11-2
+      - libva2
+      - libvdpau1
+      - libvorbis0a
+      - libvorbisenc2
+      - libvpx7
+      - libx11-6
+      - libx264-163
+      - libx265-199
+      - libxau6
+      - libxcb-shape0
+      - libxcb-shm0
+      - libxcb-xfixes0
+      - libxcb1
+      - libxdmcp6
+      - libxext6
+      - libxfixes3
+    source: https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz
+    plugin: autotools
+    autotools-configure-parameters:
+      - --enable-gpl
+      - --enable-gnutls
+      - --enable-libass
+      - --enable-libfreetype
+      - --enable-libmp3lame
+      - --enable-libvorbis
+      - --enable-libvpx
+      - --enable-libx264
+      - --enable-libx265
+
   vivictpp:
     build-packages:
       - pkg-config
       - cmake
-      - libsdl2-dev
-      - libsdl2-ttf-dev
-      - libavformat-dev
-      - libavcodec-dev
-      - libavutil-dev
       - libfreetype6-dev
-      - libswscale-dev
-      - libavfilter-dev
       - git
     stage-packages:
-      - libsdl2-2.0-0
-      - libsdl2-ttf-2.0-0
-      - ffmpeg
       - libfreetype6
       - libglu1-mesa
       - freeglut3
       - libpulse0
+      - intel-media-va-driver
+      - mesa-va-drivers
+      - libva-wayland2
+      - libva2
+      - vainfo
     # See 'snapcraft plugins'
     source: /root/project
     source-type: git
     plugin: meson
+    meson-parameters:
+      - -Duse_sdl2_subproject=true
+    build-environment:
+      - C_INCLUDE_PATH: $SNAPCRAFT_STAGE/usr/local/include
+      - CPLUS_INCLUDE_PATH: $SNAPCRAFT_STAGE/usr/local/include
+      - LIBRARY_PATH: $SNAPCRAFT_STAGE/usr/local/lib
+    override-build: |
+      snapcraftctl build
+      cp -t $SNAPCRAFT_PART_INSTALL/lib/x86_64-linux-gnu $SNAPCRAFT_PART_BUILD/subprojects/SDL2_ttf-2.0.12/libsdl2_ttf.so $SNAPCRAFT_PART_BUILD/subprojects/SDL2-2.24.0/libsdl2.so
+      ldconfig
+
     after:
+      - ffmpeg
       - desktop-glib-only
 
   desktop-glib-only:
