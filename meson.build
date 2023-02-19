@@ -12,9 +12,9 @@ cli11_proj = subproject('cli11', default_options: 'warning_level=0')
 catch2_proj = subproject('catch2', default_options: 'warning_level=0')
 
 if get_option('use_sdl2_subproject')
-  sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false'])
+  sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false', 'default_library=static'])
   sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
-  sdl2_ttf_proj = subproject('sdl2_ttf', default_options: 'warning_level=0')
+  sdl2_ttf_proj = subproject('sdl2_ttf', default_options: ['warning_level=0', 'default_library=static'])
   sdl2_ttf_dep = sdl2_ttf_proj.get_variable('sdl2_ttf_dep')
 else
   sdl2_dep = dependency('sdl2', fallback: ['sdl2', 'sdl2_dep'])
