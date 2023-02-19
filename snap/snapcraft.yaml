@@ -61,6 +61,17 @@ parts:
     organize:
       vivictpp.wrapper : usr/local/bin/vivictpp.wrapper
 
+  dav1d:
+    build-packages:
+      - git-core
+      - meson
+      - ninja-build
+      - nasm
+    source: https://code.videolan.org/videolan/dav1d/-/archive/1.1.0/dav1d-1.1.0.tar.gz
+    plugin: meson
+    meson-parameters:
+      - --default-library=static
+
   ffmpeg:
     build-packages:
       - autoconf
@@ -132,6 +143,9 @@ parts:
       - --enable-libvpx
       - --enable-libx264
       - --enable-libx265
+      - --enable-libdav1d
+    after:
+      - dav1d
 
   vivictpp:
     build-packages:
