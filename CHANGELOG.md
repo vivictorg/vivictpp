@@ -3,6 +3,11 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 ## Current
 
+## 0.2.5 - 2023-02-22
+
+### Changed
+- Snap updated to use ffmpeg5
+
 ## 0.2.4 - 2023-01-05
 
 ### Added
