@@ -12,10 +12,8 @@ jobs:
         run: |
           brew update
           brew install --overwrite python@3.11
-          brew install --overwrite meson ninja cmake sdl2 sdl2_ttf ffmpeg
+          brew install --overwrite pkg-config meson ninja cmake sdl2 sdl2_ttf freetype2 ffmpeg
       - name: Meson build
-        env:
-          PKG_CONFIG_PATH: "/usr/local/opt/ffmpeg@4/lib/pkgconfig"
         uses: BSFishy/meson-build@v1.0.3
         with:
           action: build
