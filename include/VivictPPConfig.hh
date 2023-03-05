@@ -13,13 +13,24 @@
 
 class VivictPPConfig {
 public:
-  VivictPPConfig(std::vector<SourceConfig> sourceConfigs, bool disableAudio):
+  VivictPPConfig(): VivictPPConfig({}, false, false, 1.0) {}
+  
+  VivictPPConfig(std::vector<SourceConfig> sourceConfigs,
+                 bool disableAudio,
+                 bool disableFontAutoScaling,
+                 float fontCustomScaling):
     sourceConfigs(sourceConfigs),
-    disableAudio(disableAudio) {}
+    disableAudio(disableAudio),
+    disableFontAutoScaling(disableFontAutoScaling),
+    fontCustomScaling(fontCustomScaling) {}
 
-  const std::vector<SourceConfig> sourceConfigs;
+  std::vector<SourceConfig> sourceConfigs;
 
-  const bool disableAudio;
+  bool disableAudio;
+
+  bool disableFontAutoScaling;
+
+  float fontCustomScaling;
 
 public:
   bool hasVmafData() {

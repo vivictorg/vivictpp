@@ -48,6 +48,7 @@ git_hash = git_hash_cmd.stdout().strip()
 sources = [
   'src/AVSync.cc',
   'src/Controller.cc',
+  'src/OptParser.cc',
   'src/VideoInputs.cc',
   'src/VideoMetadata.cc',
   'src/VivictPP.cc',

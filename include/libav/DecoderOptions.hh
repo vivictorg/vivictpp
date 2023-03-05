@@ -1,0 +1,18 @@
+#ifndef VIVICTPP_LIBAV_DECODEROPTIONS_HH_
+#define VIVICTPP_LIBAV_DECODEROPTIONS_HH_
+
+#include <string>
+#include <vector>
+
+namespace vivictpp {
+namespace libav {
+
+struct  DecoderOptions {
+  std::string hwAccel;
+  std::vector<std::string> preferredDecoders;
+};
+
+}  // libav
+}  // vivictpp
+
+#endif /* VIVICTPP_LIBAV_DECODEROPTIONS_HH_ */
