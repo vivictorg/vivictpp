@@ -74,6 +74,7 @@ sources = [
   'src/ui/TextBox.cc',
   'src/ui/TextTexture.cc',
   'src/ui/VideoDisplay.cc',
+  'src/ui/VideoScaler.cc',
   'src/ui/VmafGraph.cc',
   'src/vmaf/VmafLog.cc',
   'src/workers/DecoderWorker.cc',
@@ -81,7 +82,7 @@ sources = [
   'src/workers/PacketQueue.cc',
   'src/workers/PacketWorker.cc',
   'src/workers/QueuePointer.cc',
-  'src/workers/VideoInputMessage.cc',
+  'src/workers/VideoInputMessage.cc'
 ]
 
 imgui_sources=[
