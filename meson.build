@@ -75,6 +75,7 @@ sources = [
   'src/ui/TextTexture.cc',
   'src/ui/VideoDisplay.cc',
   'src/ui/VideoScaler.cc',
+  'src/ui/VideoTextures.cc',
   'src/ui/VmafGraph.cc',
   'src/vmaf/VmafLog.cc',
   'src/workers/DecoderWorker.cc',
