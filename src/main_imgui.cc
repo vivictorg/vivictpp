@@ -50,6 +50,10 @@ void ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button
         ImGui::SetScrollY(window, window->Scroll.y - delta.y);
 }
 
+void logVec(const std::string &str, ImVec2 vec) {
+  spdlog::info("{}: {}x{}", str, vec.x, vec.y);
+}
+
 // Main code
 int main(int argc, char** argv)
 {
@@ -91,6 +95,7 @@ int main(int argc, char** argv)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
     (void)io;
 //    io.DeltaTime = 1.0f/24.0f;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -141,8 +146,17 @@ int main(int argc, char** argv)
     
 //    vivictpp::sdl::SDLTexture texture(renderer, 1920, 800, SDL_PIXELFORMAT_YV12);
     vivictpp::ui::VideoTextures videoTextures;
+    videoTextures.update(renderer, displayState);
 //    videoTextures.initTextures(renderer, displayState);
-    
+/*
+    SDL_Rect displayBounds;
+    int displayIndex;
+    SDL_GetWindowDisplayIndex(window);
+    SDL_GetDisplayBounds(displayIndex, &displayBounds);
+    spdlog::info("displaySize: {}x{}", displayBounds.w, displayBounds.h);
+*/
+    SDL_SetWindowSize(window, videoTextures.nativeResolution.w, videoTextures.nativeResolution.h);
+
     
     vivictpp::time::Time pts{0};
     vivictpp::time::Time nextPts{0};
@@ -194,7 +208,6 @@ int main(int argc, char** argv)
                                               ImGuiWindowFlags_NoFocusOnAppearing |
                                               ImGuiWindowFlags_NoNav;
           ImVec2 windowSize = ImGui::GetWindowSize();
-//          spdlog::info("windowSize: {}x{}", windowSize.x, windowSize.y);
           const float PAD = 10.0f;
           const ImGuiViewport* viewport = ImGui::GetMainViewport();
           ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
@@ -207,8 +220,11 @@ int main(int argc, char** argv)
 //          ImVec2 videoSize(1920, 800);
           ImVec2 scaledVideoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier() , videoTextures.nativeResolution.h * scaleFactor};
           ImGui::SetNextWindowContentSize({std::max(work_size.x, scaledVideoSize.x), std::max(work_size.y, scaledVideoSize.y)});
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
           bool myBool2;
-          if (ImGui::Begin("Test window", &myBool2,  ImGuiWindowFlags_AlwaysAutoResize |
+          if (ImGui::Begin("Vivict++", &myBool2,  ImGuiWindowFlags_AlwaysAutoResize |
                            ImGuiWindowFlags_NoDecoration |
                            ImGuiWindowFlags_NoSavedSettings |
                            ImGuiWindowFlags_NoFocusOnAppearing |
@@ -217,79 +233,60 @@ int main(int argc, char** argv)
                            ImGuiWindowFlags_NoTitleBar |
                            ImGuiWindowFlags_NoScrollbar
                 )) {
-            ImGui::Button("TESTING");
             nextPts = videoInputs.nextPts();
             if (playing && videoInputs.ptsInRange(nextPts)) {
               int64_t t = vivictpp::time::relativeTimeMicros();
-//              spdlog::debug("pts: {} nextPts: {}", vivictpp::time::formatTime(pts), vivictpp::time::formatTime(nextPts));
-//              spdlog::debug("t - t0 = {}, nextPts - pts = {}", t - t0, nextPts - pts0);
               int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * io.DeltaTime);
               if ((tNextPresent - t0) >= (nextPts - pts0)) {
                 pts = nextPts;
                 videoInputs.stepForward(nextPts);
                 displayState.updateFrames(videoInputs.firstFrames());
-//                spdlog::info("Step forward");
               }
             }
-//            videoTexures.initTextures(renderer, displayState);
+
             int w,h;
             SDL_GetRendererOutputSize(renderer, &w, &h);
-            //ImVec2 drawSize(windowWidth, windowHeight);
+
             ImVec2 viewSize(w, h);
-//            ImVec2 drawSize(w, h);
-//            spdlog::info("drawSize: {}x{}", drawSize.x, drawSize.y);
-/*
-            drawSize.x *= scaleFactor;
-            drawSize.y *= scaleFactor;
-            
-            float xScale = drawSize.x / videoSize.x;
-            float yScale = drawSize.y / videoSize.y;
-            if (xScale < 1 || yScale < 1) {
-              if (xScale < yScale) {
-                drawSize.x = windowWidth;
-                drawSize.y = videoSize.y * windowWidth / videoSize.x;
-              } else {
-                drawSize.x = videoSize.x * windowHeight / videoSize.y;
-                drawSize.y = windowHeight;
-              }
-            }
-*/
+
             float scrollX = ImGui::GetScrollX();
             float scrollY = ImGui::GetScrollY();
 
+            ImVec2 pad = ImGui::GetCursorPos();
+            if (scaledVideoSize.x < viewSize.x) {
+              pad.x += (viewSize.x - scaledVideoSize.x) / 2;
+            }
+            if (scaledVideoSize.y < viewSize.y) {
+              pad.y += (viewSize.y - scaledVideoSize.y) / 2;
+            }
+
             videoTextures.update(renderer, displayState);
 
-            if (!displayState.splitScreenDisabled) {
-              //displayState.splitPercent = 100.0 * ImGui::GetIO().MousePos.x / viewSize.x;
-              spdlog::info("mous x={}", ImGui::GetMousePos().x);
-            }
-
             float splitFraction = displayState.splitPercent / 100;
-            ImVec2 drawPos = {0, 0}; //cursorPos;
-            ImVec2 uvMin(scrollX / scaledVideoSize.x, scrollY/ scaledVideoSize.y);
-            ImVec2 uvMax( std::min((float) 1.0, (scrollX + splitFraction * viewSize.x) / scaledVideoSize.x), std::min((float) 1, (scrollY + viewSize.y) / scaledVideoSize.y));
-            ImVec2 p2(drawPos.x + splitFraction * viewSize.x, drawPos.y + viewSize.y);
+            float splitX = pad.x + splitFraction * viewSize.x;
+            ImVec2 drawPos = {pad.x - scrollX, pad.y - scrollY}; //cursorPos;
+            ImVec2 uvMin(0, 0);
+
+            ImVec2 uvMax((scrollX + splitX - pad.x) / scaledVideoSize.x ,1);
+            ImVec2 p2(pad.x + scaledVideoSize.x - scrollX, pad.y + scaledVideoSize.y - scrollY);
             ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t) videoTextures.leftTexture.get(),
-                                                 drawPos, p2, uvMin, uvMax);
-            spdlog::info("uvmin1= {},{}  uvmax1={},{}  splitPercent={}", uvMin.x, uvMin.y, uvMax.x, uvMax.y, displayState.splitPercent);
+                                                 drawPos, p2 /*, uvMin, uvMax*/);
+
             if (!displayState.splitScreenDisabled) {
               // TODO: Should take into account size of video texture here
-              drawPos.x = viewSize.x * displayState.splitPercent / 100; // round down?
-              p2.x = viewSize.x;
-              uvMin.x = (scrollX + displayState.splitPercent / 100 * viewSize.x) / scaledVideoSize.x;
-              uvMax.x = (scrollX + viewSize.x) / scaledVideoSize.x;
-              spdlog::info("uvmin2, uvmax2 = {},{}  {},{}", uvMin.x, uvMin.y, uvMax.x, uvMax.y);
+              drawPos.x = splitX;
+              uvMin.x = uvMax.x;
+              uvMax.x = 1.0; //(scrollX + viewSize.x) / scaledVideoSize.x;
               ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t) videoTextures.rightTexture.get(),
                                                  drawPos, p2, uvMin, uvMax);
+              ImGui::GetWindowDrawList()->AddLine({splitX, pad.y}, {splitX, pad.y + scaledVideoSize.y}, 0x80FFFFFF, 0.5);
             }
-            //ImGui::GetBackgroundDrawList()->AddImage((void*)(intptr_t)texture.get(),
-            //                                         drawPos, p2);
             ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
             ScrollWhenDraggingOnVoid(mouse_delta, 0);
           }
           ImGui::End();
+          ImGui::PopStyleVar(2);
 
-              
           ImVec2 window_pos, window_pos_pivot;
           window_pos.x = work_pos.x + work_size.x / 2;
           window_pos.y = work_size.y - PAD;
@@ -302,8 +299,6 @@ int main(int argc, char** argv)
           bool myBool;
 
           if (ImGui::Begin("Video controls", &myBool, window_flags)) {
-            ImVec2 windowSize = ImGui::GetWindowSize();
-//            spdlog::info("windowSize: {}x{}", windowSize.x, windowSize.y);
                 
             if (ImGui::Button(playing ? "Pause" : "Play")) {
               pts0 = pts;
@@ -335,10 +330,10 @@ int main(int argc, char** argv)
             if (ImGui::Button("Zoom out")) {
               displayState.zoom.decrement();
             }
-            if (ImGui::Button("Zoom out")) {
+            ImGui::SameLine();
+            if (ImGui::Button("Reset zoom")) {
               displayState.zoom.set(0);
             }
-            
           }
           ImGui::End();
         }
