@@ -7,12 +7,17 @@
 // because it provides a rather limited API to the end-user. We provide this backend for the sake of completeness.
 // For a multi-platform app consider using e.g. SDL+DirectX on Windows and SDL+OpenGL on Linux/OSX.
 
+
+#include "SDL_render.h"
+#include "SDL_video.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_sdlrenderer.h"
 #include <stdio.h>
 #include <SDL.h>
 
+#include "OptParser.hh"
 #include "VivictPP.hh"
 #include "Controller.hh"
 #include "SourceConfig.hh"
@@ -20,15 +25,40 @@
 #include "ui/DisplayState.hh"
 #include "sdl/SDLUtils.hh"
 #include <vector>
+#include <algorithm>
 
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
 #endif
 
-// Main code
-int main(int, char**)
+// https://github.com/ocornut/imgui/issues/3379`
+void ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
 {
+    ImGuiContext& g = *ImGui::GetCurrentContext();
+    ImGuiWindow* window = g.CurrentWindow;
+    ImGuiID id = window->GetID("##scrolldraggingoverlay");
+    ImGui::KeepAliveID(id);
+    bool hovered = false;
+    bool held = false;
+    ImGuiButtonFlags button_flags = (mouse_button == 0) ? ImGuiButtonFlags_MouseButtonLeft : (mouse_button == 1) ? ImGuiButtonFlags_MouseButtonRight : ImGuiButtonFlags_MouseButtonMiddle;
+    if (g.HoveredId == 0) // If nothing hovered so far in the frame (not same as IsAnyItemHovered()!)
+        ImGui::ButtonBehavior(window->Rect(), id, &hovered, &held, button_flags);
+    if (held && delta.x != 0.0f)
+        ImGui::SetScrollX(window, window->Scroll.x - delta.x);
+    if (held && delta.y != 0.0f)
+        ImGui::SetScrollY(window, window->Scroll.y - delta.y);
+}
+
+// Main code
+int main(int argc, char** argv)
+{
+  vivictpp::OptParser optParser;
+  if (!optParser.parseOptions(argc, argv)) {
+    return optParser.exitCode;
+  }
+  VivictPPConfig vivictPPConfig = optParser.vivictPPConfig;
+  
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
     // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to the latest version of SDL is recommended!)
@@ -42,6 +72,10 @@ int main(int, char**)
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL2+SDL_Renderer example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
 
+    int windowWidth;
+    int windowHeight;
+    SDL_GetWindowSize(window,&windowWidth, &windowHeight);
+    
     // Setup SDL_Renderer instance
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     if (renderer == NULL)
@@ -58,7 +92,7 @@ int main(int, char**)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    io.DeltaTime = 1.0f/24.0f;
+//    io.DeltaTime = 1.0f/24.0f;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -87,26 +121,20 @@ int main(int, char**)
     //IM_ASSERT(font != NULL);
 
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
     // Main loop
     bool done = false;
     bool fullscreen = false;
-    bool playing = false;
+    bool playing = true;
 
-    std::vector<SourceConfig> sourceConfigs;
-    sourceConfigs.push_back(SourceConfig("/home/gustav/local-work/test-video/ToS-4k-1920.mov",
-                                         "", "", "", {"none"}));
 
-    VivictPPConfig vivictPPConfig(sourceConfigs, true);
     VideoInputs videoInputs(vivictPPConfig);
 
     vivictpp::ui::DisplayState displayState;
     displayState.splitScreenDisabled = true;
     displayState.leftVideoMetadata = videoInputs.metadata()[0][0];
-
+    
     vivictpp::sdl::SDLTexture texture(renderer, 1920, 800, SDL_PIXELFORMAT_YV12);
     
     
@@ -115,6 +143,11 @@ int main(int, char**)
 
     int64_t t0 = 0;
     int64_t pts0 = videoInputs.startTime();
+    int64_t tLastPresent = 0;
+
+    if (playing) {
+      t0 = vivictpp::time::relativeTimeMicros();
+    }
     
     while (!done)
     {
@@ -131,6 +164,10 @@ int main(int, char**)
                 done = true;
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
                 done = true;
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+              windowWidth = event.window.data1;
+              windowHeight = event.window.data2;
+            }
         }
 
         // Start the Dear ImGui frame
@@ -140,67 +177,135 @@ int main(int, char**)
         ImGui::NewFrame();
 
         {
-              ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
+          ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
+                                          ImGuiWindowFlags_NoTitleBar |
                                               ImGuiWindowFlags_AlwaysAutoResize |
                                               ImGuiWindowFlags_NoSavedSettings |
                                               ImGuiWindowFlags_NoFocusOnAppearing |
+            
                                               ImGuiWindowFlags_NoNav;
-              const float PAD = 10.0f;
-              const ImGuiViewport* viewport = ImGui::GetMainViewport();
-              ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
-              ImVec2 work_size = viewport->WorkSize;
-              ImVec2 window_pos, window_pos_pivot;
-              window_pos.x = work_pos.x + work_size.x / 2;
-              window_pos.y = work_size.y - PAD;
-              window_pos_pivot.x = 0.5f;
-              window_pos_pivot.y = 1.0f;
-              ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-              window_flags |= ImGuiWindowFlags_NoMove;
-              ImGui::SetNextWindowBgAlpha(0.10f); // Transparent background
-              bool myBool;
+          ImVec2 windowSize = ImGui::GetWindowSize();
+//          spdlog::info("windowSize: {}x{}", windowSize.x, windowSize.y);
+          const float PAD = 10.0f;
+          const ImGuiViewport* viewport = ImGui::GetMainViewport();
+          ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+          ImVec2 work_size = viewport->WorkSize;
 
-              if (ImGui::Begin("Example: Simple overlay", &myBool, window_flags)) {
-                if (ImGui::Button(playing ? "Pause" : "Play")) {
-                  pts0 = pts;
-                  t0 = vivictpp::time::relativeTimeMicros();
-                  playing = !playing;
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Step")) {
-                  if (videoInputs.ptsInRange(videoInputs.nextPts())) {
-                    pts = videoInputs.nextPts();
-                    spdlog::info("Stepping to {}", pts);
-                    videoInputs.stepForward(pts);
-                  }
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Fullscreen")) {
-                  fullscreen = !fullscreen;
-                  if (fullscreen) {
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-                  } else {
-                    SDL_SetWindowFullscreen(window, 0);
-                  }
-                }
+          ImGui::SetNextWindowPos({0,0});
+          ImGui::SetNextWindowSize(work_size);
+          int scaleFactor = 2;
+          ImVec2 videoSize(1920, 800);
+          ImVec2 scaledVideoSize = {videoSize.x * scaleFactor, videoSize.y * scaleFactor};
+          ImGui::SetNextWindowContentSize(scaledVideoSize);
+          bool myBool2;
+          if (ImGui::Begin("Test window", &myBool2,  ImGuiWindowFlags_AlwaysAutoResize |
+                           ImGuiWindowFlags_NoDecoration |
+                           ImGuiWindowFlags_NoSavedSettings |
+                           ImGuiWindowFlags_NoFocusOnAppearing |
+                           ImGuiWindowFlags_NoNav |
+                           ImGuiWindowFlags_NoBringToFrontOnFocus |
+                           ImGuiWindowFlags_NoTitleBar |
+                           ImGuiWindowFlags_NoScrollbar
+                )) {
+            ImGui::Button("TESTING");
+            nextPts = videoInputs.nextPts();
+            if (playing && videoInputs.ptsInRange(nextPts)) {
+              int64_t t = vivictpp::time::relativeTimeMicros();
+//              spdlog::debug("pts: {} nextPts: {}", vivictpp::time::formatTime(pts), vivictpp::time::formatTime(nextPts));
+//              spdlog::debug("t - t0 = {}, nextPts - pts = {}", t - t0, nextPts - pts0);
+              int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * io.DeltaTime);
+              if ((tNextPresent - t0) >= (nextPts - pts0)) {
+                pts = nextPts;
+                videoInputs.stepForward(nextPts);
+//                spdlog::info("Step forward");
               }
-              ImGui::End();
+            }
+            texture.update(videoInputs.firstFrames()[0]);
+            int w,h;
+            SDL_GetRendererOutputSize(renderer, &w, &h);
+            //ImVec2 drawSize(windowWidth, windowHeight);
+            ImVec2 viewSize(w, h);
+            ImVec2 drawSize(w, h);
+//            spdlog::info("drawSize: {}x{}", drawSize.x, drawSize.y);
 
-        }
-        nextPts = videoInputs.nextPts();
-        if (playing && videoInputs.ptsInRange(nextPts)) {
-          int64_t t = vivictpp::time::relativeTimeMicros();
-          spdlog::info("pts: {} nextPts: {}", vivictpp::time::formatTime(pts),
-                       vivictpp::time::formatTime(nextPts));
-          spdlog::info("t - t0 = {}, nextPts - pts = {}", t - t0, nextPts - pts0);
-          if ((t - t0) >= (nextPts - pts0)) {
-            pts = nextPts;
-            videoInputs.stepForward(nextPts);
-            spdlog::info("Step forward");
+            drawSize.x *= scaleFactor;
+            drawSize.y *= scaleFactor;
+            
+            float xScale = drawSize.x / videoSize.x;
+            float yScale = drawSize.y / videoSize.y;
+            if (xScale < 1 || yScale < 1) {
+              if (xScale < yScale) {
+                drawSize.x = windowWidth;
+                drawSize.y = videoSize.y * windowWidth / videoSize.x;
+              } else {
+                drawSize.x = videoSize.x * windowHeight / videoSize.y;
+                drawSize.y = windowHeight;
+              }
+            }
+            float scrollX = ImGui::GetScrollX();
+            float scrollY = ImGui::GetScrollY();
+//            spdlog::info("scroll: {},{}", scrollX, scrollY);
+//            ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+//            spdlog::info("cursorPos: {},{}", cursorPos.x, cursorPos.y);
+//            ImVec2 drawPos(cursorPos.x + 0.5 * (windowWidth - drawSize.x), cursorPos.y + 0.5 * (windowHeight - drawSize.y));
+            ImVec2 drawPos = {0, 0}; //cursorPos;
+            ImVec2 uvMin(scrollX / scaledVideoSize.x, scrollY/ scaledVideoSize.y);
+            ImVec2 uvMax( std::min((float) 1.0, (scrollX + viewSize.x) / scaledVideoSize.x), std::min((float) 1, (scrollY + viewSize.y) / scaledVideoSize.y));
+//            spdlog::info("uvMin: {},{}", uvMin.x, uvMin.y);
+//            spdlog::info("uvMax: {},{}", uvMax.x, uvMax.y);
+            ImVec2 p2(drawPos.x + viewSize.x, drawPos.y + viewSize.y);
+//            ImGui::Image((void*)(intptr_t)texture.get(), drawPos, p2);
+            ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)texture.get(),
+                                                 drawPos, p2, uvMin, uvMax);
+            //ImGui::GetBackgroundDrawList()->AddImage((void*)(intptr_t)texture.get(),
+            //                                         drawPos, p2);
+            ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
+            ScrollWhenDraggingOnVoid(mouse_delta, 0);
           }
+          ImGui::End();
+
+              
+          ImVec2 window_pos, window_pos_pivot;
+          window_pos.x = work_pos.x + work_size.x / 2;
+          window_pos.y = work_size.y - PAD;
+          window_pos_pivot.x = 0.5f;
+          window_pos_pivot.y = 1.0f;
+          ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+          ImGui::SetNextWindowSize({0.0, 0.0});
+          window_flags |= ImGuiWindowFlags_NoMove;
+          ImGui::SetNextWindowBgAlpha(0.10f); // Transparent background
+          bool myBool;
+
+          if (ImGui::Begin("Video controls", &myBool, window_flags)) {
+            ImVec2 windowSize = ImGui::GetWindowSize();
+//            spdlog::info("windowSize: {}x{}", windowSize.x, windowSize.y);
+                
+            if (ImGui::Button(playing ? "Pause" : "Play")) {
+              pts0 = pts;
+              t0 = vivictpp::time::relativeTimeMicros();
+              playing = !playing;
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Step")) {
+              if (videoInputs.ptsInRange(videoInputs.nextPts())) {
+                pts = videoInputs.nextPts();
+                //                  spdlog::info("Stepping to {}", pts);
+                videoInputs.stepForward(pts);
+              }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Fullscreen")) {
+              fullscreen = !fullscreen;
+              if (fullscreen) {
+                SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+              } else {
+                SDL_SetWindowFullscreen(window, 0);
+              }
+            }
+          }
+          ImGui::End();
         }
-        texture.update(videoInputs.firstFrames()[0]);
-        ImGui::GetBackgroundDrawList()->AddImage((void*)(intptr_t)texture.get(),
-                                                 ImVec2(0,0), ImVec2(1920,800));
+
 
         // Rendering
         ImGui::Render();
@@ -208,9 +313,10 @@ int main(int, char**)
         SDL_RenderClear(renderer);
         ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
-
+//        spdlog::info("io.deltaTime: {}", io.DeltaTime);
 
         SDL_RenderPresent(renderer);
+        tLastPresent = vivictpp::time::relativeTimeMicros();
 //        if (videoInputs.ptsInRange(videoInputs.nextPts())) {
 //          nextPts = videoInputs.nextPts();
 //        }
@@ -221,6 +327,7 @@ int main(int, char**)
     // Cleanup
     ImGui_ImplSDLRenderer_Shutdown();
     ImGui_ImplSDL2_Shutdown();
+
     ImGui::DestroyContext();
 
     SDL_DestroyRenderer(renderer);
