@@ -183,6 +183,10 @@ int main(int argc, char** argv)
       ImVec2 videoPos;
       bool scrollUpdated{false};
     } videoWindow;
+
+    float seekValue = 0.0f;
+    float lastSeekValue = 0.0f;
+    int showControls = 0;
     
     while (!done)
     {
@@ -258,6 +262,7 @@ int main(int argc, char** argv)
               if ((tNextPresent - t0) >= (nextPts - pts0)) {
                 pts = nextPts;
                 videoInputs.stepForward(nextPts);
+                seekValue = pts / 1e6;
                 displayState.updateFrames(videoInputs.firstFrames());
               }
             }
@@ -321,82 +326,100 @@ int main(int argc, char** argv)
           window_pos_pivot.x = 0.5f;
           window_pos_pivot.y = 1.0f;
           ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-          ImGui::SetNextWindowSize({0.0, 0.0});
-          window_flags |= ImGuiWindowFlags_NoMove;
+          ImGui::SetNextWindowSize({work_size.x - 60, 60});
+          window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
           ImGui::SetNextWindowBgAlpha(0.10f); // Transparent background
           bool myBool;
 
           if (ImGui::Begin("Video controls", &myBool, window_flags)) {
-                
-            if (ImGui::Button(playing ? "Pause" : "Play")) {
-              pts0 = pts;
-              t0 = vivictpp::time::relativeTimeMicros();
-              playing = !playing;
+            if (ImGui::IsWindowHovered()) {
+              showControls = 70;
+            } else if (showControls > 0) {
+              showControls--;
             }
-            ImGui::SameLine();
-            if (ImGui::Button("Step")) {
-              if (videoInputs.ptsInRange(videoInputs.nextPts())) {
-                pts = videoInputs.nextPts();
-                //                  spdlog::info("Stepping to {}", pts);
-                videoInputs.stepForward(pts);
+            if (showControls > 0) {
+              ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::clamp(showControls / 60.0f, 0.0f, 1.0f));
+              if (ImGui::Button(playing ? "Pause" : "Play")) {
+                pts0 = pts;
+                t0 = vivictpp::time::relativeTimeMicros();
+                playing = !playing;
               }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Fullscreen")) {
-              fullscreen = !fullscreen;
-              if (fullscreen) {
-                SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-              } else {
-                SDL_SetWindowFullscreen(window, 0);
-              }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Zoom in")) {
-              ImVec2 oldVideoSize = videoWindow.videoSize;
-              displayState.zoom.increment();
-              videoWindow.videoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier(),
-                videoTextures.nativeResolution.h * displayState.zoom.multiplier()};
-              if (videoWindow.videoSize.x > videoWindow.size.x ||
-                  videoWindow.videoSize.y > videoWindow.size.y) {
-                // Adjust scroll so center of picture stays the same
-                // TODO: Take 'pad' into account maybe
-                ImVec2 center = { (videoWindow.scroll.x + videoWindow.size.x / 2) / oldVideoSize.x,
-                  (videoWindow.scroll.y + videoWindow.size.y / 2) / oldVideoSize.y };
-                videoWindow.scroll = { center.x * videoWindow.videoSize.x - videoWindow.size.x / 2,
-                  center.y * videoWindow.videoSize.y - videoWindow.size.y / 2 };
-                videoWindow.scrollUpdated = true;
-              } else {
-                if (videoWindow.scroll.x != 0.0 || videoWindow.scroll.y != 0.0) {
-                  videoWindow.scroll = { 0, 0};
-                  videoWindow.scrollUpdated = true;
+              ImGui::SameLine();
+              if (ImGui::Button("Step")) {
+                if (videoInputs.ptsInRange(videoInputs.nextPts())) {
+                  pts = videoInputs.nextPts();
+                  //                  spdlog::info("Stepping to {}", pts);
+                  videoInputs.stepForward(pts);
                 }
               }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Zoom out")) {
-              ImVec2 oldVideoSize = videoWindow.videoSize;
-              displayState.zoom.decrement();
-              videoWindow.videoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier(),
-                videoTextures.nativeResolution.h * displayState.zoom.multiplier()};
-              if (videoWindow.videoSize.x > videoWindow.size.x ||
-                  videoWindow.videoSize.y > videoWindow.size.y) {
-                // Adjust scroll so center of picture stays the same
-                ImVec2 center = { (videoWindow.scroll.x + videoWindow.size.x / 2) / oldVideoSize.x,
-                  (videoWindow.scroll.y + videoWindow.size.y / 2) / oldVideoSize.y };
-                videoWindow.scroll = { center.x * videoWindow.videoSize.x - videoWindow.size.x / 2,
-                  center.y * videoWindow.videoSize.y - videoWindow.size.y / 2 };
-                videoWindow.scrollUpdated = true;
+              ImGui::SameLine();
+              if (ImGui::Button("Fullscreen")) {
+                fullscreen = !fullscreen;
+                if (fullscreen) {
+                  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                } else {
+                  SDL_SetWindowFullscreen(window, 0);
+                }
+              }
+              ImGui::SameLine();
+              if (ImGui::Button("Zoom in")) {
+                ImVec2 oldVideoSize = videoWindow.videoSize;
+                displayState.zoom.increment();
+                videoWindow.videoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier(),
+                  videoTextures.nativeResolution.h * displayState.zoom.multiplier()};
+                if (videoWindow.videoSize.x > videoWindow.size.x ||
+                    videoWindow.videoSize.y > videoWindow.size.y) {
+                  // Adjust scroll so center of picture stays the same
+                  // TODO: Take 'pad' into account maybe
+                  ImVec2 center = { (videoWindow.scroll.x + videoWindow.size.x / 2) / oldVideoSize.x,
+                    (videoWindow.scroll.y + videoWindow.size.y / 2) / oldVideoSize.y };
+                  videoWindow.scroll = { center.x * videoWindow.videoSize.x - videoWindow.size.x / 2,
+                    center.y * videoWindow.videoSize.y - videoWindow.size.y / 2 };
+                  videoWindow.scrollUpdated = true;
+                } else {
+                  if (videoWindow.scroll.x != 0.0 || videoWindow.scroll.y != 0.0) {
+                    videoWindow.scroll = { 0, 0};
+                    videoWindow.scrollUpdated = true;
+                  }
+                }
+              }
+              ImGui::SameLine();
+              if (ImGui::Button("Zoom out")) {
+                ImVec2 oldVideoSize = videoWindow.videoSize;
+                displayState.zoom.decrement();
+                videoWindow.videoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier(),
+                  videoTextures.nativeResolution.h * displayState.zoom.multiplier()};
+                if (videoWindow.videoSize.x > videoWindow.size.x ||
+                    videoWindow.videoSize.y > videoWindow.size.y) {
+                  // Adjust scroll so center of picture stays the same
+                  ImVec2 center = { (videoWindow.scroll.x + videoWindow.size.x / 2) / oldVideoSize.x,
+                    (videoWindow.scroll.y + videoWindow.size.y / 2) / oldVideoSize.y };
+                  videoWindow.scroll = { center.x * videoWindow.videoSize.x - videoWindow.size.x / 2,
+                    center.y * videoWindow.videoSize.y - videoWindow.size.y / 2 };
+                  videoWindow.scrollUpdated = true;
 
-              } else {
-                if (videoWindow.scroll.x != 0.0 || videoWindow.scroll.y != 0.0) {
-                  videoWindow.scroll = { 0, 0};
-                  videoWindow.scrollUpdated = true;
+                } else {
+                  if (videoWindow.scroll.x != 0.0 || videoWindow.scroll.y != 0.0) {
+                    videoWindow.scroll = { 0, 0};
+                    videoWindow.scrollUpdated = true;
+                  }
                 }
               }
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Reset zoom")) {
-              displayState.zoom.set(0);
+              ImGui::SameLine();
+              if (ImGui::Button("Reset zoom")) {
+                displayState.zoom.set(0);
+              }
+              ImGui::PushItemWidth(videoWindow.size.x - 60);
+              ImGui::SliderFloat("##Seekbar", &seekValue, 0.0f,  videoInputs.duration() / 1e6);
+              ImGui::PopItemWidth();
+              if (ImGui::IsItemActivated()) {
+                spdlog::info("Drag start");
+              }
+
+              if (ImGui::IsItemDeactivatedAfterEdit()) {
+                spdlog::info("Drag end: {}", seekValue);
+              }
+              ImGui::PopStyleVar();
             }
           }
           ImGui::End();
