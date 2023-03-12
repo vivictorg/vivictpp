@@ -180,6 +180,7 @@ int main(int argc, char** argv)
       ImVec2 scroll;
       ImVec2 size;
       ImVec2 videoSize;
+      ImVec2 videoPos;
       bool scrollUpdated{false};
     } videoWindow;
     
@@ -204,7 +205,7 @@ int main(int argc, char** argv)
             }
             if (event.type == SDL_MOUSEMOTION && !displayState.splitScreenDisabled) {
               SDL_MouseMotionEvent mouseEvent = event.motion;
-              displayState.splitPercent = 100.0 * mouseEvent.x / windowWidth;
+              displayState.splitPercent = 100.0 * std::clamp((mouseEvent.x - videoWindow.videoPos.x) / windowWidth, 0.0f, 1.0f);
             }
         }
 
@@ -283,6 +284,7 @@ int main(int argc, char** argv)
             if (scaledVideoSize.y < viewSize.y) {
               pad.y += (viewSize.y - scaledVideoSize.y) / 2;
             }
+            videoWindow.videoPos = pad;
 
             videoTextures.update(renderer, displayState);
 
