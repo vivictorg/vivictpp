@@ -33,7 +33,7 @@
 #endif
 
 // https://github.com/ocornut/imgui/issues/3379`
-void ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
+bool ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
 {
     ImGuiContext& g = *ImGui::GetCurrentContext();
     ImGuiWindow* window = g.CurrentWindow;
@@ -41,13 +41,19 @@ void ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button
     ImGui::KeepAliveID(id);
     bool hovered = false;
     bool held = false;
+    bool scrolled = false;
     ImGuiButtonFlags button_flags = (mouse_button == 0) ? ImGuiButtonFlags_MouseButtonLeft : (mouse_button == 1) ? ImGuiButtonFlags_MouseButtonRight : ImGuiButtonFlags_MouseButtonMiddle;
     if (g.HoveredId == 0) // If nothing hovered so far in the frame (not same as IsAnyItemHovered()!)
         ImGui::ButtonBehavior(window->Rect(), id, &hovered, &held, button_flags);
-    if (held && delta.x != 0.0f)
+    if (held && delta.x != 0.0f) {
         ImGui::SetScrollX(window, window->Scroll.x - delta.x);
-    if (held && delta.y != 0.0f)
+        scrolled = true;
+    }
+    if (held && delta.y != 0.0f) {
         ImGui::SetScrollY(window, window->Scroll.y - delta.y);
+        scrolled = true;
+    }
+    return scrolled;
 }
 
 void logVec(const std::string &str, ImVec2 vec) {
@@ -168,6 +174,14 @@ int main(int argc, char** argv)
     if (playing) {
       t0 = vivictpp::time::relativeTimeMicros();
     }
+
+    struct {
+      ImVec2 pos;
+      ImVec2 scroll;
+      ImVec2 size;
+      ImVec2 videoSize;
+      bool scrollUpdated{false};
+    } videoWindow;
     
     while (!done)
     {
@@ -213,12 +227,15 @@ int main(int argc, char** argv)
           ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
           ImVec2 work_size = viewport->WorkSize;
 
-          ImGui::SetNextWindowPos({0,0});
-          ImGui::SetNextWindowSize(work_size);
+          videoWindow.pos = {0,0};
+          videoWindow.size = work_size;
+          ImGui::SetNextWindowPos(videoWindow.pos);
+          ImGui::SetNextWindowSize(videoWindow.size);
           //         int scaleFactor = 2;
           float scaleFactor = displayState.zoom.multiplier();
 //          ImVec2 videoSize(1920, 800);
           ImVec2 scaledVideoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier() , videoTextures.nativeResolution.h * scaleFactor};
+          videoWindow.videoSize = scaledVideoSize;
           ImGui::SetNextWindowContentSize({std::max(work_size.x, scaledVideoSize.x), std::max(work_size.y, scaledVideoSize.y)});
           ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
           ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -249,8 +266,15 @@ int main(int argc, char** argv)
 
             ImVec2 viewSize(w, h);
 
-            float scrollX = ImGui::GetScrollX();
-            float scrollY = ImGui::GetScrollY();
+            if (videoWindow.scrollUpdated) {
+              ImGui::SetScrollX(videoWindow.scroll.x);
+              ImGui::SetScrollY(videoWindow.scroll.y);
+              videoWindow.scrollUpdated = false;
+            } else {
+              videoWindow.scroll = {ImGui::GetScrollX(), ImGui::GetScrollY()};
+            }
+            float scrollX = videoWindow.scroll.x;
+            float scrollY = videoWindow.scroll.y;
 
             ImVec2 pad = ImGui::GetCursorPos();
             if (scaledVideoSize.x < viewSize.x) {
@@ -282,7 +306,9 @@ int main(int argc, char** argv)
               ImGui::GetWindowDrawList()->AddLine({splitX, pad.y}, {splitX, pad.y + scaledVideoSize.y}, 0x80FFFFFF, 0.5);
             }
             ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
-            ScrollWhenDraggingOnVoid(mouse_delta, 0);
+            if (ScrollWhenDraggingOnVoid(mouse_delta, 0)) {
+              videoWindow.scroll = {ImGui::GetScrollX(), ImGui::GetScrollY()};
+            }
           }
           ImGui::End();
           ImGui::PopStyleVar(2);
@@ -324,11 +350,47 @@ int main(int argc, char** argv)
             }
             ImGui::SameLine();
             if (ImGui::Button("Zoom in")) {
+              ImVec2 oldVideoSize = videoWindow.videoSize;
               displayState.zoom.increment();
+              videoWindow.videoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier(),
+                videoTextures.nativeResolution.h * displayState.zoom.multiplier()};
+              if (videoWindow.videoSize.x > videoWindow.size.x ||
+                  videoWindow.videoSize.y > videoWindow.size.y) {
+                // Adjust scroll so center of picture stays the same
+                // TODO: Take 'pad' into account maybe
+                ImVec2 center = { (videoWindow.scroll.x + videoWindow.size.x / 2) / oldVideoSize.x,
+                  (videoWindow.scroll.y + videoWindow.size.y / 2) / oldVideoSize.y };
+                videoWindow.scroll = { center.x * videoWindow.videoSize.x - videoWindow.size.x / 2,
+                  center.y * videoWindow.videoSize.y - videoWindow.size.y / 2 };
+                videoWindow.scrollUpdated = true;
+              } else {
+                if (videoWindow.scroll.x != 0.0 || videoWindow.scroll.y != 0.0) {
+                  videoWindow.scroll = { 0, 0};
+                  videoWindow.scrollUpdated = true;
+                }
+              }
             }
             ImGui::SameLine();
             if (ImGui::Button("Zoom out")) {
+              ImVec2 oldVideoSize = videoWindow.videoSize;
               displayState.zoom.decrement();
+              videoWindow.videoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier(),
+                videoTextures.nativeResolution.h * displayState.zoom.multiplier()};
+              if (videoWindow.videoSize.x > videoWindow.size.x ||
+                  videoWindow.videoSize.y > videoWindow.size.y) {
+                // Adjust scroll so center of picture stays the same
+                ImVec2 center = { (videoWindow.scroll.x + videoWindow.size.x / 2) / oldVideoSize.x,
+                  (videoWindow.scroll.y + videoWindow.size.y / 2) / oldVideoSize.y };
+                videoWindow.scroll = { center.x * videoWindow.videoSize.x - videoWindow.size.x / 2,
+                  center.y * videoWindow.videoSize.y - videoWindow.size.y / 2 };
+                videoWindow.scrollUpdated = true;
+
+              } else {
+                if (videoWindow.scroll.x != 0.0 || videoWindow.scroll.y != 0.0) {
+                  videoWindow.scroll = { 0, 0};
+                  videoWindow.scrollUpdated = true;
+                }
+              }
             }
             ImGui::SameLine();
             if (ImGui::Button("Reset zoom")) {
