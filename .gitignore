@@ -9,3 +9,4 @@ vivictpp_*.snap
 .dir-locals.el
 compile_commands.json
 .cache
+.envrc

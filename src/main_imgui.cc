@@ -10,6 +10,7 @@
 
 #include "SDL_render.h"
 #include "SDL_video.h"
+#include "VideoPlayback.hh"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_impl_sdl.h"
@@ -35,6 +36,7 @@
 // https://github.com/ocornut/imgui/issues/3379`
 bool ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
 {
+  // blow
     ImGuiContext& g = *ImGui::GetCurrentContext();
     ImGuiWindow* window = g.CurrentWindow;
     ImGuiID id = window->GetID("##scrolldraggingoverlay");
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
     return optParser.exitCode;
   }
   VivictPPConfig vivictPPConfig = optParser.vivictPPConfig;
-  
+
     // Setup SDL
     // (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
     // depending on whether SDL_INIT_GAMECONTROLLER is enabled or disabled.. updating to the latest version of SDL is recommended!)
@@ -85,7 +87,7 @@ int main(int argc, char** argv)
     int windowWidth;
     int windowHeight;
     SDL_GetWindowSize(window,&windowWidth, &windowHeight);
-    
+
     // Setup SDL_Renderer instance
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     if (renderer == NULL)
@@ -115,65 +117,31 @@ int main(int argc, char** argv)
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer_Init(renderer);
 
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-    // - Read 'docs/FONTS.md' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != NULL);
-
     // Our state
     ImVec4 clear_color = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
     // Main loop
     bool done = false;
     bool fullscreen = false;
-    bool playing = true;
 
-
-    VideoInputs videoInputs(vivictPPConfig);
+//    VideoInputs videoInputs(vivictPPConfig);
+    vivictpp::VideoPlayback videoPlayback(vivictPPConfig);
 
     vivictpp::ui::DisplayState displayState;
     displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() == 1;
     if (displayState.splitScreenDisabled) {
       displayState.splitPercent = 100;
     }
-    displayState.updateFrames(videoInputs.firstFrames());
-    displayState.updateMetadata(videoInputs.metadata());
-    
-//    vivictpp::sdl::SDLTexture texture(renderer, 1920, 800, SDL_PIXELFORMAT_YV12);
+    displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+    displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+
+
     vivictpp::ui::VideoTextures videoTextures;
     videoTextures.update(renderer, displayState);
-//    videoTextures.initTextures(renderer, displayState);
-/*
-    SDL_Rect displayBounds;
-    int displayIndex;
-    SDL_GetWindowDisplayIndex(window);
-    SDL_GetDisplayBounds(displayIndex, &displayBounds);
-    spdlog::info("displaySize: {}x{}", displayBounds.w, displayBounds.h);
-*/
+
     SDL_SetWindowSize(window, videoTextures.nativeResolution.w, videoTextures.nativeResolution.h);
 
-    
-    vivictpp::time::Time pts{0};
-    vivictpp::time::Time nextPts{0};
-
-    int64_t t0 = 0;
-    int64_t pts0 = videoInputs.startTime();
     int64_t tLastPresent = 0;
-//    int mouseX = 
-    if (playing) {
-      t0 = vivictpp::time::relativeTimeMicros();
-    }
 
     struct {
       ImVec2 pos;
@@ -185,9 +153,9 @@ int main(int argc, char** argv)
     } videoWindow;
 
     float seekValue = 0.0f;
-    float lastSeekValue = 0.0f;
+//    float lastSeekValue = 0.0f;
     int showControls = 0;
-    
+
     while (!done)
     {
         // Poll and handle events (inputs, window resize, etc.)
@@ -255,18 +223,11 @@ int main(int argc, char** argv)
                            ImGuiWindowFlags_NoTitleBar |
                            ImGuiWindowFlags_NoScrollbar
                 )) {
-            nextPts = videoInputs.nextPts();
-            if (playing && videoInputs.ptsInRange(nextPts)) {
-              int64_t t = vivictpp::time::relativeTimeMicros();
-              int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * io.DeltaTime);
-              if ((tNextPresent - t0) >= (nextPts - pts0)) {
-                pts = nextPts;
-                videoInputs.stepForward(nextPts);
-                seekValue = pts / 1e6;
-                displayState.updateFrames(videoInputs.firstFrames());
-              }
-            }
 
+            int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * io.DeltaTime);
+            if (videoPlayback.checkdvanceFrame(tNextPresent)) {
+              displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+            }
             int w,h;
             SDL_GetRendererOutputSize(renderer, &w, &h);
 
@@ -312,10 +273,16 @@ int main(int argc, char** argv)
                                                  drawPos, p2, uvMin, uvMax);
               ImGui::GetWindowDrawList()->AddLine({splitX, pad.y}, {splitX, pad.y + scaledVideoSize.y}, 0x80FFFFFF, 0.5);
             }
+            /*
+            if (ImGui::InvisibleButton("##playpause", videoWindow.size)) {
+                videoPlayback.togglePlaying();
+            };
+            */
             ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
             if (ScrollWhenDraggingOnVoid(mouse_delta, 0)) {
               videoWindow.scroll = {ImGui::GetScrollX(), ImGui::GetScrollY()};
             }
+
           }
           ImGui::End();
           ImGui::PopStyleVar(2);
@@ -339,18 +306,18 @@ int main(int argc, char** argv)
             }
             if (showControls > 0) {
               ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::clamp(showControls / 60.0f, 0.0f, 1.0f));
-              if (ImGui::Button(playing ? "Pause" : "Play")) {
-                pts0 = pts;
-                t0 = vivictpp::time::relativeTimeMicros();
-                playing = !playing;
+              if (ImGui::Button(videoPlayback.isPlaying() ? "Pause" : "Play")) {
+                videoPlayback.togglePlaying();
               }
               ImGui::SameLine();
               if (ImGui::Button("Step")) {
+                /*
                 if (videoInputs.ptsInRange(videoInputs.nextPts())) {
                   pts = videoInputs.nextPts();
                   //                  spdlog::info("Stepping to {}", pts);
                   videoInputs.stepForward(pts);
                 }
+                */
               }
               ImGui::SameLine();
               if (ImGui::Button("Fullscreen")) {
@@ -410,14 +377,19 @@ int main(int argc, char** argv)
                 displayState.zoom.set(0);
               }
               ImGui::PushItemWidth(videoWindow.size.x - 60);
-              ImGui::SliderFloat("##Seekbar", &seekValue, 0.0f,  videoInputs.duration() / 1e6);
+              ImGui::SliderFloat("##Seekbar", &seekValue, 0.0f,  videoPlayback.getVideoInputs().duration() / 1e6);
               ImGui::PopItemWidth();
+              if (ImGui::IsItemActive()) {
+                showControls = 70;
+              }
               if (ImGui::IsItemActivated()) {
                 spdlog::info("Drag start");
               }
 
               if (ImGui::IsItemDeactivatedAfterEdit()) {
                 spdlog::info("Drag end: {}", seekValue);
+                vivictpp::time::Time seekPos = (uint64_t) 1e6 * seekValue;
+                videoPlayback.seek(seekPos);
               }
               ImGui::PopStyleVar();
             }

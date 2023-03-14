@@ -51,6 +51,7 @@ sources = [
   'src/OptParser.cc',
   'src/VideoInputs.cc',
   'src/VideoMetadata.cc',
+  'src/VideoPlayback.cc',
   'src/VivictPP.cc',
   'src/libav/Decoder.cc',
   'src/libav/Filter.cc',
