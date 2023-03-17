@@ -31,6 +31,7 @@ public:
 class Controls {
 private:
   int showControls{70};
+  float seekValue{0};
 public:
   std::vector<Event> draw(const PlaybackState &playbackState);
 };

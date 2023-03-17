@@ -18,6 +18,7 @@
 #include "Controller.hh"
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
+#include "imgui/VivictPPImGui.hh"
 
 int main(int argc, char **argv) {
   try {
@@ -29,18 +30,22 @@ int main(int argc, char **argv) {
 
     vivictpp::logging::initializeLogging();
 
-    
+
     for (auto sourceConfig : vivictPPConfig.sourceConfigs) {
         spdlog::debug("Source: path={} filters={}", sourceConfig.path, sourceConfig.filter);
     }
+    if (vivictPPConfig.uiOptions.enableImGui) {
+      vivictpp::imgui::VivictPPImGui vivictPPImGui(vivictPPConfig);
+      vivictPPImGui.run();
+    } else {
 
-
-    vivictpp::sdl::SDLInitializer sdlInitializer(!vivictPPConfig.disableAudio);
-    vivictpp::ui::FontSize::setScaling(!vivictPPConfig.disableFontAutoScaling,
-                                       vivictPPConfig.fontCustomScaling);
-    auto sdlEventLoop = std::make_shared<vivictpp::sdl::SDLEventLoop>(vivictPPConfig.sourceConfigs);
-    vivictpp::Controller controller(sdlEventLoop, sdlEventLoop, vivictPPConfig);
-    return controller.run();
+      vivictpp::sdl::SDLInitializer sdlInitializer(!vivictPPConfig.disableAudio);
+      vivictpp::ui::FontSize::setScaling(!vivictPPConfig.uiOptions.disableFontAutoScaling,
+                                         vivictPPConfig.uiOptions.fontCustomScaling);
+      auto sdlEventLoop = std::make_shared<vivictpp::sdl::SDLEventLoop>(vivictPPConfig.sourceConfigs);
+      vivictpp::Controller controller(sdlEventLoop, sdlEventLoop, vivictPPConfig);
+      return controller.run();
+    }
   } catch (const std::exception &e) {
     std::cerr << "Vivict had an unexpected error: " << e.what() << std::endl;
     return 1;

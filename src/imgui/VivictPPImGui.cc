@@ -144,6 +144,16 @@ std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const Playb
                                   ImGuiWindowFlags_NoNav;
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImVec2 work_size = viewport->WorkSize;
+  ImVec2 work_pos = viewport->WorkPos;
+  ImVec2 window_pos, window_pos_pivot;
+  window_pos.x = work_pos.x + work_size.x / 2;
+  window_pos.y = work_size.y - 10.0f;
+  window_pos_pivot.x = 0.5f;
+  window_pos_pivot.y = 1.0f;
+  ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+  ImGui::SetNextWindowSize({work_size.x - 60, 60});
+  window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+  ImGui::SetNextWindowBgAlpha(0.10f); // Transparent background
   std::vector<Event> events;
   bool myBool;
   if (ImGui::Begin("Video controls", &myBool, window_flags)) {
@@ -184,12 +194,15 @@ std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const Playb
         events.push_back({EventType::ZoomReset, {0}});
       }
       ImGui::PushItemWidth(work_size.x - 60);
-      float seekValue = playbackState.pts / 1e6; // Convert to seconds;
+      //float seekValue = playbackState.pts / 1e6; // Convert to seconds;
       float durationSeconds = playbackState.duration / 1e6;
       ImGui::SliderFloat("##Seekbar", &seekValue, 0.0f,  durationSeconds);
+      float oldSeekValue = seekValue;
       ImGui::PopItemWidth();
       if (ImGui::IsItemActive()) {
         showControls = 70;
+      } else if (!playbackState.seeking && !ImGui::IsItemDeactivatedAfterEdit()) {
+        seekValue = playbackState.pts / 1e6; // Convert to seconds;
       }
       if (ImGui::IsItemActivated()) {
         spdlog::info("Drag start");
@@ -197,7 +210,7 @@ std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const Playb
 
       if (ImGui::IsItemDeactivatedAfterEdit()) {
         spdlog::info("Drag end: {}", seekValue);
-        vivictpp::time::Time seekPos = (uint64_t) 1e6 * seekValue;
+        vivictpp::time::Time seekPos = (uint64_t) 1e6 * oldSeekValue;
         events.push_back({EventType::Seek, {seekPos}});
       }
       ImGui::PopStyleVar();
@@ -227,6 +240,8 @@ void vivictpp::imgui::VivictPPImGui::run() {
 
   while (!done) {
     handleEvents(imGuiSDL.handleEvents());
+
+    imGuiSDL.newFrame();
 
     int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
     if (videoPlayback.checkdvanceFrame(tNextPresent)) {

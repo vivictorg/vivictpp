@@ -40,10 +40,25 @@ test_deps = [
   catch2_proj.get_variable('catch2_dep')
 ]
 
-incdir = include_directories('include')
+incdir = include_directories('include', 'imgui', 'imgui/backends')
 
 git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')
 git_hash = git_hash_cmd.stdout().strip()
+
+
+imgui_sources=[
+  'imgui/imgui_demo.cpp',
+  'imgui/imgui_widgets.cpp',
+  'imgui/imgui.cpp',
+  'imgui/imgui_draw.cpp',
+  'imgui/imgui_tables.cpp',
+  'imgui/backends/imgui_impl_sdl.cpp',
+  #  'imgui/backends/imgui_impl_opengl3.cpp',
+  'imgui/backends/imgui_impl_sdlrenderer.cpp',
+  'src/main_imgui.cc',
+  'src/imgui/VivictPPImGui.cc',
+  'src/imgui/ImGuiSDL.cc',
+]
 
 sources = [
   'src/AVSync.cc',
@@ -84,21 +99,8 @@ sources = [
   'src/workers/PacketQueue.cc',
   'src/workers/PacketWorker.cc',
   'src/workers/QueuePointer.cc',
-  'src/workers/VideoInputMessage.cc'
-]
-
-imgui_sources=[
-  'imgui/imgui_demo.cpp',
-  'imgui/imgui_widgets.cpp',
-  'imgui/imgui.cpp',
-  'imgui/imgui_draw.cpp',
-  'imgui/imgui_tables.cpp',
-  'imgui/backends/imgui_impl_sdl.cpp',
-  #  'imgui/backends/imgui_impl_opengl3.cpp',
-  'imgui/backends/imgui_impl_sdlrenderer.cpp',
-  'src/main_imgui.cc',
-  'src/imgui/VivictPPImGui.cc',
-  'src/imgui/ImGuiSDL.cc',
+  'src/workers/VideoInputMessage.cc',
+  imgui_sources
 ]
 
 vivictpplib = static_library('vivictpplib',

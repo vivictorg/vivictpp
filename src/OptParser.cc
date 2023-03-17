@@ -103,6 +103,9 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     app.add_option("--preferred-decoders", preferredDecodersStr,
                    std::string("Comma separated list of decoders that should be preferred over default decoder when applicable"));
 
+    bool enableImGui{false};
+    app.add_flag("--imgui", enableImGui, "Enable experimental ImGui UI");
+
     //CLI11_PARSE(app, argc, argv);
     try {
       app.parse(argc, argv);
@@ -130,6 +133,6 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     }
 
     this->vivictPPConfig =
-      VivictPPConfig(sourceConfigs, !enableAudio, disableFontAutoScaling, fontCustomScaling);
+      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui});
     return true;
   };
