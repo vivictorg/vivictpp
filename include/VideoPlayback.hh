@@ -10,7 +10,15 @@
 
 namespace vivictpp {
 
-enum class PlaybackState { STOPPED, PLAYING, SEEKING };
+//enum class PlaybackState { STOPPED, PLAYING, SEEKING };
+
+
+struct PlaybackState {
+  vivictpp::time::Time duration{0};
+  vivictpp::time::Time pts{0};
+  bool playing{false};
+  bool seeking{false};
+};
 
 class VideoPlayback {
 private:
@@ -31,10 +39,8 @@ private:
   VideoInputs videoInputs;
   SeekState seekState;
   vivictpp::time::Time playbackStartPts{0};
-  vivictpp::time::Time pts{0};
   int64_t t0 = 0;
-  bool playing{false};
-  bool seeking{false};
+  PlaybackState playbackState;
 
 public:
   VideoPlayback(VivictPPConfig vivictPPConfig);
@@ -45,8 +51,9 @@ public:
   bool checkdvanceFrame(int64_t nextPresent);
   void advanceFrame(vivictpp::time::Time nextPts);
   VideoInputs &getVideoInputs() { return videoInputs; };
-  bool isPlaying() { return playing; }
-  bool isSeeking() { return seeking; }
+  bool isPlaying() { return playbackState.playing; }
+  bool isSeeking() { return playbackState.seeking; }
+  const PlaybackState& getPlaybackState() { return playbackState; }
 
 };
 

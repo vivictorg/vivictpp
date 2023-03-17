@@ -19,15 +19,17 @@ void vivictpp::VideoPlayback::SeekState::seekFinished(int seekId, vivictpp::time
 }
 
 vivictpp::VideoPlayback::VideoPlayback(VivictPPConfig vivictPPConfig):
-  videoInputs(vivictPPConfig),
-  pts(videoInputs.startTime())
-{ }
+  videoInputs(vivictPPConfig)
+{
+  playbackState.pts = videoInputs.startTime();
+  playbackState.duration = videoInputs.duration();
+}
 
 void vivictpp::VideoPlayback::togglePlaying() {
-  if (seeking) {
+  if (playbackState.seeking) {
     return;
   }
-  if (!playing) {
+  if (!playbackState.playing) {
     play();
   } else {
     pause();
@@ -36,25 +38,25 @@ void vivictpp::VideoPlayback::togglePlaying() {
 
 void vivictpp::VideoPlayback::play() {
   t0 = vivictpp::time::relativeTimeMicros();
-  playbackStartPts = pts;
-  playing = true;
+  playbackStartPts = playbackState.pts;
+  playbackState.playing = true;
 }
 
-void vivictpp::VideoPlayback::pause() { playing = false; }
+void vivictpp::VideoPlayback::pause() { playbackState.playing = false; }
 
 void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts) {
   seekPts = std::max(seekPts, videoInputs.minPts());
   if (videoInputs.hasMaxPts()) {
     seekPts = std::min(seekPts, videoInputs.maxPts());
   }
-  if (!seeking && videoInputs.ptsInRange(seekPts)) {
+  if (!playbackState.seeking && videoInputs.ptsInRange(seekPts)) {
     advanceFrame(seekPts);
-    if (playing) {
+    if (playbackState.playing) {
       playbackStartPts = seekPts;
       t0 = vivictpp::time::relativeTimeMicros();
     }
   } else {
-    seeking = true;
+    playbackState.seeking = true;
     int seekId = seekState.seekStart();
     videoInputs.seek(seekPts, [this, seekId](vivictpp::time::Time pos, bool error) {
       this->seekState.seekFinished(seekId, pos, error);
@@ -63,25 +65,25 @@ void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts) {
 }
 
 bool vivictpp::VideoPlayback::checkdvanceFrame(int64_t nextPresent) {
-  if (seeking && !seekState.seekDone) {
+  if (playbackState.seeking && !seekState.seekDone) {
     return false;
   }
-  if (seeking) {
+  if (playbackState.seeking) {
     advanceFrame(seekState.seekEndPos);
-    seeking = false;
-    if (playing) {
+    playbackState.seeking = false;
+    if (playbackState.playing) {
       playbackStartPts = seekState.seekEndPos;
       t0 = vivictpp::time::relativeTimeMicros();
     }
     return true;
   }
-  if (!playing) {
+  if (!playbackState.playing) {
     return false;
   }
   vivictpp::time::Time nextPts = videoInputs.nextPts();
   if (videoInputs.ptsInRange(nextPts)) {
     if ((nextPresent - t0) >= (nextPts - playbackStartPts)) {
-      pts = nextPts;
+      playbackState.pts = nextPts;
       videoInputs.stepForward(nextPts);
       return true;
     } else {
@@ -93,11 +95,11 @@ bool vivictpp::VideoPlayback::checkdvanceFrame(int64_t nextPresent) {
 };
 
 void vivictpp::VideoPlayback::advanceFrame(vivictpp::time::Time nextPts) {
-  bool forward = nextPts > pts;
-  pts = nextPts;
+  bool forward = nextPts > playbackState.pts;
+  playbackState.pts = nextPts;
   if (forward) {
-    videoInputs.stepForward(pts);
+    videoInputs.stepForward(playbackState.pts);
   } else {
-    videoInputs.stepBackward(pts);
+    videoInputs.stepBackward(playbackState.pts);
   }
 }

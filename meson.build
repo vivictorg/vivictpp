@@ -96,7 +96,9 @@ imgui_sources=[
   'imgui/backends/imgui_impl_sdl.cpp',
   #  'imgui/backends/imgui_impl_opengl3.cpp',
   'imgui/backends/imgui_impl_sdlrenderer.cpp',
-  'src/main_imgui.cc'
+  'src/main_imgui.cc',
+  'src/imgui/VivictPPImGui.cc',
+  'src/imgui/ImGuiSDL.cc',
 ]
 
 vivictpplib = static_library('vivictpplib',

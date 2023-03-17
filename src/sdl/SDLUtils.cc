@@ -44,12 +44,11 @@ void vivictpp::sdl::SDLTexture::update(const vivictpp::libav::Frame &frame) {
   }
 }
 
-std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>
-vivictpp::sdl::createWindow(int width, int height) {
+vivictpp::sdl::SDLWindow vivictpp::sdl::createWindow(int width, int height, int flags) {
   auto window =  std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>
     (SDL_CreateWindow("Vivict++", SDL_WINDOWPOS_UNDEFINED,
                       SDL_WINDOWPOS_UNDEFINED, width, height,
-                      SDL_WINDOW_RESIZABLE),
+                      flags),
      SDL_DestroyWindow);
   if (!window) {
     throw SDLException("Failed to create window");
@@ -57,10 +56,9 @@ vivictpp::sdl::createWindow(int width, int height) {
   return window;
 }
 
-std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>
-vivictpp::sdl::createRenderer(SDL_Window* window) {
+vivictpp::sdl::SDLRenderer vivictpp::sdl::createRenderer(SDL_Window* window, int flags) {
   auto renderer = std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>
-    (SDL_CreateRenderer(window, -1, 0),
+    (SDL_CreateRenderer(window, -1, flags),
      SDL_DestroyRenderer);
   if (!renderer) {
     throw SDLException("Failed to create renderer");
