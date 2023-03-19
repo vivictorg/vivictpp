@@ -33,7 +33,7 @@ private:
   int showControls{70};
   float seekValue{0};
 public:
-  std::vector<Event> draw(const PlaybackState &playbackState);
+  std::vector<Action> draw(const PlaybackState &playbackState);
 };
 
 class VivictPPImGui {
@@ -47,7 +47,9 @@ private:
   Controls controls;
   int64_t tLastPresent{0};
 private:
-  void handleEvents(std::vector<vivictpp::imgui::Event> events);
+  Action handleKeyEvent(const KeyEvent &keyEvent);
+  std::vector<Action> handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);
+  void handleActions(std::vector<vivictpp::imgui::Action> actions);
 public:
   VivictPPImGui(VivictPPConfig vivictPPConfig);
   void run();

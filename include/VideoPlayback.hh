@@ -25,6 +25,7 @@ private:
 
   class SeekState {
   public:
+    vivictpp::time::Time seekTarget;
     vivictpp::time::Time seekEndPos;
     bool seekDone{true};
     bool error;
@@ -32,15 +33,18 @@ private:
     int currentSeekId{1}; // Used to ignore obsolete callbacks from previos seek operations
     std::mutex m;
   public:
-    int seekStart();
+    int seekStart(vivictpp::time::Time seekTarget);
     void seekFinished(int seekId, vivictpp::time::Time pos, bool err);
   };
 
   VideoInputs videoInputs;
   SeekState seekState;
   vivictpp::time::Time playbackStartPts{0};
+  bool stepped{false};
+  vivictpp::time::Time frameDuration;
   int64_t t0 = 0;
   PlaybackState playbackState;
+  vivictpp::logging::Logger logger;
 
 public:
   VideoPlayback(VivictPPConfig vivictPPConfig);
@@ -48,7 +52,9 @@ public:
   void play();
   void pause();
   void seek(vivictpp::time::Time seekPts);
-  bool checkdvanceFrame(int64_t nextPresent);
+  void seekRelative(vivictpp::time::Time deltaPts);
+  void seekRelativeFrame(int distance);
+  bool checkAdvanceFrame(int64_t nextPresent);
   void advanceFrame(vivictpp::time::Time nextPts);
   VideoInputs &getVideoInputs() { return videoInputs; };
   bool isPlaying() { return playbackState.playing; }

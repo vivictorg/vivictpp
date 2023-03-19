@@ -1,7 +1,9 @@
 #include "imgui/ImGuiSDL.hh"
 #include "imgui.h"
+#include "imgui/Events.hh"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_sdlrenderer.h"
+#include <memory>
 
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
@@ -62,38 +64,39 @@ void vivictpp::imgui::ImGuiSDL::toggleFullscreen() {
   }
 }
 
-vivictpp::imgui::Event mouseMotionEvent(int x, int y) {
-  vivictpp::imgui::Event event;
-  event.type = vivictpp::imgui::EventType::MouseMotion;
-  event.mouseMotion = {x, y};
-  return event;
-}
-
-static vivictpp::imgui::Event QUIT = {vivictpp::imgui::EventType::Quit, {0}};
-static vivictpp::imgui::Event WINDOW_SIZE_CHANGE = {vivictpp::imgui::EventType::WindowSizeChange, {0}};
-
 bool vivictpp::imgui::ImGuiSDL::isWindowClose(SDL_Event &event) {
   return event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window);
 }
 
-std::vector<vivictpp::imgui::Event> vivictpp::imgui::ImGuiSDL::handleEvents() {
-  std::vector<vivictpp::imgui::Event> events;
+std::vector<std::shared_ptr<vivictpp::imgui::Event>> vivictpp::imgui::ImGuiSDL::handleEvents() {
+  ImGuiIO &io = ImGui::GetIO();
+  std::vector<std::shared_ptr<vivictpp::imgui::Event>> events;
   SDL_Event event;
   while (SDL_PollEvent(&event))
   {
     ImGui_ImplSDL2_ProcessEvent(&event);
     if (event.type == SDL_QUIT || isWindowClose(event)) {
-      events.push_back(QUIT);
+      events.push_back(std::make_shared<vivictpp::imgui::Quit>());
       return events;
     }
-    if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+    else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
       windowWidth = event.window.data1;
       windowHeight = event.window.data2;
-      events.push_back(WINDOW_SIZE_CHANGE);
+      events.push_back(std::make_shared<vivictpp::imgui::WindowSizeChange>());
     }
-    if (event.type == SDL_MOUSEMOTION) {
+    else if (event.type == SDL_MOUSEMOTION) {
       SDL_MouseMotionEvent mouseEvent = event.motion;
-      events.push_back(mouseMotionEvent(mouseEvent.x, mouseEvent.y));
+      events.push_back(std::make_shared<vivictpp::imgui::MouseMotion>(mouseEvent.x, mouseEvent.y));
+    }
+    else if (event.type == SDL_KEYDOWN && !io.WantCaptureKeyboard) {
+      SDL_KeyboardEvent kbe = event.key;
+      SDL_Keymod modState = SDL_GetModState();
+      events.push_back(std::make_shared<vivictpp::imgui::KeyEvent>(
+                         std::string(SDL_GetKeyName(kbe.keysym.sym)),
+                         !!(modState & KMOD_SHIFT),
+                         !!(modState & KMOD_CTRL),
+                         !!(modState & KMOD_ALT)));
+
     }
   }
   return events;

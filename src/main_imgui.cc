@@ -225,7 +225,7 @@ int main(int argc, char** argv)
                 )) {
 
             int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * io.DeltaTime);
-            if (videoPlayback.checkdvanceFrame(tNextPresent)) {
+            if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
               displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
             }
             int w,h;

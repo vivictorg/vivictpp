@@ -5,6 +5,7 @@
 #include "sdl/SDLUtils.hh"
 #include "ui/VideoTextures.hh"
 #include <vector>
+#include <memory>
 
 
 namespace vivictpp::imgui {
@@ -28,7 +29,7 @@ public:
   vivictpp::ui::VideoTextures &getVideoTextures() { return videoTextures; }
   void fitWindowToTextures();
   bool isWindowClose(SDL_Event &event);
-  std::vector<Event> handleEvents();
+  std::vector<std::shared_ptr<Event>> handleEvents();
   void render();
   void toggleFullscreen();
 };

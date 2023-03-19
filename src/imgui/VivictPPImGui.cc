@@ -2,10 +2,12 @@
 
 #include "SDL_video.h"
 #include "imgui.h"
+#include "imgui/Events.hh"
 #include "imgui_internal.h"
 #include "VivictPPConfig.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/DisplayState.hh"
+#include <memory>
 
 // https://github.com/ocornut/imgui/issues/3379`
 bool scrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
@@ -135,7 +137,7 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
   ImGui::PopStyleVar(2);
 }
 
-std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const PlaybackState &playbackState) {
+std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(const PlaybackState &playbackState) {
   ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
                                   ImGuiWindowFlags_NoTitleBar |
                                   ImGuiWindowFlags_AlwaysAutoResize |
@@ -154,7 +156,7 @@ std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const Playb
   ImGui::SetNextWindowSize({work_size.x - 60, 60});
   window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
   ImGui::SetNextWindowBgAlpha(0.10f); // Transparent background
-  std::vector<Event> events;
+  std::vector<Action> actions;
   bool myBool;
   if (ImGui::Begin("Video controls", &myBool, window_flags)) {
     if (ImGui::IsWindowHovered()) {
@@ -165,7 +167,7 @@ std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const Playb
     if (showControls > 0) {
       ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::clamp(showControls / 60.0f, 0.0f, 1.0f));
       if (ImGui::Button(playbackState.playing ? "Pause" : "Play")) {
-        events.push_back({EventType::PlayPause, {0}});
+        actions.push_back({ActionType::PlayPause});
       }
       ImGui::SameLine();
       if (ImGui::Button("Step")) {
@@ -179,19 +181,19 @@ std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const Playb
       }
       ImGui::SameLine();
       if (ImGui::Button("Fullscreen")) {
-        events.push_back({EventType::ToggleFullscreen, {0}});
+        actions.push_back({ActionType::ToggleFullscreen});
       }
       ImGui::SameLine();
       if (ImGui::Button("Zoom in")) {
-        events.push_back({EventType::ZoomIn, {0}});
+        actions.push_back({ActionType::ZoomIn});
       }
       ImGui::SameLine();
       if (ImGui::Button("Zoom out")) {
-        events.push_back({EventType::ZoomOut, {0}});
+        actions.push_back({ActionType::ZoomOut});
       }
       ImGui::SameLine();
       if (ImGui::Button("Reset zoom")) {
-        events.push_back({EventType::ZoomReset, {0}});
+        actions.push_back({ActionType::ZoomReset});
       }
       ImGui::PushItemWidth(work_size.x - 60);
       //float seekValue = playbackState.pts / 1e6; // Convert to seconds;
@@ -211,13 +213,13 @@ std::vector<vivictpp::imgui::Event>  vivictpp::imgui::Controls::draw(const Playb
       if (ImGui::IsItemDeactivatedAfterEdit()) {
         spdlog::info("Drag end: {}", seekValue);
         vivictpp::time::Time seekPos = (uint64_t) 1e6 * oldSeekValue;
-        events.push_back({EventType::Seek, {seekPos}});
+        actions.push_back({ActionType::Seek, seekPos});
       }
       ImGui::PopStyleVar();
     }
   }
   ImGui::End();
-  return events;
+  return actions;
 }
 
 
@@ -239,58 +241,134 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(VivictPPConfig vivictPPConfig):
 void vivictpp::imgui::VivictPPImGui::run() {
 
   while (!done) {
-    handleEvents(imGuiSDL.handleEvents());
+    handleActions(handleEvents(imGuiSDL.handleEvents()));
 
     imGuiSDL.newFrame();
 
     int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
-    if (videoPlayback.checkdvanceFrame(tNextPresent)) {
+    if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
       displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
       imGuiSDL.updateTextures(displayState);
     }
 
     videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
 
-    handleEvents(controls.draw(videoPlayback.getPlaybackState()));
+    handleActions(controls.draw(videoPlayback.getPlaybackState()));
     imGuiSDL.render();
     tLastPresent = vivictpp::time::relativeTimeMicros();
   }
 }
 
+int seekDistance(const vivictpp::imgui::KeyEvent &keyEvent) {
+  return keyEvent.shift ? (keyEvent.alt ? 600 : 60) : 5;
+}
 
+vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(const vivictpp::imgui::KeyEvent &keyEvent) {
+  const std::string &key = keyEvent.keyName;
+  if (key.length() == 1) {
+    switch (key[0]) {
+    case 'Q':
+      return {vivictpp::imgui::ActionType::ActionQuit};
+    case '.':
+      if (keyEvent.shift) {
+        return {vivictpp::imgui::ActionType::FrameOffsetIncrease};
+      } else {
+        return {vivictpp::imgui::ActionType::StepForward};
+      }
+      break;
+    case ',':
+      if (keyEvent.shift) {
+        return {vivictpp::imgui::ActionType::FrameOffsetDecrease};
+      } else {
+        return {vivictpp::imgui::ActionType::StepBackward};
+      }
+    case '/':
+      return {vivictpp::imgui::ActionType::SeekRelative,
+        vivictpp::time::seconds(seekDistance(keyEvent))};
+    case 'M':
+      return {vivictpp::imgui::ActionType::SeekRelative,
+        vivictpp::time::seconds(-1 * seekDistance(keyEvent))};
+    case 'U':
+      return {vivictpp::imgui::ZoomIn};
+    case 'I':
+      return {vivictpp::imgui::ZoomOut};
+    case '0':
+      return {vivictpp::imgui::ZoomReset};
+    case 'F':
+      return {vivictpp::imgui::ToggleFullscreen};
+    case 'T':
+      return {vivictpp::imgui::ToggleDisplayTime};
+    case 'D':
+      return {vivictpp::imgui::ToggleDisplayMetadata};
+    case 'P':
+      return {vivictpp::imgui::ToggleDisplayPlot};
+    case 'S':
+      return {vivictpp::imgui::ToggleFitToScreen};
+    case '[':
+      return {vivictpp::imgui::PlaybackSpeedIncrease};
+    case ']':
+      return {vivictpp::imgui::PlaybackSpeedDecrease};
+    }
+  } else {
+    if (key == "Space") {
+      return {vivictpp::imgui::PlayPause};
+    }
+  }
+  return {vivictpp::imgui::NoAction};
+}
 
-void vivictpp::imgui::VivictPPImGui::handleEvents(std::vector<vivictpp::imgui::Event> events) {
+std::vector<vivictpp::imgui::Action> vivictpp::imgui::VivictPPImGui::handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events) {
+  std::vector<Action> actions;
   for (auto &event : events) {
-      switch (event.type) {
-      case EventType::Quit:
+    if (std::dynamic_pointer_cast<vivictpp::imgui::Quit>(event)) {
+      actions.push_back({vivictpp::imgui::ActionQuit});
+    } else if (std::dynamic_pointer_cast<vivictpp::imgui::WindowSizeChange>(event)) {
+      // Do nothing
+    } else  if (auto mouseMotion = std::dynamic_pointer_cast<vivictpp::imgui::MouseMotion>(event)) {
+      if (!displayState.splitScreenDisabled) {
+          displayState.splitPercent = 100.0 * std::clamp((mouseMotion->x - videoWindow.getVideoPos().x) / videoWindow.getVideoSize().x, 0.0f, 1.0f);
+      }
+    } else if (auto keyEvent = std::dynamic_pointer_cast<vivictpp::imgui::KeyEvent>(event)) {
+      actions.push_back(handleKeyEvent(*keyEvent.get()));
+    }
+  }
+  return actions;
+}
+
+void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::Action> actions) {
+  for (auto &action : actions) {
+      switch (action.type) {
+      case ActionType::ActionQuit:
         done = true;
         break;
-      case EventType::WindowSizeChange:
-        break;
-      case EventType::MouseMotion:
-        if (!displayState.splitScreenDisabled) {
-          displayState.splitPercent = 100.0 * std::clamp((event.mouseMotion.x - videoWindow.getVideoPos().x) / videoWindow.getVideoSize().x, 0.0f, 1.0f);
-        }
-        break;
-      case EventType::PlayPause:
+      case ActionType::PlayPause:
         videoPlayback.togglePlaying();
         break;
-      case EventType::ZoomIn:
+      case ActionType::ZoomIn:
         displayState.zoom.increment();
         videoWindow.onZoomChange(imGuiSDL.getVideoTextures().nativeResolution, displayState.zoom);
         break;
-      case EventType::ZoomOut:
+      case ActionType::ZoomOut:
         displayState.zoom.decrement();
         videoWindow.onZoomChange(imGuiSDL.getVideoTextures().nativeResolution, displayState.zoom);
         break;
-      case EventType::ZoomReset:
+      case ActionType::ZoomReset:
         displayState.zoom.set(0);
         videoWindow.onZoomChange(imGuiSDL.getVideoTextures().nativeResolution, displayState.zoom);
         break;
-      case EventType::Seek:
-        videoPlayback.seek(event.seek);
+      case ActionType::Seek:
+        videoPlayback.seek(action.seek);
         break;
-      case EventType::ToggleFullscreen:
+      case ActionType::SeekRelative:
+        videoPlayback.seekRelative(action.seek);
+        break;
+      case ActionType::StepForward:
+        videoPlayback.seekRelativeFrame(1);
+        break;
+      case ActionType::StepBackward:
+        videoPlayback.seekRelativeFrame(-1);
+        break;
+      case ActionType::ToggleFullscreen:
         imGuiSDL.toggleFullscreen();
         break;
       default:
