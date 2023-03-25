@@ -58,7 +58,8 @@ enum ActionType {
   ToggleDisplayPlot,
   ToggleFitToScreen,
   PlaybackSpeedIncrease,
-  PlaybackSpeedDecrease
+  PlaybackSpeedDecrease,
+  ToggleImGuiDemo
 };
 
 struct Action {

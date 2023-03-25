@@ -77,6 +77,7 @@ struct DisplayState {
   VideoMetadata rightVideoMetadata;
   int videoMetadataVersion{0};
   std::string playbackSpeedStr;
+  bool displayImGuiDemo{false};
 
   void updateFrames(std::array<vivictpp::libav::Frame, 2> frames) {
     leftFrame = frames[0];
@@ -86,7 +87,7 @@ struct DisplayState {
   void updateMetadata(std::array<std::vector<VideoMetadata>, 2> metadata) {
     leftVideoMetadata = metadata[0][0];
     if (!metadata[1].empty()) {
-      rightVideoMetadata = metadata[0][0];
+      rightVideoMetadata = metadata[1][0];
     }
   }
 };

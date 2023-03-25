@@ -6,8 +6,11 @@
 #include "imgui_internal.h"
 #include "VivictPPConfig.hh"
 #include "sdl/SDLUtils.hh"
+#include "time/TimeUtils.hh"
 #include "ui/DisplayState.hh"
 #include <memory>
+
+ImU32 transparentBg = ImGui::ColorConvertFloat4ToU32({0.0f, 0.0f, 0.0f, 0.4f});
 
 // https://github.com/ocornut/imgui/issues/3379`
 bool scrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
@@ -54,6 +57,17 @@ void vivictpp::imgui::VideoWindow::onZoomChange(const Resolution &nativeResoluti
       scrollUpdated = true;
     }
   }
+}
+
+float alignForWidthPos(float width, float alignment = 0.5f, float offset = 0.0f) {
+  float avail = ImGui::GetContentRegionAvail().x;
+  float off = (avail - width) * alignment;
+  return ImGui::GetCursorPosX() + std::max(0.0f, off) + offset;
+}
+
+void alignForWidth(float width, float alignment = 0.5f, float offset = 0.0f)
+{
+  ImGui::SetCursorPosX(alignForWidthPos(width, alignment, offset));
 }
 
 void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextures, const ui::DisplayState &displayState) {
@@ -128,6 +142,32 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
       videoPlayback.togglePlaying();
       };
     */
+
+    if (displayState.displayTime) {
+      std::string timeStr = vivictpp::time::formatTime(displayState.pts);
+      ImVec2 textSize = ImGui::CalcTextSize(timeStr.c_str());
+      int pad = 2;
+      float y0 = 10;
+      float x = alignForWidthPos(textSize.x + pad * 2, 0.5);
+//      alignForWidth(textSize.x + pad * 2, 0.5);
+//      ImGui::SetCursorPosY(10 - pad);
+      ImGui::GetWindowDrawList()->AddRectFilled( {x, y0 - pad},
+                                                 {x + 2 * pad + textSize.x, y0 + textSize.y + pad},
+                                                 transparentBg);
+      alignForWidth(textSize.x, 0.5);
+      ImGui::SetCursorPosY(y0);
+      ImGui::Text("%s",   timeStr.c_str());
+    }
+
+    if (displayState.displayMetadata) {
+      ImGui::SetCursorPosX(10.0f);
+      ImGui::SetCursorPosY(10.0f);
+      leftMetadata.draw(displayState);
+      alignForWidth(250, 1.0f, -20.0f);
+      ImGui::SetCursorPosY(10.0f);
+      rightMetadata.draw(displayState);
+    }
+
     ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
     if (scrollWhenDraggingOnVoid(mouse_delta, 0)) {
       scroll = {ImGui::GetScrollX(), ImGui::GetScrollY()};
@@ -221,7 +261,100 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(const Play
   ImGui::End();
   return actions;
 }
+/*
+void vivictpp::imgui::TimeDisplay::draw(const ui::DisplayState &displayState) {
+//  if (!displayState.displayTime) return;
 
+ ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |
+                                  ImGuiWindowFlags_NoTitleBar |
+                                  ImGuiWindowFlags_AlwaysAutoResize |
+                                  ImGuiWindowFlags_NoSavedSettings |
+                                  ImGuiWindowFlags_NoFocusOnAppearing |
+                                  ImGuiWindowFlags_NoNav;
+  const ImGuiViewport* viewport = ImGui::GetMainViewport();
+  ImVec2 work_size = viewport->WorkSize;
+  ImVec2 work_pos = viewport->WorkPos;
+  ImVec2 window_pos, window_pos_pivot;
+  window_pos.x = work_pos.x + work_size.x / 2;
+  window_pos.y = 10.0f;
+  window_pos_pivot.x = 0.5f;
+  window_pos_pivot.y = 0.0f;
+  ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+//  ImGui::SetNextWindowSize({60, 20});
+  window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+//  ImGui::SetNextWindowBgAlpha(0.10f); // Transparent background
+  bool myBool;
+
+  if (ImGui::Begin("Time display", &myBool, window_flags)) {
+    ImGui::Text("%s",   vivictpp::time::formatTime(displayState.pts).c_str());
+  }
+  ImGui::End();
+
+}
+*/
+
+void vivictpp::imgui::VideoMetadataDisplay::initMetadataText(const ui::DisplayState &displayState) {
+  const VideoMetadata &metadata = (type == Type::LEFT) ? displayState.leftVideoMetadata :
+                                  displayState.rightVideoMetadata;
+  metadataText.clear();
+  if (metadata.empty()) return;
+  metadataText.push_back({"codec", metadata.codec});
+  metadataText.push_back({"resolution", metadata.filteredResolution.toString()});
+  if (metadata.filteredResolution != metadata.resolution) {
+      metadataText.push_back({"orig resolution", metadata.resolution.toString()});
+  }
+  metadataText.push_back({"bitrate", std::to_string(metadata.bitrate / 1000) + "kb/s"});
+  metadataText.push_back({"framerate", std::to_string(metadata.frameRate) + "fps"});
+  metadataText.push_back({"duration", vivictpp::time::formatTime(metadata.duration)});
+  metadataText.push_back({"start time", vivictpp::time::formatTime(metadata.startTime)});
+  metadataText.push_back({"pixel format", metadata.pixelFormat});
+}
+
+void vivictpp::imgui::VideoMetadataDisplay::initFrameMetadataText(const ui::DisplayState &displayState) {
+  const FrameMetadata &metadata = (type == Type::LEFT) ? displayState.leftFrame.metadata() :
+                                  displayState.rightFrame.metadata();
+  frameMetadataText.clear();
+  frameMetadataText.push_back({"Frame type", std::string(1,metadata.pictureType)});
+  frameMetadataText.push_back({"Frame size", std::to_string(metadata.size)});
+}
+
+void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &displayState) {
+  if (displayState.videoMetadataVersion != metadataVersion) {
+    initMetadataText(displayState);
+  }
+  if (metadataText.empty()) return;
+  ImGui::BeginGroup();
+  ImGui::BeginTable("metadata", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX);
+  ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f);
+  ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f);
+  for (const auto &data : metadataText) {
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("%s", data.first.c_str());
+    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+    ImGui::TableNextColumn();
+    ImGui::Text("%s", data.second.c_str());
+    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+  }
+  ImGui::EndTable();
+  if (!displayState.isPlaying) {
+    initFrameMetadataText(displayState);
+    ImGui::BeginTable("framemetadata", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX);
+    ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f);
+    ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f);
+    for (const auto &data : frameMetadataText) {
+      ImGui::TableNextRow();
+      ImGui::TableNextColumn();
+      ImGui::Text("%s", data.first.c_str());
+      ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+      ImGui::TableNextColumn();
+      ImGui::Text("%s", data.second.c_str());
+      ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+    }
+    ImGui::EndTable();
+  }
+  ImGui::EndGroup();
+}
 
 vivictpp::imgui::VivictPPImGui::VivictPPImGui(VivictPPConfig vivictPPConfig):
   imGuiSDL(),
@@ -250,10 +383,15 @@ void vivictpp::imgui::VivictPPImGui::run() {
       displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
       imGuiSDL.updateTextures(displayState);
     }
-
+    displayState.pts = videoPlayback.getPlaybackState().pts;
+    displayState.isPlaying = videoPlayback.isPlaying();
     videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
-
+//    timeDisplay.draw(displayState);
     handleActions(controls.draw(videoPlayback.getPlaybackState()));
+    if (displayState.displayImGuiDemo) {
+      bool aBool;
+      ImGui::ShowDemoWindow(&aBool);
+    }
     imGuiSDL.render();
     tLastPresent = vivictpp::time::relativeTimeMicros();
   }
@@ -298,7 +436,9 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(const viv
       return {vivictpp::imgui::ToggleFullscreen};
     case 'T':
       return {vivictpp::imgui::ToggleDisplayTime};
+      break;
     case 'D':
+      if (keyEvent.shift) return {vivictpp::imgui::ToggleImGuiDemo};
       return {vivictpp::imgui::ToggleDisplayMetadata};
     case 'P':
       return {vivictpp::imgui::ToggleDisplayPlot};
@@ -371,6 +511,16 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
       case ActionType::ToggleFullscreen:
         imGuiSDL.toggleFullscreen();
         break;
+      case ActionType::ToggleImGuiDemo:
+        displayState.displayImGuiDemo = !displayState.displayImGuiDemo;
+        break;
+      case ActionType::ToggleDisplayTime:
+        displayState.displayTime = !displayState.displayTime;
+        break;
+      case ActionType::ToggleDisplayMetadata:
+        displayState.displayMetadata = !displayState.displayMetadata;
+        break;
+
       default:
         ;
       }

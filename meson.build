@@ -64,6 +64,7 @@ sources = [
   'src/AVSync.cc',
   'src/Controller.cc',
   'src/OptParser.cc',
+  'src/Resolution.cc',
   'src/VideoInputs.cc',
   'src/VideoMetadata.cc',
   'src/VideoPlayback.cc',
@@ -119,21 +120,3 @@ executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps
 # test('FormatHandler.seek', seekTest)
 playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
 test('Playback', playbackTest)
-
-
-imgui_deps = deps
-#=[
-#  sdl2_dep,
-#  sdl2_ttf_dep
-#  dependency('GL'),
-#  dependency('glew')
-#]
-
-imgui_incdir = include_directories('include', 'imgui', 'imgui/backends')
-
-executable('imguivpp',
-           sources: imgui_sources,
-           include_directories: imgui_incdir,
-           link_with: vivictpplib,
-           dependencies: imgui_deps)
-#           link_args: ['-lGL'])

@@ -13,6 +13,24 @@
 
 namespace vivictpp::imgui {
 
+
+class VideoMetadataDisplay {
+public:
+  enum Type {LEFT, RIGHT};
+private:
+  Type type;
+  int metadataVersion{-1};
+  ImVec2 pos{10,10};
+  std::vector<std::pair<std::string,std::string>> metadataText;
+  std::vector<std::pair<std::string,std::string>> frameMetadataText;
+  void initMetadataText(const ui::DisplayState &displayState);
+  void initFrameMetadataText(const ui::DisplayState &displayState);
+public:
+  VideoMetadataDisplay(Type type):
+    type(type) {};
+  void draw(const ui::DisplayState &displayState);
+};
+
 class VideoWindow {
 private:
   ImVec2 pos;
@@ -21,6 +39,8 @@ private:
   ImVec2 videoSize;
   ImVec2 videoPos;
   bool scrollUpdated{false};
+  VideoMetadataDisplay leftMetadata{VideoMetadataDisplay::Type::LEFT};
+  VideoMetadataDisplay rightMetadata{VideoMetadataDisplay::Type::RIGHT};
 public:
   void draw(vivictpp::ui::VideoTextures &videoTextures, const ui::DisplayState &displayState);
   void onZoomChange(const Resolution &nativeResolution, const ui::Zoom &zoom);
@@ -36,13 +56,19 @@ public:
   std::vector<Action> draw(const PlaybackState &playbackState);
 };
 
+/*
+class TimeDisplay {
+public:
+  void draw(const ui::DisplayState &displayState);
+};
+*/
+
 class VivictPPImGui {
 private:
   ImGuiSDL imGuiSDL;
   VideoPlayback videoPlayback;
   bool done{false};
   ui::DisplayState displayState;
-//  vivictpp::ui::VideoTextures videoTextures;
   VideoWindow videoWindow;
   Controls controls;
   int64_t tLastPresent{0};
