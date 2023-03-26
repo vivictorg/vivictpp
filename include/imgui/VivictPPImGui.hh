@@ -8,28 +8,12 @@
 #include "ui/VideoTextures.hh"
 #include "imgui/Events.hh"
 #include "imgui/ImGuiSDL.hh"
+#include "imgui/Controls.hh"
+#include "imgui/VideoMetadataDisplay.hh"
 #include "imgui.h"
 #include <vector>
 
 namespace vivictpp::imgui {
-
-
-class VideoMetadataDisplay {
-public:
-  enum Type {LEFT, RIGHT};
-private:
-  Type type;
-  int metadataVersion{-1};
-  ImVec2 pos{10,10};
-  std::vector<std::pair<std::string,std::string>> metadataText;
-  std::vector<std::pair<std::string,std::string>> frameMetadataText;
-  void initMetadataText(const ui::DisplayState &displayState);
-  void initFrameMetadataText(const ui::DisplayState &displayState);
-public:
-  VideoMetadataDisplay(Type type):
-    type(type) {};
-  void draw(const ui::DisplayState &displayState);
-};
 
 class VideoWindow {
 private:
@@ -39,21 +23,13 @@ private:
   ImVec2 videoSize;
   ImVec2 videoPos;
   bool scrollUpdated{false};
-  VideoMetadataDisplay leftMetadata{VideoMetadataDisplay::Type::LEFT};
-  VideoMetadataDisplay rightMetadata{VideoMetadataDisplay::Type::RIGHT};
+  bool wasDragging{false};
 public:
   void draw(vivictpp::ui::VideoTextures &videoTextures, const ui::DisplayState &displayState);
   void onZoomChange(const Resolution &nativeResolution, const ui::Zoom &zoom);
+  void onScroll(const ImVec2 &scrollDelta);
   const ImVec2 &getVideoPos() { return videoPos; }
   const ImVec2 &getVideoSize() { return videoSize; }
-};
-
-class Controls {
-private:
-  int showControls{70};
-  float seekValue{0};
-public:
-  std::vector<Action> draw(const PlaybackState &playbackState);
 };
 
 /*

@@ -2,7 +2,7 @@
 #define VIVICTPP_IMGUI_EVENTS_HH_
 
 #include "time/Time.hh"
-
+#include "imgui.h"
 #include <string>
 #include <memory>
 
@@ -59,15 +59,18 @@ enum ActionType {
   ToggleFitToScreen,
   PlaybackSpeedIncrease,
   PlaybackSpeedDecrease,
-  ToggleImGuiDemo
+  ToggleImGuiDemo,
+  Scroll
 };
 
 struct Action {
-  Action(ActionType type, vivictpp::time::Time seek = 0):
+  Action(ActionType type, vivictpp::time::Time seek = 0, ImVec2 scroll = {0,0}):
     type(type),
-    seek(seek){};
+    seek(seek),
+    scroll(scroll){};
   ActionType type;
   vivictpp::time::Time seek;
+  ImVec2 scroll;
 };
 
 }  // namespace vivictpp::imgui
