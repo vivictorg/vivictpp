@@ -65,7 +65,10 @@ void vivictpp::imgui::VideoWindow::onZoomChange(const Resolution &nativeResoluti
 
 void vivictpp::imgui::VideoWindow::onScroll(const ImVec2 &scrollDelta) {
   // TODO: Limit scroll
-  scroll = {scroll.x - scrollDelta.x, scroll.y - scrollDelta.y};
+  float maxScrollX = std::max(0.0f, videoSize.x - size.x);
+  float maxScrollY = std::max(0.0f, videoSize.y - size.y);
+  scroll = {std::clamp(scroll.x - scrollDelta.x, 0.0f, maxScrollX),
+    std::clamp(scroll.y - scrollDelta.y, 0.0f, maxScrollY)};
   scrollUpdated = true;
 }
 
