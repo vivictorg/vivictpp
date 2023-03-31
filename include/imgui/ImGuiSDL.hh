@@ -31,7 +31,7 @@ public:
   bool isWindowClose(SDL_Event &event);
   std::vector<std::shared_ptr<Event>> handleEvents();
   void render();
-  void toggleFullscreen();
+  bool toggleFullscreen();
 };
 
 }  // namespace vivictpp::imgui

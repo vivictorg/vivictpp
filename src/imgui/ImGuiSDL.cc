@@ -1,6 +1,7 @@
 #include "imgui/ImGuiSDL.hh"
 #include "imgui.h"
 #include "imgui/Events.hh"
+#include "imgui/Fonts.hh"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_sdlrenderer.h"
 #include <memory>
@@ -17,14 +18,20 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL():
   renderer(rendererPtr.get())
 {
   IMGUI_CHECKVERSION();
+
   ImGui::CreateContext();
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
 
+//  ui::initIconTextures(renderer);
+
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer_Init(renderer);
+
+  initFonts();
+
 }
 
 vivictpp::imgui::ImGuiSDL::~ImGuiSDL() {
@@ -55,13 +62,14 @@ void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
   SDL_SetWindowSize(window, videoTextures.nativeResolution.w, videoTextures.nativeResolution.h);
 }
 
-void vivictpp::imgui::ImGuiSDL::toggleFullscreen() {
+bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {
   fullscreen = !fullscreen;
   if (fullscreen) {
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
   } else {
     SDL_SetWindowFullscreen(window, 0);
   }
+  return fullscreen;
 }
 
 bool vivictpp::imgui::ImGuiSDL::isWindowClose(SDL_Event &event) {

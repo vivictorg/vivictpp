@@ -21,6 +21,8 @@ else
   sdl2_ttf_dep = dependency('sdl2_ttf', fallback: ['sdl2_ttf', 'sdl2_ttf_dep'])
 endif
 
+#sdl2_image_proj = subproject('sdl2_image', default_options: 'warning_level=0')
+
 deps = [
   sdl2_dep,
   sdl2_ttf_dep,
@@ -33,7 +35,8 @@ deps = [
   dependency('libswscale'),
   spdlog_proj.get_variable('spdlog_dep'),
   cli11_proj.get_variable('CLI11_dep'),
-  fmt_proj.get_variable('fmt_dep')
+  fmt_proj.get_variable('fmt_dep'),
+#  sdl2_image_proj.get_variable('sdl2_image_dep')        
 ]
 
 test_deps = [
@@ -53,13 +56,12 @@ imgui_sources=[
   'imgui/imgui_draw.cpp',
   'imgui/imgui_tables.cpp',
   'imgui/backends/imgui_impl_sdl.cpp',
-  #  'imgui/backends/imgui_impl_opengl3.cpp',
   'imgui/backends/imgui_impl_sdlrenderer.cpp',
-#  'src/main_imgui.cc',
   'src/imgui/VivictPPImGui.cc',
   'src/imgui/Controls.cc',
   'src/imgui/VideoMetadataDisplay.cc',
   'src/imgui/ImGuiSDL.cc',
+  'src/imgui/Fonts.cc'
 ]
 
 sources = [

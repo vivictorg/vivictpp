@@ -10,6 +10,7 @@
 #include "time/TimeUtils.hh"
 #include "ui/DisplayState.hh"
 #include "imgui/Colors.hh"
+//#include "imgui/Fonts.hh"
 #include <map>
 #include <memory>
 
@@ -165,7 +166,6 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(VivictPPConfig vivictPPConfig):
   displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
   imGuiSDL.updateTextures(displayState);
   imGuiSDL.fitWindowToTextures();
-
 }
 
 void vivictpp::imgui::VivictPPImGui::run() {
@@ -306,7 +306,7 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         videoPlayback.seekRelativeFrame(-1);
         break;
       case ActionType::ToggleFullscreen:
-        imGuiSDL.toggleFullscreen();
+        displayState.fullscreen = imGuiSDL.toggleFullscreen();
         break;
       case ActionType::ToggleImGuiDemo:
         displayState.displayImGuiDemo = !displayState.displayImGuiDemo;

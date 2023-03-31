@@ -1,5 +1,6 @@
 #include "imgui/Controls.hh"
 #include "imgui/Colors.hh"
+#include "imgui/Fonts.hh"
 #include "imgui.h"
 
 std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
@@ -29,40 +30,46 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
 
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::clamp(showControls / 60.0f, 0.0f, 1.0f));
     ImGui::SetCursorPosX(30);
-    ImGui::SetCursorPosY(work_size.y - 70);
+    ImGui::SetCursorPosY(work_size.y - 100);
     ImGui::BeginGroup();
-    if (ImGui::Button(playbackState.playing ? "Pause" : "Play")) {
+    ImGui::PushStyleColor(ImGuiCol_Button, vivictpp::imgui::transparent);
+    ImGui::PushFont(getIconFont());
+    if (ImGui::Button(playbackState.playing ? ICON_VPP_PAUSE : ICON_VPP_PLAY)) {
       actions.push_back({ActionType::PlayPause});
     }
     ImGui::SameLine();
-    if (ImGui::Button("Step")) {
-      /*
-        if (videoInputs.ptsInRange(videoInputs.nextPts())) {
-        pts = videoInputs.nextPts();
-        //                  spdlog::info("Stepping to {}", pts);
-        videoInputs.stepForward(pts);
-        }
-      */
+
+    if (ImGui::Button(ICON_VPP_STEP_BACKWARD)) {
+//    if (ImGui::ImageButton("apa", (void*) ui::getIconTextures().play.get(), {40,40})) {
+      actions.push_back({ActionType::StepBackward});
     }
     ImGui::SameLine();
-    if (ImGui::Button("Fullscreen")) {
-      actions.push_back({ActionType::ToggleFullscreen});
+    if (ImGui::Button(ICON_VPP_STEP_FORWARD)) {
+      actions.push_back({ActionType::StepForward});
     }
     ImGui::SameLine();
-    if (ImGui::Button("Zoom in")) {
+    if (ImGui::Button(ICON_VPP_ZOOM_IN)) {
       actions.push_back({ActionType::ZoomIn});
     }
     ImGui::SameLine();
-    if (ImGui::Button("Zoom out")) {
+    if (ImGui::Button(ICON_VPP_ZOOM_OUT)) {
       actions.push_back({ActionType::ZoomOut});
     }
+
     ImGui::SameLine();
-    if (ImGui::Button("Reset zoom")) {
+    if (ImGui::Button(ICON_VPP_ZOOM_RESET)) {
       actions.push_back({ActionType::ZoomReset});
     }
+    ImGui::SameLine();
+    if (ImGui::Button(displayState.fullscreen ? ICON_VPP_COLLAPSE : ICON_VPP_EXPAND)) {
+      actions.push_back({ActionType::ToggleFullscreen});
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleColor();
+
     ImGui::PushItemWidth(work_size.x - 60);
     float durationSeconds = playbackState.duration / 1e6;
-    ImGui::SliderFloat("##Seekbar", &seekValue, 0.0f,  durationSeconds);
+    ImGui::SliderFloat("##Seekbar", &seekValue, 0.0f,  durationSeconds, "");
     float oldSeekValue = seekValue;
     ImGui::PopItemWidth();
     if (ImGui::IsItemActive()) {
