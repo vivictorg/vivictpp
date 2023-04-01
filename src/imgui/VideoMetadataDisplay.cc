@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Gustav Grusell
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #include "imgui/VideoMetadataDisplay.hh"
 #include "time/TimeUtils.hh"
 #include "imgui/Colors.hh"

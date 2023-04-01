@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Gustav Grusell
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #include "VideoPlayback.hh"
 
 int vivictpp::VideoPlayback::SeekState::seekStart(vivictpp::time::Time seekTarget) {

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Gustav Grusell
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #ifndef VIVICTPP_OPTPARSER_HH_
 #define VIVICTPP_OPTPARSER_HH_
 

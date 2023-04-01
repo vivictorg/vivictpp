@@ -10,3 +10,4 @@ vivictpp_*.snap
 compile_commands.json
 .cache
 .envrc
+imgui.ini
