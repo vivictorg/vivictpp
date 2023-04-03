@@ -107,7 +107,7 @@ void vivictpp::libav::FormatHandler::setActiveStreams(const std::set<int> &activ
 }
 
 void vivictpp::libav::FormatHandler::setStreamActive(int streamIndex) {
-  spdlog::debug("FormatHandler::setStreamActive streamIndex={}", streamIndex);
+  logger->debug("FormatHandler::setStreamActive streamIndex={}", streamIndex);
   this->formatContext->streams[streamIndex]->discard = AVDISCARD_DEFAULT;
   activeStreams.insert(streamIndex);
 }
@@ -152,6 +152,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   } else {
       flags = AVSEEK_FLAG_BACKWARD;
   }
+  seeklog->debug("start_time={}", stream->start_time);
   seeklog->debug("vivictpp::libav::FormatHandler::seek ts={}", ts);
   vivictpp::libav::AVResult result = av_seek_frame(this->formatContext, stream->index,
                                                    ts, flags);
@@ -165,7 +166,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
 AVPacket *vivictpp::libav::FormatHandler::nextPacket() {
   vivictpp::libav::AVResult ret;
   while ((ret = av_read_frame(this->formatContext, this->packet)).success()) {
-      spdlog::debug("FormatHandler::nextPacket  Got packet: dts={} stream_index={} keyframe={}",
+      logger->debug("FormatHandler::nextPacket  Got packet: dts={} stream_index={} keyframe={}",
                     this->packet->dts, this->packet->stream_index, this->packet->flags & AV_PKT_FLAG_KEY);
     if (activeStreams.find(packet->stream_index) != activeStreams.end()) {
       return this->packet;

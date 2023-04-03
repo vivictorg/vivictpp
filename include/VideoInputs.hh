@@ -62,12 +62,14 @@ private:
 public:
     explicit VideoInputs(VivictPPConfig vivictPPConfig);
     bool ptsInRange(vivictpp::time::Time pts);
+    void step(vivictpp::time::Time pts);
     void stepForward(vivictpp::time::Time pts);
     void stepBackward(vivictpp::time::Time pts);
     void dropIfFullAndOutOfRange(vivictpp::time::Time nextPts, int framesToDrop);
     void dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop);
     std::array<vivictpp::libav::Frame, 2> firstFrames();
-    void seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFinished);
+    void seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFinished,
+              vivictpp::time::Time streamSeekOffset = 0);
     std::array<std::vector<VideoMetadata>, 2> metadata();
     vivictpp::time::Time duration();
     vivictpp::time::Time startTime();

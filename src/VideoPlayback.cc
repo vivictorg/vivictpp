@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "VideoPlayback.hh"
+#include "time/Time.hh"
 
 int vivictpp::VideoPlayback::SeekState::seekStart(vivictpp::time::Time seekTarget) {
   std::lock_guard<std::mutex> lg(m);
@@ -54,7 +55,7 @@ void vivictpp::VideoPlayback::play() {
 
 void vivictpp::VideoPlayback::pause() { playbackState.playing = false; }
 
-void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts) {
+void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,  vivictpp::time::Time streamSeekOffset) {
   seekPts = std::max(seekPts, videoInputs.minPts());
   if (videoInputs.hasMaxPts()) {
     seekPts = std::min(seekPts, videoInputs.maxPts());
@@ -74,7 +75,7 @@ void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts) {
     int seekId = seekState.seekStart(seekPts);
     videoInputs.seek(seekPts, [this, seekId](vivictpp::time::Time pos, bool error) {
       this->seekState.seekFinished(seekId, pos, error);
-    });
+    }, streamSeekOffset);
   }
 }
 
@@ -109,7 +110,20 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
     return false;
   }
   if (playbackState.seeking) {
-    logger->info("checkAdvanceFrame playbackState.seeking=true");
+//    logger->info("checkAdvanceFrame playbackState.seeking=true, seekEndPos={}", seekState.seekEndPos);
+    if (seekState.seekEndPos - seekState.seekTarget > 1000) {
+      logger->info("seekEndPos={} seekTarget={}", seekState.seekEndPos, seekState.seekTarget);
+      // In some circumstances, for instance if steeping back one frame from an iframe
+      // Seeking may not work due to av_seek_frame apperantly seeking on packet dts
+      // Which may be slightly lower than seek dts we calculate. Therefore, retry seek
+      // with seeking to an earlier position in stream
+      if (seekRetry == 0) {
+        seekRetry = 1;
+        seek(seekState.seekTarget,  vivictpp::time::seconds(-1));
+        return false;
+      }
+    }
+    seekRetry = 0;
     advanceFrame(seekState.seekEndPos);
     playbackState.seeking = false;
     if (playbackState.playing) {
@@ -140,11 +154,8 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
 
 void vivictpp::VideoPlayback::advanceFrame(vivictpp::time::Time nextPts) {
   logger->info("advanceFrame nextPts={}", nextPts);
-  bool forward = nextPts > playbackState.pts;
   playbackState.pts = nextPts;
-  if (forward) {
-    videoInputs.stepForward(playbackState.pts);
-  } else {
-    videoInputs.stepBackward(playbackState.pts);
-  }
+
+  videoInputs.step(playbackState.pts);
+//  logger->info("After advance frame pts={}", videoInputs.);
 }

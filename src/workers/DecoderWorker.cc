@@ -92,6 +92,8 @@ bool vivictpp::workers::DecoderWorker::onData(const vivictpp::workers::Data<vivi
   logPacket(packet, logger);
   std::vector<vivictpp::libav::Frame> frames = decoder->handlePacket(packet.avPacket());
   for (auto frame : frames) {
+    logger->debug("Got frame with pts={}, pkt_dts={}, keyframe={}",
+                  frame->pts, frame->pkt_dts, frame->key_frame);
     dropFrameIfSeekingAndBufferFull();
     vivictpp::libav::Frame filtered = filter ? filter->filterFrame(frame) : frame;
     if (!filtered.empty()) {

@@ -48,6 +48,7 @@ private:
   vivictpp::time::Time frameDuration;
   int64_t t0 = 0;
   PlaybackState playbackState;
+  int seekRetry{0};
   vivictpp::logging::Logger logger;
 
 public:
@@ -55,7 +56,7 @@ public:
   void togglePlaying();
   void play();
   void pause();
-  void seek(vivictpp::time::Time seekPts);
+  void seek(vivictpp::time::Time seekPts, vivictpp::time::Time streamSeekOffset = 0);
   void seekRelative(vivictpp::time::Time deltaPts);
   void seekRelativeFrame(int distance);
   bool checkAdvanceFrame(int64_t nextPresent);
