@@ -335,6 +335,12 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
       case ActionType::PlaybackSpeedDecrease:
         videoPlayback.adjustPlaybackSpeed(-1);
         break;
+      case ActionType::FrameOffsetDecrease:
+        displayState.leftFrameOffset = videoPlayback.deccreaseLeftFrameOffset();
+        break;
+      case ActionType::FrameOffsetIncrease:
+        displayState.leftFrameOffset = videoPlayback.increaseLeftFrameOffset();
+        break;
       default:
         ;
       }

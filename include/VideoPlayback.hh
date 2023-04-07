@@ -73,6 +73,22 @@ public:
     playbackStartPts = playbackState.pts;
     return playbackState.speedAdjust;
   }
+  int increaseLeftFrameOffset() {
+    int value = videoInputs.increaseLeftFrameOffset();
+    if (!playbackState.playing) {
+      advanceFrame(playbackState.pts);
+      stepped = true;
+    }
+    return value;
+  }
+  int deccreaseLeftFrameOffset() {
+    int value = videoInputs.decreaseLeftFrameOffset();
+    if (!playbackState.playing) {
+      advanceFrame(playbackState.pts);
+      stepped = true;
+    }
+    return value;
+  }
   const PlaybackState& getPlaybackState() { return playbackState; }
 
 };
