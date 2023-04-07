@@ -139,10 +139,34 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
     }
     return false;
   }
+
+  int speedFactorDen(1), speedFactorNum(1);
+  if (playbackState.speedAdjust != 0) {
+    if (playbackState.speedAdjust > 0) {
+      // 99 / 70 is an aproximation of square root of 2
+      speedFactorDen <<= (playbackState.speedAdjust / 2);
+      if (playbackState.speedAdjust % 2) {
+        speedFactorDen *= 99;
+        speedFactorNum = 70;
+      }
+    } else {
+      speedFactorNum <<= (-1 * playbackState.speedAdjust / 2);
+      if ((-1 * playbackState.speedAdjust) % 2) {
+        speedFactorNum *= 99;
+        speedFactorDen = 70;
+      }
+    }
+  }
+
   vivictpp::time::Time nextPts = videoInputs.nextPts();
+  vivictpp::time::Time nextDisplayPts = playbackStartPts + speedFactorDen *
+                                        (nextPresent - t0) / speedFactorNum;
   if (videoInputs.ptsInRange(nextPts)) {
-    if ((nextPresent - t0) >= (nextPts - playbackStartPts)) {
-      advanceFrame(nextPts);
+    if (nextDisplayPts >= nextPts) {
+      while( nextDisplayPts >= nextPts) {
+        advanceFrame(nextPts);
+        nextPts = videoInputs.nextPts();
+      }
       return true;
     } else {
       return false;

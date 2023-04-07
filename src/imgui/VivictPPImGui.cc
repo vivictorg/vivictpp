@@ -251,9 +251,9 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(const viv
     case 'S':
       return {vivictpp::imgui::ToggleFitToScreen};
     case '[':
-      return {vivictpp::imgui::PlaybackSpeedIncrease};
-    case ']':
       return {vivictpp::imgui::PlaybackSpeedDecrease};
+    case ']':
+      return {vivictpp::imgui::PlaybackSpeedIncrease};
     }
   } else {
     if (key == "Space") {
@@ -328,6 +328,12 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         break;
       case ActionType::Scroll:
         videoWindow.onScroll(action.scroll);
+        break;
+      case ActionType::PlaybackSpeedIncrease:
+        videoPlayback.adjustPlaybackSpeed(1);
+        break;
+      case ActionType::PlaybackSpeedDecrease:
+        videoPlayback.adjustPlaybackSpeed(-1);
         break;
       default:
         ;

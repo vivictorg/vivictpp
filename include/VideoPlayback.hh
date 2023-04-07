@@ -22,6 +22,9 @@ struct PlaybackState {
   vivictpp::time::Time pts{0};
   bool playing{false};
   bool seeking{false};
+  int speedAdjust{0};
+  int speedDen{1};
+  int speedNum{1};
 };
 
 class VideoPlayback {
@@ -64,6 +67,12 @@ public:
   VideoInputs &getVideoInputs() { return videoInputs; };
   bool isPlaying() { return playbackState.playing; }
   bool isSeeking() { return playbackState.seeking; }
+  int adjustPlaybackSpeed(int delta) {
+    playbackState.speedAdjust += delta;
+    t0 = vivictpp::time::relativeTimeMicros();
+    playbackStartPts = playbackState.pts;
+    return playbackState.speedAdjust;
+  }
   const PlaybackState& getPlaybackState() { return playbackState; }
 
 };
