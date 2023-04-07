@@ -7,6 +7,17 @@
 #include "imgui/Fonts.hh"
 #include "imgui.h"
 
+void button(const char* text, const char* tooltip, std::function<void(void)> onClick) {
+  ImGui::PushFont(vivictpp::imgui::getIconFont());
+   if (ImGui::Button(text)) {
+     onClick();
+   }
+   ImGui::PopFont();
+   if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
+     ImGui::SetTooltip("%s", tooltip);
+   }
+}
+
 std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
   const PlaybackState &playbackState,
   const ui::DisplayState &displayState) {
@@ -30,52 +41,60 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
   ImGui::SetNextWindowBgAlpha(0.0f); // Transparent background
   std::vector<Action> actions;
   bool myBool;
+  ImVec2 pos = {30, work_size.y - 100};
   if (ImGui::Begin("Video controls", &myBool, window_flags)) {
 
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::clamp(showControls / 60.0f, 0.0f, 1.0f));
-    ImGui::SetCursorPosX(30);
-    ImGui::SetCursorPosY(work_size.y - 100);
+    ImGui::SetCursorPosX(pos.x);
+    ImGui::SetCursorPosY(pos.y);
     ImGui::BeginGroup();
     ImGui::PushStyleColor(ImGuiCol_Button, vivictpp::imgui::transparent);
-    ImGui::PushFont(getIconFont());
-    if (ImGui::Button(playbackState.playing ? ICON_VPP_PAUSE : ICON_VPP_PLAY)) {
-      actions.push_back({ActionType::PlayPause});
-    }
-    ImGui::SameLine();
 
-    if (ImGui::Button(ICON_VPP_STEP_BACKWARD)) {
-//    if (ImGui::ImageButton("apa", (void*) ui::getIconTextures().play.get(), {40,40})) {
-      actions.push_back({ActionType::StepBackward});
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(ICON_VPP_STEP_FORWARD)) {
-      actions.push_back({ActionType::StepForward});
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(ICON_VPP_ZOOM_IN)) {
-      actions.push_back({ActionType::ZoomIn});
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(ICON_VPP_ZOOM_OUT)) {
-      actions.push_back({ActionType::ZoomOut});
-    }
+
+    button(playbackState.playing ? ICON_VPP_PAUSE : ICON_VPP_PLAY,
+           playbackState.playing ? "Pause playback" : "Start playback",
+           [&actions]{actions.push_back({ActionType::PlayPause});});
+
 
     ImGui::SameLine();
-    if (ImGui::Button(ICON_VPP_ZOOM_RESET)) {
-      actions.push_back({ActionType::ZoomReset});
-    }
+    button(ICON_VPP_STEP_BACKWARD, "Step back one frame",
+           [&actions]{ actions.push_back({ActionType::StepBackward}); });
+
     ImGui::SameLine();
-    if (ImGui::Button(displayState.fullscreen ? ICON_VPP_COLLAPSE : ICON_VPP_EXPAND)) {
-      actions.push_back({ActionType::ToggleFullscreen});
-    }
-    ImGui::PopFont();
+    button(ICON_VPP_STEP_FORWARD, "Step forward one frame",
+           [&actions]{ actions.push_back({ActionType::StepForward}); });
+
+    ImGui::SameLine();
+    button(ICON_VPP_ZOOM_IN,  "Zoom in",
+           [&actions]{ actions.push_back({ActionType::ZoomIn}); });
+
+    ImGui::SameLine();
+    button(ICON_VPP_ZOOM_OUT, "Zoom out",
+           [&actions]{ actions.push_back({ActionType::ZoomOut}); });
+
+    ImGui::SameLine();
+    button(ICON_VPP_ZOOM_RESET, "Reset zoom",
+           [&actions]{ actions.push_back({ActionType::ZoomReset}); });
+
+    ImGui::SameLine();
+    button(displayState.fullscreen ? ICON_VPP_COLLAPSE : ICON_VPP_EXPAND,
+           displayState.fullscreen ? "Enter fullscreen mode" : "Exit fullscreen mode",
+           [&actions]{ actions.push_back({ActionType::ToggleFullscreen}); });
+
     ImGui::PopStyleColor();
-
-    ImGui::PushItemWidth(work_size.x - 60);
+    float sliderWidth = work_size.x - 60;
+    float grabSize = 8.0f;
+    float grabPadding = 2.0f; // Copy of value grap_padding in imgui_widgets.cpp
+    ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, grabSize);
+    ImGui::PushItemWidth(sliderWidth);
     float durationSeconds = playbackState.duration / 1e6;
     ImGui::SliderFloat("##Seekbar", &seekValue, 0.0f,  durationSeconds, "");
     float oldSeekValue = seekValue;
     ImGui::PopItemWidth();
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
+      float posFrac = std::clamp((ImGui::GetIO().MousePos.x - pos.x - grabPadding - grabSize / 2) / (sliderWidth - grabSize - 2 * grabPadding), 0.0f, 1.0f);
+      ImGui::SetTooltip("%s", vivictpp::time::formatTime(durationSeconds * posFrac, false).c_str());
+    }
     if (ImGui::IsItemActive()) {
       showControls = 70;
     } else if (!playbackState.seeking && !ImGui::IsItemDeactivatedAfterEdit()) {
@@ -90,6 +109,7 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
       vivictpp::time::Time seekPos = (uint64_t) 1e6 * oldSeekValue;
       actions.push_back({ActionType::Seek, seekPos});
     }
+    ImGui::PopStyleVar();
     ImGui::EndGroup();
     if (ImGui::IsItemHovered()) {
       showControls = 70;

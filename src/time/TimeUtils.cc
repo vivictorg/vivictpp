@@ -25,23 +25,30 @@ int64_t vivictpp::time::toMillis(int64_t micros) {
   return micros / 1000;
 }
 
-std::string vivictpp::time::formatTime(double pts) {
+std::string vivictpp::time::formatTime(double pts, bool includeMillis) {
   int millis = static_cast<int>(pts * 1000);
   int hours = millis / (3600000);
   int minutes = (millis / 60000) % 60;
   int seconds = (millis / 1000) % 60;
   millis = millis % 1000;
   char buff[32];
-  if (hours > 0) {
-    snprintf(buff, 32, "%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
+  if (includeMillis) {
+    if (hours > 0) {
+      snprintf(buff, 32, "%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
+    } else {
+      snprintf(buff, 32, "%02d:%02d.%03d", minutes, seconds, millis);
+    }
   } else {
-     snprintf(buff, 32, "%02d:%02d.%03d", minutes, seconds, millis);
+    if (hours > 0) {
+      snprintf(buff, 32, "%02d:%02d:%02d", hours, minutes, seconds);
+    } else {
+      snprintf(buff, 32, "%02d:%02d", minutes, seconds);
+    }
   }
   std::string result(buff);
   return result;
 }
 
-std::string vivictpp::time::formatTime(vivictpp::time::Time pts) {
-  return formatTime(pts * av_q2d(vivictpp::time::TIME_BASE_Q));
+std::string vivictpp::time::formatTime(vivictpp::time::Time pts, bool includeMillis) {
+  return formatTime(pts * av_q2d(vivictpp::time::TIME_BASE_Q), includeMillis);
 }
-

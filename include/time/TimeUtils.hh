@@ -22,9 +22,9 @@ int64_t toMicros(double seconds);
 
 int64_t toMillis(int64_t micros);
 
-std::string formatTime(double pts);
+std::string formatTime(double pts, bool includeMillis = true);
 
-std::string formatTime(vivictpp::time::Time pts);
+std::string formatTime(vivictpp::time::Time pts, bool includeMillis = true);
 
 }  // namespace time
 }  // namespace vivictpp
