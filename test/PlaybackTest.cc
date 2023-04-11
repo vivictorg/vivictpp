@@ -2,13 +2,15 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#define SDL_MAIN_HANDLED
+
 #include <ostream>
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#define CATCH_CONFIG_RUNNER  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch2/catch.hpp"
 
-extern "C" {
-#include <SDL.h>
-}
+//extern "C" {
+//#include <SDL.h>
+//}
 
 
 #include <vector>
@@ -206,4 +208,14 @@ TEST_CASE( "Test playback" ) {
         // TODO
     }
 
+}
+
+int main( int argc, char* argv[] ) {
+  // global setup...
+
+  int result = Catch::Session().run( argc, argv );
+
+  // global clean-up...
+
+  return result;
 }

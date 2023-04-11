@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#define SDL_MAIN_HANDLED
 
 #include <fstream>
 #include <iostream>

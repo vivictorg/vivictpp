@@ -10,7 +10,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
-#include <unistd.h>
+  //#include <unistd.h>
 }
 
 #include <iostream>

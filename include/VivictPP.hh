@@ -30,7 +30,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
-#include <unistd.h>
+  //#include <unistd.h>
 }
 
 enum class PlaybackState { STOPPED, PLAYING, SEEKING };

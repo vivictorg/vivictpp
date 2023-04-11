@@ -41,13 +41,13 @@ vivictpp::ui::ScreenOutput::ScreenOutput(std::vector<SourceConfig> sourceConfigs
     handCursor(vivictpp::sdl::createHandCursor()),
     panCursor(vivictpp::sdl::createPanCursor()),
     defaultCursor(SDL_GetCursor()),
-    timeTextBox(Position::TOP_CENTER, {
+    timeTextBox(Position::TopCenter, {
       std::make_shared<TimeDisplay>(),
       std::make_shared<SpeedDisplay>()}),
-    leftMetaDisplay(Position::TOP_LEFT, true,
+    leftMetaDisplay(Position::TopLeft, true,
                     [](const DisplayState &displayState) -> const VideoMetadata& { return displayState.leftVideoMetadata; },
                     [](const DisplayState &displayState) { return displayState.leftFrame.metadata(); }),
-    rightMetaDisplay(Position::TOP_RIGHT, false,
+    rightMetaDisplay(Position::TopRight, false,
                      [](const DisplayState &displayState)  -> const VideoMetadata& { return displayState.rightVideoMetadata; },
                      [](const DisplayState &displayState) { return displayState.rightFrame.metadata(); }),
     vmafGraph(vmafLogs(sourceConfigs), 1.0f, 0.3f),

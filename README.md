@@ -83,6 +83,34 @@ $ meson compile -C builddir
 
 4. The `vivictpp` executable should now be available in `builddir`
 
+### Windows
+_This has been tested on windows 11_
+
+1. Follow the guide [here](https://mesonbuild.com/SimpleStart.html) to install meson and the Visual Studio toolchain
+2. Create a folder for dependencies inside the vivictpp repository folder
+```console
+mkdir winlibs
+```
+3. Download the following archives and extract them to the `winlibs` folder
+* https://libsdl.org/release/SDL2-devel-2.26.5-VC.zip
+* https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.20.2-VC.zip
+* https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-5.1.2-full_build-shared.7z
+
+4. Create meson builddir
+```console
+meson setup builddir
+```
+
+5. Compile
+```console
+meson compile -C builddir
+```
+
+6. `vivctpp.exe` is now available in `builddir`. Note that you will need to add directories containing all dlls to path to be able to execute it.
+```console
+PATH=%PATH%;<VIVICTPPDIR>\winlibs\SDL2-2.26.5\lib\x64;<VIVICTPPDIR>\winlibs\SDL2_ttf-2.20.2\lib\x64;<VIVICTPPDIR>\winlibs\ffmpeg-5.1.2-full_build-shared\lib
+```
+
 ### Other platforms
 
 Vivict++ is intended to be cross platform, so building on Windows or macOS should be possible.

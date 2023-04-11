@@ -18,7 +18,7 @@ class Splash : public Component {
 public:
   Splash():
     textBox(std::make_shared<TextBox>(SPLASH_TEXT, "FreeMono", 32)),
-    container(Position::CENTER, {textBox}) {
+    container(Position::Center, {textBox}) {
      textBox->bg = {0,0,0,255};
      textBox->border = false;
   };

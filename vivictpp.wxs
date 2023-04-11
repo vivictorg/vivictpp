@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*"
+           Language="1033"
+           Manufacturer="Vivictorg"
+           Name="VivictPP"
+           UpgradeCode="15FC7C52-6A8B-4269-BD7D-51590AE09658"
+           Version="0.2.6">
+
+    <Package InstallScope="perMachine" Compressed="yes" />
+
+    <MajorUpgrade DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="VivictPP">
+          <Component Id="VivictPPExe">
+            <File KeyPath="yes" Source="build/vivictpp.exe"></File>
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="VivictPP">
+      <ComponentRef Id="ProductComponent" />
+    </Feature>
+
+  </Product>
+</Wix>
