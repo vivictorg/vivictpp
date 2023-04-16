@@ -1,4 +1,4 @@
-[![REUSE status](https://api.reuse.software/badge/github.com/svt/vivictpp)](https://api.reuse.software/info/github.com/svt/vivictpp)
+[![REUSE status](https://api.reuse.software/badge/github.com/vivictorg/vivictpp)](https://api.reuse.software/info/github.com/vivictorg/vivictpp)
 
     ____   ____._______   ____._______________________                        
     \   \ /   /|   \   \ /   /|   \_   ___ \__    ___/    .__         .__     
