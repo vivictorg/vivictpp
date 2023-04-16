@@ -5,6 +5,7 @@
 #ifndef SDL_SDLUTILS_HH
 #define SDL_SDLUTILS_HH
 
+#include "SDL_video.h"
 extern "C" {
 #include <SDL.h>
 }
@@ -53,11 +54,12 @@ private:
 
 };
 
-std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>
-  createWindow(int width, int height);
+typedef std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>> SDLWindow;
+typedef std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>> SDLRenderer;
 
-std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>
-  createRenderer(SDL_Window* window);
+SDLWindow createWindow(int width, int height, int flags = SDL_WINDOW_RESIZABLE);
+
+SDLRenderer createRenderer(SDL_Window* window, int flags = 0);
 
 TexturePtr
 createTexture(SDL_Renderer* renderer, int w, int h, SDL_PixelFormatEnum pixelFormat = SDL_PIXELFORMAT_NV12);

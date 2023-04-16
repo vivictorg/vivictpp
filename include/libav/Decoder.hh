@@ -15,17 +15,13 @@ extern "C" {
 #include <memory>
 #include <vector>
 
+#include "libav/DecoderOptions.hh"
 #include "libav/Packet.hh"
 #include "libav/Frame.hh"
 #include "logging/Logging.hh"
 
 namespace vivictpp {
 namespace libav {
-
-struct  DecoderOptions {
-  std::string hwAccel;
-  std::vector<std::string> preferredDecoders;
-};
 
 class Decoder {
 public:

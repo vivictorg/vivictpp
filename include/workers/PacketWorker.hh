@@ -26,7 +26,8 @@ public:
   void removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   bool hasDecoders() { return !decoderWorkers.empty(); };
   int nDecoders() { return decoderWorkers.size(); };
-  void seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback);
+  void seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback,
+            vivictpp::time::Time streamSeekOffset = 0);
   const std::vector<VideoMetadata> &getVideoMetadata() {
     std::lock_guard<std::mutex> guard(videoMetadataMutex);
     return this->videoMetadata;

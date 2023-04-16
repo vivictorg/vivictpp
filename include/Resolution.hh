@@ -6,12 +6,15 @@
 #ifndef RESOLUTION_HH
 #define RESOLUTION_HH
 
+#include <string>
+#include <sstream>
+
 struct Resolution {
   Resolution():
     Resolution(0,0) {};
   Resolution(int w, int h):
     w(w), h(h) {};
-  Resolution(const Resolution &other) = default;
+//  Resolution(const Resolution &other) = default;
   int w;
   int h;
   float aspectRatio() const {
@@ -31,6 +34,14 @@ struct Resolution {
           return Resolution(maxw, h * maxw / w);
       }
   }
+  std::string toString() const {
+      std::ostringstream oss;
+      oss << this->w << "x" << this->h;
+      return oss.str();
+  }
 };
+
+bool operator== (const Resolution &r1, const Resolution &r2);
+bool operator!= (const Resolution &r1, const Resolution &r2);
 
 #endif // RESOLUTION_HH

@@ -246,14 +246,16 @@ The testdata folder contains some testdata generated with FFmpeg.
 
 
 ## Third Party Dependencies
-Vivict++ uses the following thirdparty libraries.
+Vivict++ uses the following thirdparty dependencies.
 
 * [FFmpeg libav\*libraries like libavcodec, libavfilter and more](https://ffmpeg.org/) ([GNU General Public License (GPL) version 2 or later (OR LGPL)](https://www.ffmpeg.org/legal.html))
 * [SDL2](https://www.libsdl.org/) ([zlib License](https://www.libsdl.org/license.php))
 * [SDL2_ttf](https://www.libsdl.org/projects/SDL_ttf/) ([zlib License](https://github.com/libsdl-org/SDL_ttf/blob/main/COPYING.txt))
+* [ImGui](https://github.com/ocornut/imgui) ([MIT License](https://github.com/ocornut/imgui/blob/master/LICENSE.txt))
 * [spdlog](https://github.com/gabime/spdlog) ([MIT License](https://github.com/gabime/spdlog/blob/v1.x/LICENSE))
 * [cli11](https://github.com/CLIUtils/CLI11) ([The 3-Clause BSD License](https://raw.githubusercontent.com/CLIUtils/CLI11/master/LICENSE))
 * [Catch2](https://github.com/catchorg/Catch2) ([Boost Software License 1.0](https://raw.githubusercontent.com/catchorg/Catch2/devel/LICENSE.txt))
+* [FreeMono from GNU freefont](http://savannah.gnu.org/projects/freefont/) ([GPL License](https://www.gnu.org/software/freefont/license.html))
 
 ## License
 

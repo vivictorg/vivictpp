@@ -11,8 +11,10 @@ extern "C" {
 }
 
 #include "ui/Ui.hh"
+#include "ui/VideoScaler.hh"
 #include "sdl/SDLUtils.hh"
 #include "logging/Logging.hh"
+#include "ui/VideoTextures.hh"
 
 namespace vivictpp::ui {
 
@@ -26,21 +28,11 @@ public:
     return box;
   }
 private:
-  void initTextures(SDL_Renderer *renderer, const DisplayState &displayState);
-  void calcZoomedSrcRect(const vivictpp::ui::DisplayState &displayState,
-                         const Resolution &scaledResolution,
-                         const VideoMetadata &videoMetadata,
-                         SDL_Rect &rect);
-  void setDefaultSourceRectangles(const DisplayState &displayState);
-  void updateRectangles(const DisplayState &displayState, SDL_Renderer *renderer);
-private:
-  vivictpp::sdl::SDLTexture leftTexture;
-  vivictpp::sdl::SDLTexture rightTexture;
-  SDL_Rect sourceRectLeft, sourceRectRight, zoomedView, destRectLeft, destRectRight, destRect;
+  VideoScaler videoScaler;
+  VideoTextures videoTextures;
+//  SDL_Rect sourceRectLeft, sourceRectRight, zoomedView, destRectLeft, destRectRight, destRect;
   Box box;
   vivictpp::logging::Logger logger;
-  Resolution targetResolution;
-  int videoMetadataVersion{-1};
 };
 
 

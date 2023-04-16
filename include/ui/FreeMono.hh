@@ -1,4 +1,3 @@
-
 // SPDX-FileCopyrightText: 2021 Sveriges Television AB
 // SPDX-FileCopyrightText: GNU FreeFont
 //

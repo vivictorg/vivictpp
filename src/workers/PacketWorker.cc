@@ -114,13 +114,14 @@ void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<
       }, "removeDecoder"));
 }
 
-void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback) {
+void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback,
+  vivictpp::time::Time streamSeekOffset) {
   PacketWorker *packetWorker(this);
-  seeklog->debug("PacketWorker::seek pos={}", pos);
+  seeklog->debug("PacketWorker::seek pos={} streamSeekOffset={}", pos, streamSeekOffset);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
       (void) serialNo;
       try {
-        packetWorker->formatHandler.seek(pos);
+        packetWorker->formatHandler.seek(pos + streamSeekOffset);
         packetWorker->unrefCurrentPacket();
         for (auto decoderWorker : packetWorker->decoderWorkers) {
           decoderWorker->seek(pos, callback);
@@ -131,4 +132,3 @@ void vivictpp::workers::PacketWorker::seek(vivictpp::time::Time pos, vivictpp::S
       return true;
       }, "seek"));
 }
-

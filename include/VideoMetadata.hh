@@ -40,7 +40,7 @@ public:
                 AVFormatContext *formatContext,
                 AVStream *videoStream,
                 FilteredVideoMetadata filteredVideoMetadata);
-  VideoMetadata(const VideoMetadata &other) = default;
+
   std::string source;
   int streamIndex;
   std::string pixelFormat;

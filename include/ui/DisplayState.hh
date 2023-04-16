@@ -9,10 +9,13 @@
 #include <string>
 #include <cmath>
 #include <iostream>
+#include <array>
+#include <vector>
 
 #include "VideoMetadata.hh"
 #include "time/Time.hh"
 #include "libav/Frame.hh"
+
 
 namespace vivictpp {
 namespace ui {
@@ -74,6 +77,19 @@ struct DisplayState {
   VideoMetadata rightVideoMetadata;
   int videoMetadataVersion{0};
   std::string playbackSpeedStr;
+  bool displayImGuiDemo{false};
+
+  void updateFrames(std::array<vivictpp::libav::Frame, 2> frames) {
+    leftFrame = frames[0];
+    rightFrame = frames[1];
+  };
+
+  void updateMetadata(std::array<std::vector<VideoMetadata>, 2> metadata) {
+    leftVideoMetadata = metadata[0][0];
+    if (!metadata[1].empty()) {
+      rightVideoMetadata = metadata[1][0];
+    }
+  }
 };
 
 }  // ui

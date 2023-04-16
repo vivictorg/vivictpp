@@ -11,15 +11,28 @@
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
 
+struct UiOptions {
+  bool disableFontAutoScaling;
+  float fontCustomScaling;
+  bool enableImGui;
+};
+
 class VivictPPConfig {
 public:
-  VivictPPConfig(std::vector<SourceConfig> sourceConfigs, bool disableAudio):
+  VivictPPConfig(): VivictPPConfig({}, false, {false, 1.0, false}) {}
+
+  VivictPPConfig(std::vector<SourceConfig> sourceConfigs,
+                 bool disableAudio,
+                 UiOptions uiOptions):
     sourceConfigs(sourceConfigs),
-    disableAudio(disableAudio) {}
+    disableAudio(disableAudio),
+    uiOptions(uiOptions) {}
 
-  const std::vector<SourceConfig> sourceConfigs;
+  std::vector<SourceConfig> sourceConfigs;
 
-  const bool disableAudio;
+  bool disableAudio;
+
+  UiOptions uiOptions;
 
 public:
   bool hasVmafData() {

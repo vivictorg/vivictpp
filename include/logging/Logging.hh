@@ -7,7 +7,7 @@
 #define LOGGING_LOGGING_HH
 
 #include "spdlog/spdlog.h"
-
+#include "time/Time.hh"
 
 namespace vivictpp {
 namespace logging {
@@ -16,8 +16,8 @@ using Logger = std::shared_ptr<spdlog::logger>;
 
 Logger getOrCreateLogger(std::string name);
 
-  void initializeLogging();
-  
+void initializeLogging();
+
 }  // namespace logging
 }  // namespace vivictpp
 

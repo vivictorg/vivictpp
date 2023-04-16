@@ -105,17 +105,38 @@ vivictpp::time::Time VideoInputs::startTime() {
   return leftInput.packetWorker->getVideoMetadata()[0].startTime - leftPtsOffset;
 }
 
+void VideoInputs::step(vivictpp::time::Time pts) {
+  leftInput.decoder->frames().step(pts + leftPtsOffset);
+  if (rightInput.decoder) {
+    rightInput.decoder->frames().step(pts);
+  }
+}
+
 void VideoInputs::stepForward(vivictpp::time::Time pts) {
   leftInput.decoder->frames().stepForward(pts + leftPtsOffset);
-  if (rightInput.decoder)
+  if (rightInput.decoder) {
     rightInput.decoder->frames().stepForward(pts);
+    logger->info("stepForward Left pts={}, Right pts={}",
+                 leftInput.decoder->frames().currentPts() - leftPtsOffset,
+                 rightInput.decoder->frames().currentPts());
+  } else {
+    logger->info("stepForward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+  }
+
 }
 
 
 void VideoInputs::stepBackward(vivictpp::time::Time pts) {
   leftInput.decoder->frames().stepBackward(pts + leftPtsOffset);
-  if (rightInput.decoder)
+  if (rightInput.decoder) {
     rightInput.decoder->frames().stepBackward(pts);
+    logger->info("stepBackward Left pts={}, Right pts={}",
+                 leftInput.decoder->frames().currentPts() - leftPtsOffset,
+                 rightInput.decoder->frames().currentPts());
+  }else {
+    logger->info("stepBackward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+  }
+
 }
 
 void VideoInputs::dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop) {
@@ -145,7 +166,8 @@ std::array<vivictpp::libav::Frame, 2> VideoInputs::firstFrames() {
   return result;
 }
 
-void VideoInputs::seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFinished) {
+void VideoInputs::seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFinished,
+                       vivictpp::time::Time streamSeekOffset) {
   int nDecoders = 0;
   for (auto packetWorker : packetWorkers) {
     nDecoders += packetWorker->nDecoders();
@@ -156,12 +178,12 @@ void VideoInputs::seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFi
       vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos, bool error) {
         this->seekState.handleSeekFinished(seekId, seekEndPos - leftPtsOffset, error);
       };
-      packetWorker->seek(pts + leftPtsOffset, seekCallback);
+      packetWorker->seek(pts + leftPtsOffset, seekCallback, streamSeekOffset);
     } else {
       vivictpp::SeekCallback seekCallback = [this, seekId](vivictpp::time::Time seekEndPos, bool error) {
         this->seekState.handleSeekFinished(seekId, seekEndPos, error);
       };
-      packetWorker->seek(pts, seekCallback);
+      packetWorker->seek(pts, seekCallback, streamSeekOffset);
     }
   }
 }

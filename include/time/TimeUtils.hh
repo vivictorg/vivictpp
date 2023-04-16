@@ -8,6 +8,8 @@
 
 #include <string>
 #include "time/Time.hh"
+//#include "spdlog/spdlog.h"
+#include "spdlog/fmt/fmt.h"
 
 namespace vivictpp {
 namespace time {
@@ -20,11 +22,21 @@ int64_t toMicros(double seconds);
 
 int64_t toMillis(int64_t micros);
 
-std::string formatTime(double pts);
+std::string formatTime(double pts, bool includeMillis = true);
 
-std::string formatTime(vivictpp::time::Time pts);
+std::string formatTime(vivictpp::time::Time pts, bool includeMillis = true);
 
 }  // namespace time
 }  // namespace vivictpp
+
+template<>
+struct fmt::formatter<vivictpp::time::Time> : fmt::formatter<std::string>
+{
+    auto format(vivictpp::time::Time time, format_context &ctx) -> decltype(ctx.out())
+    {
+      return format_to(ctx.out(), "{}", vivictpp::time::formatTime(time));
+    }
+};
+
 
 #endif // TIME_TIMEUTILS_HH

@@ -8,7 +8,7 @@
 
 #include <string>
 #include "vmaf/VmafLog.hh"
-#include "libav/Decoder.hh"
+#include "libav/DecoderOptions.hh"
 
 class SourceConfig {
 public:

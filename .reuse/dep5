@@ -24,6 +24,18 @@ Files: subprojects/catch2.wrap
 Copyright: 2021 Sveriges Television AB
 License: CC0-1.0
 
+Files: subprojects/fmt.wrap
+Copyright: 2021 The Meson development team
+License: MIT
+
+Files: subprojects/sdl2.wrap
+Copyright: 2021 The Meson development team
+License: MIT
+
+Files: subprojects/sdl2_ttf.wrap
+Copyright: 2021 The Meson development team
+License: MIT
+
 Files: subprojects/packagefiles/catch2-2.13.3-2.tar.gz
 Copyright: 2018 The Meson Development team
 License: MIT
@@ -38,6 +50,10 @@ License: CC0-1.0
 
 Files: meson.build
 Copyright: 2021 Sveriges Television AB
+License: CC0-1.0
+
+Files: meson_options.txt
+Copyright: 2023 Gustav Grusell
 License: CC0-1.0
 
 Files: dockerfiles/*
@@ -57,8 +73,11 @@ Copyright: 2021 Sveriges Television AB
 License: CC0-1.0
 
 Files: img/screenshot.png
-Copyright: 2021 Sveriges Television AB
 Copyright: 2012 Blender Foundation
 License: CC-BY-3.0
+
+Files: imgui/*
+Copyright: 2014-2023 Omar Cornut
+License: MIT
 
 # Third-party files.
