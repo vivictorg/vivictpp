@@ -1,7 +1,7 @@
 project('vivict++', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'])
 
 #if meson.get_compiler('cpp').get_id() == 'gcc'
-  extra_args=['-Wno-shadow', '-Wno-declaration-after-statement']
+  extra_args=['-Wno-shadow']
 #else
 #  extra_args=[]
 #endif
