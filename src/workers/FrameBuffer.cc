@@ -161,6 +161,14 @@ bool vivictpp::workers::FrameBuffer::next() {
   return result;
 }
 
+void vivictpp::workers::FrameBuffer::step(vivictpp::time::Time pts) {
+  if (pts > currentPts()) {
+    stepForward(pts);
+  } else {
+    stepBackward(pts);
+  }
+}
+
 int vivictpp::workers::FrameBuffer::stepForward(vivictpp::time::Time pts) {
   int c = 0;
   vivictpp::time::Time nextPts = this->nextPts();

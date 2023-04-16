@@ -106,26 +106,37 @@ vivictpp::time::Time VideoInputs::startTime() {
 }
 
 void VideoInputs::step(vivictpp::time::Time pts) {
-  if (pts + leftPtsOffset > leftInput.decoder->frames().currentPts()) {
-    stepForward(pts);
-  } else if (pts + leftPtsOffset < leftInput.decoder->frames().currentPts()) {
-    stepBackward(pts);
+  leftInput.decoder->frames().step(pts + leftPtsOffset);
+  if (rightInput.decoder) {
+    rightInput.decoder->frames().step(pts);
   }
 }
 
 void VideoInputs::stepForward(vivictpp::time::Time pts) {
   leftInput.decoder->frames().stepForward(pts + leftPtsOffset);
-  if (rightInput.decoder)
+  if (rightInput.decoder) {
     rightInput.decoder->frames().stepForward(pts);
-  logger->info("Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+    logger->info("stepForward Left pts={}, Right pts={}",
+                 leftInput.decoder->frames().currentPts() - leftPtsOffset,
+                 rightInput.decoder->frames().currentPts());
+  } else {
+    logger->info("stepForward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+  }
+
 }
 
 
 void VideoInputs::stepBackward(vivictpp::time::Time pts) {
   leftInput.decoder->frames().stepBackward(pts + leftPtsOffset);
-  if (rightInput.decoder)
+  if (rightInput.decoder) {
     rightInput.decoder->frames().stepBackward(pts);
-  logger->info("Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+    logger->info("stepBackward Left pts={}, Right pts={}",
+                 leftInput.decoder->frames().currentPts() - leftPtsOffset,
+                 rightInput.decoder->frames().currentPts());
+  }else {
+    logger->info("stepBackward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+  }
+
 }
 
 void VideoInputs::dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop) {

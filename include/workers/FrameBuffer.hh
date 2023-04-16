@@ -49,6 +49,7 @@ public:
   void write(vivictpp::libav::Frame frame, vivictpp::time::Time pts);
   vivictpp::time::Time nextPts();
   vivictpp::time::Time previousPts();
+  void step(vivictpp::time::Time pts);
   int stepForward(vivictpp::time::Time pts);
   void stepBackward(vivictpp::time::Time pts);
   void drop(int n = 1);
@@ -86,4 +87,3 @@ private:
 }  // namespace workers
 }  // namespace vivictpp
 #endif // WORKERS_FRAMEBUFFER_HH
-
