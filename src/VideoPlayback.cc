@@ -26,14 +26,30 @@ void vivictpp::VideoPlayback::SeekState::seekFinished(int seekId, vivictpp::time
 
 vivictpp::VideoPlayback::VideoPlayback(VivictPPConfig vivictPPConfig):
   videoInputs(vivictPPConfig),
-  frameDuration(vivictPPConfig.sourceConfigs.size() == 1 ?
-                videoInputs.metadata()[0][0].frameDuration :
-                std::min(videoInputs.metadata()[0][0].frameDuration,
-                         videoInputs.metadata()[1][0].frameDuration)),
   logger(vivictpp::logging::getOrCreateLogger("vivictpp::VideoPlayback"))
 {
+  if (!vivictPPConfig.sourceConfigs.empty()) {
+    initPlaybackState();
+  }
+}
+
+void vivictpp::VideoPlayback::initPlaybackState() {
+  frameDuration = videoInputs.frameDuration();
   playbackState.pts = videoInputs.startTime();
   playbackState.duration = videoInputs.duration();
+  playbackState.hasLeftSource = videoInputs.hasLeftSource();
+  playbackState.hasRightSource = videoInputs.hasRightSource();
+  playbackState.ready = playbackState.hasLeftSource;
+}
+
+void vivictpp::VideoPlayback::setLeftSource(std::string source) {
+  videoInputs.openLeft(source);
+  initPlaybackState();
+}
+
+void vivictpp::VideoPlayback::setRightSource(std::string source) {
+  videoInputs.openRight(source);
+  initPlaybackState();
 }
 
 void vivictpp::VideoPlayback::togglePlaying() {

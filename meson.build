@@ -43,7 +43,7 @@ test_deps = [
   catch2_proj.get_variable('catch2_dep')
 ]
 
-incdir = include_directories('include', 'imgui', 'imgui/backends')
+incdir = include_directories('include', 'imgui', 'imgui/backends', 'libs/ImGuiFileDialog')
 
 git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')
 git_hash = git_hash_cmd.stdout().strip()
@@ -61,8 +61,12 @@ imgui_sources=[
   'src/imgui/Controls.cc',
   'src/imgui/VideoMetadataDisplay.cc',
   'src/imgui/ImGuiSDL.cc',
-  'src/imgui/Fonts.cc'
+  'src/imgui/Fonts.cc',
+  'src/imgui/MainMenu.cc',
+  'src/imgui/FileDialog.cc',
+  'libs/ImGuiFileDialog/ImGuiFileDialog.cpp'
 ]
+
 
 sources = [
   'src/AVSync.cc',

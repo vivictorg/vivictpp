@@ -64,17 +64,24 @@ enum ActionType {
   PlaybackSpeedIncrease,
   PlaybackSpeedDecrease,
   ToggleImGuiDemo,
-  Scroll
+  Scroll,
+  OpenFileLeft,
+  OpenFileRight,
+  ShowFileDialogLeft,
+  ShowFileDialogRight
 };
 
 struct Action {
-  Action(ActionType type, vivictpp::time::Time seek = 0, ImVec2 scroll = {0,0}):
+  Action(ActionType type, vivictpp::time::Time seek = 0, ImVec2 scroll = {0,0},
+         std::string file = ""):
     type(type),
     seek(seek),
-    scroll(scroll){};
+    scroll(scroll),
+    file(file){};
   ActionType type;
   vivictpp::time::Time seek;
   ImVec2 scroll;
+  std::string file;
 };
 
 }  // namespace vivictpp::imgui

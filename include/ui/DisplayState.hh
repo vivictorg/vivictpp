@@ -89,6 +89,7 @@ struct DisplayState {
     if (!metadata[1].empty()) {
       rightVideoMetadata = metadata[1][0];
     }
+    videoMetadataVersion++;
   }
 };
 

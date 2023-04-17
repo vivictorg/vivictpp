@@ -14,6 +14,8 @@
 #include "imgui/ImGuiSDL.hh"
 #include "imgui/Controls.hh"
 #include "imgui/VideoMetadataDisplay.hh"
+#include "imgui/FileDialog.hh"
+#include "imgui/MainMenu.hh"
 #include "imgui.h"
 #include <vector>
 
@@ -52,6 +54,8 @@ private:
   VideoWindow videoWindow;
   Controls controls;
   int64_t tLastPresent{0};
+  FileDialog fileDialog;
+  MainMenu mainMenu;
 private:
   Action handleKeyEvent(const KeyEvent &keyEvent);
   std::vector<Action> handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);

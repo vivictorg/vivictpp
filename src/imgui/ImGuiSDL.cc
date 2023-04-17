@@ -63,7 +63,7 @@ void vivictpp::imgui::ImGuiSDL::updateTextures(const ui::DisplayState &displaySt
 }
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
-  SDL_SetWindowSize(window, videoTextures.nativeResolution.w, videoTextures.nativeResolution.h);
+  SDL_SetWindowSize(window, videoTextures.nativeResolution.w, 20 + videoTextures.nativeResolution.h);
 }
 
 bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {

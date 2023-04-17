@@ -61,6 +61,10 @@ private:
 
 public:
     explicit VideoInputs(VivictPPConfig vivictPPConfig);
+    void openLeft(std::string source, std::string formatOptions = "");
+    void openRight(std::string source, std::string formatOptions = "");
+    bool hasLeftSource() { return !!leftInput.packetWorker; }
+    bool hasRightSource() { return !!rightInput.packetWorker; }
     bool ptsInRange(vivictpp::time::Time pts);
     void step(vivictpp::time::Time pts);
     void stepForward(vivictpp::time::Time pts);
@@ -73,6 +77,16 @@ public:
     std::array<std::vector<VideoMetadata>, 2> metadata();
     vivictpp::time::Time duration();
     vivictpp::time::Time startTime();
+    vivictpp::time::Time frameDuration() {
+      if (hasLeftSource()) {
+        return vivictpp::time::NO_TIME;
+      }
+      vivictpp::time::Time frameDuration = metadata()[0][0].frameDuration;
+      if (hasRightSource()) {
+        frameDuration = std::min(frameDuration, metadata()[1][0].frameDuration);
+      }
+      return frameDuration;
+    }
     bool hasMaxPts() {
         return leftInput.packetWorker->getVideoMetadata()[0].hasDuration()
             || (rightInput.packetWorker &&

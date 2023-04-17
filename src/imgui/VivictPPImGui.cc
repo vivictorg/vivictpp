@@ -15,6 +15,7 @@
 #include "ui/DisplayState.hh"
 #include "imgui/Colors.hh"
 //#include "imgui/Fonts.hh"
+#include "ImGuiFileDialog.h"
 #include <map>
 #include <memory>
 
@@ -92,8 +93,8 @@ void alignForWidth(float width, float alignment = 0.5f, float offset = 0.0f)
 void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextures, const ui::DisplayState &displayState) {
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImVec2 work_size = viewport->WorkSize;
-
-  pos = {0,0};
+  ImVec2 work_pos =  viewport->WorkPos;
+  pos = {0,work_pos.y};
   size = work_size;
   ImGui::SetNextWindowPos(pos);
   ImGui::SetNextWindowSize(size);
@@ -128,7 +129,7 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
     float scrollX = scroll.x;
     float scrollY = scroll.y;
 
-    ImVec2 pad = ImGui::GetCursorPos();
+    ImVec2 pad; // = {viewport->Size.x - work_size.x, viewport->Size.y - work_pos.y};
     if (scaledVideoSize.x < viewSize.x) {
       pad.x += (viewSize.x - scaledVideoSize.x) / 2;
     }
@@ -167,14 +168,16 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(VivictPPConfig vivictPPConfig):
   imGuiSDL(),
   videoPlayback(vivictPPConfig)
 {
-  displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() == 1;
+  displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;
   if (displayState.splitScreenDisabled) {
     displayState.splitPercent = 100;
   }
-  displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
-  displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
-  imGuiSDL.updateTextures(displayState);
-  imGuiSDL.fitWindowToTextures();
+  if (videoPlayback.getPlaybackState().ready) {
+    displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+    displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+    imGuiSDL.updateTextures(displayState);
+    imGuiSDL.fitWindowToTextures();
+  }
 }
 
 void vivictpp::imgui::VivictPPImGui::run() {
@@ -184,20 +187,27 @@ void vivictpp::imgui::VivictPPImGui::run() {
 
     imGuiSDL.newFrame();
 
-    int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
-    if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
-      displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
-      imGuiSDL.updateTextures(displayState);
+    handleActions(mainMenu.draw(videoPlayback.getPlaybackState(), displayState));
+
+    handleActions(fileDialog.draw());
+
+    if (videoPlayback.getPlaybackState().ready) {
+      int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
+      if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
+        displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+        imGuiSDL.updateTextures(displayState);
+      }
+      displayState.pts = videoPlayback.getPlaybackState().pts;
+      displayState.isPlaying = videoPlayback.isPlaying();
+      videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
     }
-    displayState.pts = videoPlayback.getPlaybackState().pts;
-    displayState.isPlaying = videoPlayback.isPlaying();
-    videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
 
     handleActions(controls.draw(videoPlayback.getPlaybackState(), displayState));
     if (displayState.displayImGuiDemo) {
       bool aBool;
       ImGui::ShowDemoWindow(&aBool);
     }
+
     imGuiSDL.render();
     tLastPresent = vivictpp::time::relativeTimeMicros();
   }
@@ -340,6 +350,29 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         break;
       case ActionType::FrameOffsetIncrease:
         displayState.leftFrameOffset = videoPlayback.increaseLeftFrameOffset();
+        break;
+      case ActionType::ShowFileDialogLeft:
+        fileDialog.openLeft();
+        break;
+      case ActionType::ShowFileDialogRight:
+        if (videoPlayback.getPlaybackState().hasLeftSource) {
+          fileDialog.openRight();
+        }
+        break;
+      case ActionType::OpenFileLeft:
+        videoPlayback.setLeftSource(action.file);
+        displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+        displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+        imGuiSDL.updateTextures(displayState);
+        imGuiSDL.fitWindowToTextures();
+        break;
+      case ActionType::OpenFileRight:
+        videoPlayback.setRightSource(action.file);
+        displayState.splitScreenDisabled = false;
+        displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+        displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+        imGuiSDL.updateTextures(displayState);
+        imGuiSDL.fitWindowToTextures();
         break;
       default:
         ;

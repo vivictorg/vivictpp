@@ -22,6 +22,9 @@ struct PlaybackState {
   vivictpp::time::Time pts{0};
   bool playing{false};
   bool seeking{false};
+  bool ready{false};
+  bool hasLeftSource{false};
+  bool hasRightSource{false};
   int speedAdjust{0};
   int speedDen{1};
   int speedNum{1};
@@ -53,9 +56,12 @@ private:
   PlaybackState playbackState;
   int seekRetry{0};
   vivictpp::logging::Logger logger;
-
+private:
+  void initPlaybackState();
 public:
   VideoPlayback(VivictPPConfig vivictPPConfig);
+  void setLeftSource(std::string source);
+  void setRightSource(std::string source);
   void togglePlaying();
   void play();
   void pause();
