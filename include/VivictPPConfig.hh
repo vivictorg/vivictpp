@@ -10,6 +10,7 @@
 #include <algorithm>
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
+#include "libav/DecoderOptions.hh"
 
 struct UiOptions {
   bool disableFontAutoScaling;
@@ -19,20 +20,24 @@ struct UiOptions {
 
 class VivictPPConfig {
 public:
-  VivictPPConfig(): VivictPPConfig({}, false, {false, 1.0, false}) {}
+  VivictPPConfig(): VivictPPConfig({}, false, {false, 1.0, false}, {}) {}
 
   VivictPPConfig(std::vector<SourceConfig> sourceConfigs,
                  bool disableAudio,
-                 UiOptions uiOptions):
+                 UiOptions uiOptions,
+                 vivictpp::libav::DecoderOptions decoderOptions):
     sourceConfigs(sourceConfigs),
     disableAudio(disableAudio),
-    uiOptions(uiOptions) {}
+    uiOptions(uiOptions),
+    decoderOptions(decoderOptions) {}
 
   std::vector<SourceConfig> sourceConfigs;
 
   bool disableAudio;
 
   UiOptions uiOptions;
+
+  vivictpp::libav::DecoderOptions decoderOptions;
 
 public:
   bool hasVmafData() {

@@ -38,6 +38,7 @@ void SeekState::handleSeekFinished(int seekId, int seekPos, bool error) {
 VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
   _leftFrameOffset(0),
   leftPtsOffset(0),
+  decoderOptions(vivictPPConfig.decoderOptions),
   logger(vivictpp::logging::getOrCreateLogger("VideoInputs")) {
   for (auto source: vivictPPConfig.sourceConfigs) {
     auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
@@ -48,14 +49,14 @@ VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
         leftInput.packetWorker = packetWorker;
         leftInput.decoder.reset(
           new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               source.filter, source.decoderOptions));
+                                               source.filter, decoderOptions));
         packetWorker->addDecoderWorker(leftInput.decoder);
         leftInput.decoder->start();
       } else if (!rightInput.decoder) {
         rightInput.packetWorker = packetWorker;
         rightInput.decoder.reset(
           new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               source.filter, source.decoderOptions));
+                                               source.filter, decoderOptions));
         packetWorker->addDecoderWorker(rightInput.decoder);
         rightInput.decoder->start();
       }
@@ -91,7 +92,7 @@ void VideoInputs::openLeft(std::string source, std::string formatOptions) {
   leftInput.decoder.reset(
     // TODO: Add support for decoderOptions and filter
           new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               "", {}));
+                                               "", decoderOptions));
   packetWorker->addDecoderWorker(leftInput.decoder);
   leftInput.decoder->start();
   if (rightInput.packetWorker) {
@@ -116,7 +117,7 @@ void VideoInputs::openRight(std::string source, std::string formatOptions) {
   rightInput.decoder.reset(
     // TODO: Add support for decoderOptions and filter
           new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               "", {}));
+                                               "", decoderOptions));
   packetWorker->addDecoderWorker(rightInput.decoder);
   rightInput.decoder->start();
   packetWorker->start();

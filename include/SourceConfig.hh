@@ -15,13 +15,11 @@ public:
   SourceConfig(std::string path,
                std::string filter = "",
                std::string vmafLogFile = "",
-               std::string formatOptions = "",
-               vivictpp::libav::DecoderOptions decoderOptions = {}):
+               std::string formatOptions = ""):
     path(path),
     filter(filter),
     vmafLog(vmafLogFile),
-    formatOptions(formatOptions),
-    decoderOptions(decoderOptions)
+    formatOptions(formatOptions)
     {
     }
 
@@ -29,7 +27,6 @@ public:
   const std::string filter;
   const vivictpp::vmaf::VmafLog vmafLog;
   const std::string formatOptions;
-  const vivictpp::libav::DecoderOptions decoderOptions;
 };
 
 #endif  // SOURCECONFIG_HH_

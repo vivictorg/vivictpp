@@ -136,10 +136,10 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
         std::string filter = i < filters.size() ? filters[i] : "";
         std::string vmafLogFile = i < vmafLogfiles.size() ? vmafLogfiles[i] : "";
         std::string format = i < formatOptions.size() ? formatOptions[i] : "";
-        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format, {hwAccel, preferredDecoders}));
+        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format));
     }
 
     this->vivictPPConfig =
-      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui});
+      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui},  {hwAccel, preferredDecoders});
     return true;
   };

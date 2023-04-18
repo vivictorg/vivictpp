@@ -56,8 +56,9 @@ private:
         leftPtsOffset = _leftFrameOffset * leftInput.packetWorker->getVideoMetadata()[0].frameDuration;
         logger->debug("leftPtsOffset: {}", leftPtsOffset);
     }
-    vivictpp::logging::Logger logger;
     SeekState seekState;
+    vivictpp::libav::DecoderOptions decoderOptions;
+    vivictpp::logging::Logger logger;
 
 public:
     explicit VideoInputs(VivictPPConfig vivictPPConfig);

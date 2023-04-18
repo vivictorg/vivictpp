@@ -45,11 +45,13 @@ void vivictpp::VideoPlayback::initPlaybackState() {
 void vivictpp::VideoPlayback::setLeftSource(std::string source) {
   videoInputs.openLeft(source);
   initPlaybackState();
+  seek(videoInputs.startTime());
 }
 
 void vivictpp::VideoPlayback::setRightSource(std::string source) {
   videoInputs.openRight(source);
   initPlaybackState();
+  seek(videoInputs.startTime());
 }
 
 void vivictpp::VideoPlayback::togglePlaying() {

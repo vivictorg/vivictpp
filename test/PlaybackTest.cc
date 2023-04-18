@@ -64,7 +64,7 @@ VivictPPConfig testConfig() {
     std::vector<SourceConfig> sourceConfigs;
     sourceConfigs.push_back(SourceConfig("../testdata/test1.mp4"));
     sourceConfigs.push_back(SourceConfig("../testdata/test1.mp4"));
-    VivictPPConfig vivictPPConfig(sourceConfigs, true, {false, 1, false});
+    VivictPPConfig vivictPPConfig(sourceConfigs, true, {false, 1, false}, {});
     return vivictPPConfig;
 }
 
