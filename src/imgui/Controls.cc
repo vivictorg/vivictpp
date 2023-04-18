@@ -143,10 +143,12 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
       float speed = 1 * std::pow(2, playbackState.speedAdjust * 0.5);
       ImVec2 textSize = ImGui::CalcTextSize("Speed: x0.00");
       int pad = 2;
-      float y0 = displayState.displayTime ? 25 : 10;
+      float y0 = displayState.displayTime ? 30 : 10;
       float x = (work_size.x - textSize.x) / 2 - pad;
-      ImGui::GetWindowDrawList()->AddRectFilled( {x, y0 - pad},
-                                                 {x + 2 * pad + textSize.x, y0 + textSize.y + pad},
+      float rectangleY0 = ImGui::GetWindowPos().y + y0 - pad;
+      float rectangleY1 = rectangleY0 + textSize.y + 2 * pad;
+      ImGui::GetWindowDrawList()->AddRectFilled( {x, rectangleY0},
+                                                 {x + 2 * pad + textSize.x, rectangleY1},
                                                  transparentBg);
       x = (work_size.x - textSize.x) / 2;
       ImGui::SetCursorPosX(x);

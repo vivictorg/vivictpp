@@ -131,10 +131,10 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
 
     ImVec2 pad; // = {viewport->Size.x - work_size.x, viewport->Size.y - work_pos.y};
     if (scaledVideoSize.x < viewSize.x) {
-      pad.x += (viewSize.x - scaledVideoSize.x) / 2;
+      pad.x += std::floor((viewSize.x - scaledVideoSize.x) / 2);
     }
     if (scaledVideoSize.y < viewSize.y) {
-      pad.y += (viewSize.y - scaledVideoSize.y) / 2;
+      pad.y += std::floor((viewSize.y - scaledVideoSize.y) / 2);
     }
     videoPos = pad;
 
