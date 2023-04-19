@@ -64,6 +64,8 @@ imgui_sources=[
   'src/imgui/Fonts.cc',
   'src/imgui/MainMenu.cc',
   'src/imgui/FileDialog.cc',
+  'src/imgui/Help.cc',
+  'src/imgui/About.cc',
   'libs/ImGuiFileDialog/ImGuiFileDialog.cpp'
 ]
 

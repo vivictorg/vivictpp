@@ -63,6 +63,20 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
       }
       ImGui::EndMenu();
     }
+    if (ImGui::BeginMenu("Help")) {
+      ImGui::MenuItem("(Help menu)", NULL, false, false);
+      if (ImGui::MenuItem("Help", "", false)) {
+        actions.push_back({ActionType::ShowHelp});
+      }
+      if (ImGui::MenuItem("ImGui Demo", NULL, false)) {
+        actions.push_back({ActionType::ToggleImGuiDemo});
+      }
+      ImGui::Separator();
+      if (ImGui::MenuItem("About", NULL, false)) {
+        actions.push_back({ActionType::ShowAbout});
+      }
+      ImGui::EndMenu();
+    }
     ImGui::EndMainMenuBar();
   }
   return actions;

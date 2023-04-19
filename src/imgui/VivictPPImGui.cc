@@ -14,6 +14,8 @@
 #include "time/TimeUtils.hh"
 #include "ui/DisplayState.hh"
 #include "imgui/Colors.hh"
+#include "imgui/Help.hh"
+#include "imgui/About.hh"
 //#include "imgui/Fonts.hh"
 #include "ImGuiFileDialog.h"
 #include <map>
@@ -207,6 +209,12 @@ void vivictpp::imgui::VivictPPImGui::run() {
       bool aBool;
       ImGui::ShowDemoWindow(&aBool);
     }
+    if (displayState.displayHelp) {
+      showHelp(displayState);
+    }
+    if (displayState.displayAbout) {
+      showAbout(displayState);
+    }
 
     imGuiSDL.render();
     tLastPresent = vivictpp::time::relativeTimeMicros();
@@ -373,6 +381,12 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
         imGuiSDL.updateTextures(displayState);
         imGuiSDL.fitWindowToTextures();
+        break;
+      case ActionType::ShowHelp:
+        displayState.displayHelp = !displayState.displayHelp;
+        break;
+      case ActionType::ShowAbout:
+        displayState.displayAbout = !displayState.displayAbout;
         break;
       default:
         ;

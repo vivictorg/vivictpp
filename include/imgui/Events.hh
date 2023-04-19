@@ -68,7 +68,9 @@ enum ActionType {
   OpenFileLeft,
   OpenFileRight,
   ShowFileDialogLeft,
-  ShowFileDialogRight
+  ShowFileDialogRight,
+  ShowHelp,
+  ShowAbout
 };
 
 struct Action {
