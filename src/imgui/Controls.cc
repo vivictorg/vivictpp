@@ -6,6 +6,7 @@
 #include "imgui/Colors.hh"
 #include "imgui/Fonts.hh"
 #include "imgui.h"
+#include "spdlog/logger.h"
 
 void button(const char* text, const char* tooltip, std::function<void(void)> onClick) {
   ImGui::PushFont(vivictpp::imgui::getIconFont());
@@ -27,6 +28,7 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
                                   ImGuiWindowFlags_NoSavedSettings |
                                   ImGuiWindowFlags_NoFocusOnAppearing |
                                   ImGuiWindowFlags_NoNav;
+
   const ImGuiViewport* viewport = ImGui::GetMainViewport();
   ImVec2 work_size = viewport->WorkSize;
   ImVec2 work_pos = viewport->WorkPos;
@@ -35,13 +37,16 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
   window_pos.y = work_size.y - 10.0f;
   window_pos_pivot.x = 0.5f;
   window_pos_pivot.y = 1.0f;
-  ImGui::SetNextWindowPos({0,0}, ImGuiCond_Always);
-  ImGui::SetNextWindowSize({work_size.x, work_size.y});
-  window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
-  ImGui::SetNextWindowBgAlpha(0.0f); // Transparent background
+
   std::vector<Action> actions;
   bool myBool;
   ImVec2 pos = {30, work_size.y - 100};
+
+  ImGui::SetNextWindowPos(work_pos, ImGuiCond_Always);
+  ImGui::SetNextWindowSize({work_size.x, work_size.y});
+  window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+  ImGui::SetNextWindowBgAlpha(0.0f); // Transparent background
+
   if (ImGui::Begin("Video controls", &myBool, window_flags)) {
 
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, std::clamp(showControls / 60.0f, 0.0f, 1.0f));
@@ -125,8 +130,8 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
       int pad = 2;
       float y0 = 10;
       float x = (work_size.x - textSize.x) / 2 - pad;
-      ImGui::GetWindowDrawList()->AddRectFilled( {x, y0 - pad},
-                                                 {x + 2 * pad + textSize.x, y0 + textSize.y + pad},
+      ImGui::GetWindowDrawList()->AddRectFilled( {x, ImGui::GetWindowPos().y + y0 - pad},
+                                                 {x + 2 * pad + textSize.x, ImGui::GetWindowPos().y + y0 + textSize.y + pad},
                                                  transparentBg);
       x = (work_size.x - textSize.x) / 2;
       ImGui::SetCursorPosX(x);
@@ -138,10 +143,12 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
       float speed = 1 * std::pow(2, playbackState.speedAdjust * 0.5);
       ImVec2 textSize = ImGui::CalcTextSize("Speed: x0.00");
       int pad = 2;
-      float y0 = displayState.displayTime ? 25 : 10;
+      float y0 = displayState.displayTime ? 30 : 10;
       float x = (work_size.x - textSize.x) / 2 - pad;
-      ImGui::GetWindowDrawList()->AddRectFilled( {x, y0 - pad},
-                                                 {x + 2 * pad + textSize.x, y0 + textSize.y + pad},
+      float rectangleY0 = ImGui::GetWindowPos().y + y0 - pad;
+      float rectangleY1 = rectangleY0 + textSize.y + 2 * pad;
+      ImGui::GetWindowDrawList()->AddRectFilled( {x, rectangleY0},
+                                                 {x + 2 * pad + textSize.x, rectangleY1},
                                                  transparentBg);
       x = (work_size.x - textSize.x) / 2;
       ImGui::SetCursorPosX(x);
@@ -158,6 +165,7 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
       rightMetadata.draw(displayState);
     }
 
+
     ImGui::SetCursorPosX(0);
     ImGui::SetCursorPosY(0);
     if (ImGui::InvisibleButton("##playpause", work_size)) {
@@ -172,7 +180,10 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
       actions.push_back({Scroll, 0, mouseDelta});
       wasDragging = true;
     }
+
   }
+
+
   ImGui::End();
   return actions;
 }

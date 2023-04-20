@@ -68,7 +68,7 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     app.footer(FOOTER);
 
     std::string leftVideo;
-    app.add_option("leftVideo", leftVideo, "Path or url to first (left) video")->required();
+    app.add_option("leftVideo", leftVideo, "Path or url to first (left) video");
 
     std::string rightVideo;
     app.add_option("rightVideo", rightVideo, "Path or url to second (right) video");
@@ -118,7 +118,10 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
       return false;
     }
 
-    std::vector<std::string> sources = {leftVideo};
+    std::vector<std::string> sources;
+    if (!leftVideo.empty()) {
+      sources.push_back(leftVideo);
+    }
     if (!rightVideo.empty()) {
       sources.push_back(rightVideo);
     }
@@ -133,10 +136,10 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
         std::string filter = i < filters.size() ? filters[i] : "";
         std::string vmafLogFile = i < vmafLogfiles.size() ? vmafLogfiles[i] : "";
         std::string format = i < formatOptions.size() ? formatOptions[i] : "";
-        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format, {hwAccel, preferredDecoders}));
+        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format));
     }
 
     this->vivictPPConfig =
-      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui});
+      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui},  {hwAccel, preferredDecoders});
     return true;
   };
