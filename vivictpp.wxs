@@ -18,6 +18,17 @@
         <Directory Id="INSTALLFOLDER" Name="VivictPP">
           <Component Id="VivictPPExe">
             <File KeyPath="yes" Source="build/vivictpp.exe"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avdevice-59.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avfilter-8.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avcodec-59.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avutil-57.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/swresample-4.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avformat-59.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/postproc-56.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/swscale-6.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/SDL2-2.26.5/lib/x64/SDL2.dll"></file>"
+            <File KeyPath="yes" Source="winlibs/SDL2_ttf-2.20.2/lib/x64/SDL2_ttf.dll"></file>"
+            <File KeyPath="yes" Source="license-info.txt"></file>"
           </Component>
         </Directory>
       </Directory>
