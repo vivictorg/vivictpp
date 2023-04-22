@@ -18,24 +18,57 @@
         <Directory Id="INSTALLFOLDER" Name="VivictPP">
           <Component Id="VivictPPExe">
             <File KeyPath="yes" Source="build/vivictpp.exe"></File>
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avdevice-59.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avfilter-8.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avcodec-59.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avutil-57.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/swresample-4.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avformat-59.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/postproc-56.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/swscale-6.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/SDL2-2.26.5/lib/x64/SDL2.dll"></file>"
-            <File KeyPath="yes" Source="winlibs/SDL2_ttf-2.20.2/lib/x64/SDL2_ttf.dll"></file>"
-            <File KeyPath="yes" Source="license-info.txt"></file>"
+	  </Component>
+	  <Component Id="Libavdevice">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avdevice-59.dll"></File>
+	    	  </Component>
+	  <Component Id="Libavfilter">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avfilter-8.dll"></File>
+	  </Component>
+	  <Component Id="Libavcodec">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avcodec-59.dll"></File>
+	  </Component>
+	  <Component Id="Libavutil">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avutil-57.dll"></File>
+	  </Component>
+	  <Component Id="Libswresample">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/swresample-4.dll"></File>
+	  </Component>
+	  <Component Id="Libavformat">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avformat-59.dll"></File>
+	  </Component>
+	  <Component Id="Libswscale">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/swscale-6.dll"></File>
+	  </Component>
+	  <Component Id="Libpostproc">
+            <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/postproc-56.dll"></File>
+	  </Component>
+	  <Component Id="Sdl2">
+            <File KeyPath="yes" Source="winlibs/SDL2-2.26.5/lib/x64/SDL2.dll"></File>
+	  </Component>
+	  <Component Id="Sdl2_ttf">
+            <File KeyPath="yes" Source="winlibs/SDL2_ttf-2.20.2/lib/x64/SDL2_ttf.dll"></File>
+	  </Component>
+	  <Component Id="Licenseinfo">
+            <File KeyPath="yes" Source="license-info.txt"></File>
           </Component>
         </Directory>
       </Directory>
     </Directory>
 
     <Feature Id="VivictPP">
-      <ComponentRef Id="ProductComponent" />
+      <ComponentRef Id="VivictPPExe" />
+      <ComponentRef Id="Libavdevice" />
+      <ComponentRef Id="Libavfilter" />
+      <ComponentRef Id="Libavcodec" />
+      <ComponentRef Id="Libavutil" />
+      <ComponentRef Id="Libswresample" />
+      <ComponentRef Id="Libavformat" />
+      <ComponentRef Id="Libswscale" />
+      <ComponentRef Id="Libpostproc" />
+      <ComponentRef Id="Sdl2" />
+      <ComponentRef Id="Sdl2_ttf" />
+      <ComponentRef Id="Licenseinfo" />
     </Feature>
 
   </Product>
