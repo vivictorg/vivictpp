@@ -6,7 +6,7 @@
 
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::FileDialog::draw() {
   std::vector<Action> actions;
-  if (fileDialog.Display("ChooseFileDlgKey"))
+  if (fileDialog.Display("ChooseFileDlgKey", 0, {400,300}))
   {
     // action if OK
     if (fileDialog.IsOk())
