@@ -30,7 +30,7 @@ VIVICT++ uses the following third-party libraries. See below for licenses.
 
 )";
 
-const std::string LICENSES =
+const std::string LICENSES1 =
   R"(
 ====
 The below license applies to Vivict++, FFmpeg, FreeMono
@@ -167,7 +167,10 @@ In addition, mere aggregation of another work not based on the Program
 with the Program (or with a work based on the Program) on a volume of
 a storage or distribution medium does not bring the other work under
 the scope of this License.
+)";
 
+const std::string LICENSES1_2 =
+  R"(
   3. You may copy and distribute the Program (or a work based on it,
 under Section 2) in object code or executable form under the terms of
 Sections 1 and 2 above provided that you also do one of the following:
@@ -374,7 +377,10 @@ proprietary programs.  If your program is a subroutine library, you may
 consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.
+)";
 
+const std::string LICENSES2 =
+  R"(
 ====
 The below license applies to SDL2, SDL2_ttf
 
@@ -393,7 +399,10 @@ freely, subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
+)";
 
+const std::string LICENSES3 =
+  R"(
 ====
 The below license applies to ImGui
 
@@ -418,7 +427,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+)";
 
+const std::string LICENSES4 =
+  R"(
 ====
 The below license applies to ImGuiFileDialog
 
@@ -443,7 +455,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+)";
 
+const std::string LICENSES5 =
+  R"(
 ====
 The below license applies to sdplog
 
@@ -472,7 +487,10 @@ THE SOFTWARE.
 -- NOTE: Third party dependency used by this software --
 This software depends on the fmt lib (MIT License),
 and users must comply to its license: https://github.com/fmtlib/fmt/blob/master/LICENSE.rst
+)";
 
+const std::string LICENSES6 =
+  R"(
 ====
 The below license applies to cli11
 
@@ -501,7 +519,10 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+)";
 
+const std::string LICENSES7 =
+  R"(
 ====
 The below license applies to vivict-icons
 
@@ -539,7 +560,15 @@ void vivictpp::imgui::showAbout(ui::DisplayState &displayState) {
     ImGui::Text("%s\n\n", version);
     ImGui::Text("%s", COPYRIGHT_INFO.c_str());
     ImGui::Separator();
-    ImGui::TextUnformatted(LICENSES.c_str());
+    ImGui::TextUnformatted(LICENSES1.c_str());
+    ImGui::TextUnformatted(LICENSES1_2.c_str());
+    ImGui::TextUnformatted(LICENSES2.c_str());
+    ImGui::TextUnformatted(LICENSES3.c_str());
+    ImGui::TextUnformatted(LICENSES4.c_str());
+    ImGui::TextUnformatted(LICENSES5.c_str());
+    ImGui::TextUnformatted(LICENSES6.c_str());
+    ImGui::TextUnformatted(LICENSES7.c_str());
+	
   }
   ImGui::End();
 }
