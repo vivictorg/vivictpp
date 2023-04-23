@@ -19,7 +19,7 @@
           <Component Id="ApplicationShortcut" Guid="*">
                 <Shortcut Id="ApplicationStartMenuShortcut"
                           Name="Vivict++"
-                          Target="[#VivictPPExce]"
+                          Target="[#VivictPPExe]"
                           WorkingDirectory="INSTALLDIRECTORY"/>
                 <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
                 <RegistryValue Root="HKCU" Key="Software\Vivictorg\Vivictpp" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
@@ -29,7 +29,7 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="VivictPP">
           <Component Id="VivictPPExe">
-            <File KeyPath="yes" Source="build/vivictpp.exe"></File>
+            <File Id="VivictPPExe" KeyPath="yes" Source="build/vivictpp.exe"></File>
 	  </Component>
 	  <Component Id="Libavdevice">
             <File KeyPath="yes" Source="winlibs/ffmpeg-5.1.2-full_build-shared/bin/avdevice-59.dll"></File>
