@@ -41,20 +41,20 @@ void vivictpp::ui::FixedPositionContainer::render(const DisplayState &displaySta
   x = 0 + this->offset.x;
   y = 5 + this->offset.y;
   switch (position) {
-  case Position::ABSOLUTE:
+  case Position::Absolute:
     x = this->offset.x;
     y = this->offset.y;
     break;
-  case Position::TOP_LEFT:
+  case Position::TopLeft:
     x = 5 + this->offset.x;
     break;
-  case Position::TOP_CENTER:
+  case Position::TopCenter:
     x = this->offset.x + (rendererWidth - box.w) / 2;
     break;
-  case Position::TOP_RIGHT:
+  case Position::TopRight:
     x = this->offset.x + rendererWidth - box.w - 5;
     break;
-  case Position::CENTER:
+  case Position::Center:
     x = this->offset.x + (rendererWidth - box.w) / 2;
     y = this->offset.y + (rendererHeight - box.h) / 2;
   }

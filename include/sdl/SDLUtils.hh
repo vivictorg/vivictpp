@@ -7,7 +7,7 @@
 
 #include "SDL_video.h"
 extern "C" {
-#include <SDL.h>
+#include "SDL.h"
 }
 
 #include <functional>

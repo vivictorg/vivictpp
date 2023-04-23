@@ -9,6 +9,8 @@
 #include "time/Time.hh"
 #include "workers/DecoderWorker.hh"
 #include <stdexcept>
+#include <chrono>
+#include <thread>
 
 std::shared_ptr<vivictpp::workers::DecoderWorker> findDecoderWorkerForStream(std::vector<std::shared_ptr<vivictpp::workers::DecoderWorker>> decoderWorkers,
                                                                              const AVStream* stream) {
@@ -49,7 +51,7 @@ void  vivictpp::workers::PacketWorker::initVideoMetadata() {
 
 void vivictpp::workers::PacketWorker::doWork() {
   if (!hasDecoders()) {
-     usleep(5 * 1000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
      return;
   }
   logger->trace("vivictpp::workers::PacketWorker::doWork  enter");
@@ -58,7 +60,7 @@ void vivictpp::workers::PacketWorker::doWork() {
   }
   if (currentPacket == nullptr) {
     logger->trace("Packet is null, eof reached");
-    usleep(5 * 1000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
   } else {
     for (auto dw : decoderWorkers) {
       // if any decoder wanted the packet but cannot accept it at this time,

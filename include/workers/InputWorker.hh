@@ -8,9 +8,10 @@
 #include "workers/VideoInputMessage.hh"
 #include <memory>
 #include <thread>
+#include <chrono>
 #include <mutex>
 
-#include <unistd.h>
+//#include <unistd.h>
 #include "logging/Logging.hh"
 
 namespace vivictpp {
@@ -139,7 +140,7 @@ void InputWorker<T>::pollMessageQueue() {
       if (onData(data)) {
         messageQueue.pop();
       } else {
-          usleep(5 * 1000);
+	std::this_thread::sleep_for(std::chrono::milliseconds(5));
         break;
       }
     } else {

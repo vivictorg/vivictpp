@@ -12,3 +12,5 @@ compile_commands.json
 .envrc
 imgui.ini
 prime
+winlibs
+

@@ -42,7 +42,7 @@ protected:
 
 class FixedPositionContainer: public Container {
 public:
-    FixedPositionContainer(Position position = Position::TOP_LEFT,
+    FixedPositionContainer(Position position = Position::TopLeft,
                            std::vector<std::shared_ptr<Component>> components = {},
                            Offset offset = {0,0});
     virtual ~FixedPositionContainer() = default;
