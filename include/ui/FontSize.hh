@@ -35,7 +35,8 @@ public:
 
     operator int() const { return scaledSize(); };
 
-    int scaledSize() const { return (int) round(size * (scalingEnabled ? scaleFactor : 1.0)); };
+  float scaledSizeFloat() const {  return round(size * (scalingEnabled ? scaleFactor : 1.0)); };
+  int scaledSize() const { return (int) scaledSizeFloat(); };
 private:
     int size;
     static bool scalingEnabled;

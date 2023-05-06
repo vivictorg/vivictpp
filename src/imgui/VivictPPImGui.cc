@@ -167,7 +167,7 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
 }
 
 vivictpp::imgui::VivictPPImGui::VivictPPImGui(VivictPPConfig vivictPPConfig):
-  imGuiSDL(),
+  imGuiSDL(vivictPPConfig.uiOptions),
   videoPlayback(vivictPPConfig)
 {
   displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;

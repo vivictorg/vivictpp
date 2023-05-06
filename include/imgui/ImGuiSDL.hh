@@ -8,6 +8,7 @@
 #include "imgui/Events.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/VideoTextures.hh"
+#include "VivictPPConfig.hh"
 #include <vector>
 #include <memory>
 
@@ -26,7 +27,7 @@ private:
   vivictpp::ui::VideoTextures videoTextures;
   bool fullscreen{false};
 public:
-  ImGuiSDL();
+  ImGuiSDL(const UiOptions &uiOptions);
   ~ImGuiSDL();
   void newFrame();
   void updateTextures(const ui::DisplayState &displayState);

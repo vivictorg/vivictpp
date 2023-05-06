@@ -8,11 +8,12 @@
 #include "imgui/Fonts.hh"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_sdlrenderer.h"
+#include "ui/FontSize.hh"
 #include <memory>
 
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
-vivictpp::imgui::ImGuiSDL::ImGuiSDL():
+vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
   sdlInitializer(false),
   windowPtr(vivictpp::sdl::createWindow(
            windowWidth, windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI)),
@@ -33,7 +34,8 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL():
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer_Init(renderer);
-
+      vivictpp::ui::FontSize::setScaling(!uiOptions.disableFontAutoScaling,
+                                         uiOptions.fontCustomScaling);
   initFonts();
 
 }

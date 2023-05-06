@@ -2,7 +2,9 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-# include "imgui/Fonts.hh"
+#include "imgui/Fonts.hh"
+#include "imgui.h"
+#include "ui/FontSize.hh"
 
 // File: 'fonts/vivict-icons.ttf' (4416 bytes)
 // Exported using binary_to_compressed_c.cpp
@@ -42,7 +44,10 @@ ImFont *vivictpp::imgui::getIconFont() {
 
 void vivictpp::imgui::initFonts() {
     ImGuiIO &io = ImGui::GetIO();
-    io.Fonts->AddFontDefault();
+    ImFontConfig fontConfig;
+    fontConfig.PixelSnapH = true;
+    fontConfig.SizePixels = vivictpp::ui::FontSize(13).scaledSizeFloat();
+    io.Fonts->AddFontDefault(&fontConfig);
 
     iconFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(
       vivictIconsTtf_compressed_data_base85, 40.0f, nullptr, icons_ranges);
