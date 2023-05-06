@@ -102,8 +102,11 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
   ImGui::SetNextWindowSize(size);
 
   float scaleFactor = displayState.zoom.multiplier();
+  if (displayState.fitToScreen) {
+    scaleFactor *= std::min(work_size.x / videoTextures.nativeResolution.w, work_size.y / videoTextures.nativeResolution.h);
+  }
 
-  ImVec2 scaledVideoSize = {videoTextures.nativeResolution.w * displayState.zoom.multiplier() , videoTextures.nativeResolution.h * scaleFactor};
+  ImVec2 scaledVideoSize = {videoTextures.nativeResolution.w * scaleFactor , videoTextures.nativeResolution.h * scaleFactor};
   videoSize = scaledVideoSize;
   ImGui::SetNextWindowContentSize({std::max(work_size.x, scaledVideoSize.x), std::max(work_size.y, scaledVideoSize.y)});
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -334,6 +337,9 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         break;
       case ActionType::ToggleFullscreen:
         displayState.fullscreen = imGuiSDL.toggleFullscreen();
+        break;
+      case ActionType::ToggleFitToScreen:
+        displayState.fitToScreen = !displayState.fitToScreen;
         break;
       case ActionType::ToggleImGuiDemo:
         displayState.displayImGuiDemo = !displayState.displayImGuiDemo;
