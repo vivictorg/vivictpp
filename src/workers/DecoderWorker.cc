@@ -53,6 +53,7 @@ void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos, vivictpp::
         dw->messageQueue.clearDataOlderThan(serialNo);
         dw->state = InputWorkerState::SEEKING;
         dw->decoder->flush();
+        dw->filter->reconfigureOnNextFrame();
         dw->frameBuffer.clear();
         dw->seekPos = pos;
         dw->seekCallback = callback;

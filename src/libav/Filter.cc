@@ -107,7 +107,8 @@ vivictpp::libav::VideoFilter::VideoFilter(AVStream *videoStream, AVCodecContext 
 }
 
 vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(const vivictpp::libav::Frame &inFrame) {
-  if (inFrame.avFrame()->format != formatParameters.pixelFormat) {
+  if (inFrame.avFrame()->format != formatParameters.pixelFormat || reconfigure) {
+    reconfigure = false;
     AVPixelFormat newFormat = (AVPixelFormat) inFrame.avFrame()->format;
     spdlog::info("Reconfiguring filter, pixel format changed from {} to {}", av_get_pix_fmt_name(formatParameters.pixelFormat), av_get_pix_fmt_name(newFormat));
     formatParameters.pixelFormat = newFormat;
