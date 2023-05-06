@@ -191,8 +191,9 @@ void vivictpp::imgui::VivictPPImGui::run() {
     handleActions(handleEvents(imGuiSDL.handleEvents()));
 
     imGuiSDL.newFrame();
-
-    handleActions(mainMenu.draw(videoPlayback.getPlaybackState(), displayState));
+    if (!displayState.fullscreen) {
+      handleActions(mainMenu.draw(videoPlayback.getPlaybackState(), displayState));
+    }
 
     handleActions(fileDialog.draw());
 
