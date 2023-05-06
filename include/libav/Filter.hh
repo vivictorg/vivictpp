@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>
+#include <atomic>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -23,11 +24,9 @@ namespace vivictpp {
 namespace libav {
 
 class Filter {
-public:
-  virtual ~Filter() = default;
-  virtual Frame filterFrame(const Frame &frame);
-  bool eof() { return eof_; };
-  Resolution getFilteredResolution();
+private:
+  bool eof_;
+  Frame nextFrame;
 protected:
   Filter(std::string definition);
   void createFilter(AVFilterContext **filt_ctx, std::string filterName, const std::string name, const char *args, void *opaque);
@@ -36,9 +35,13 @@ protected:
   AVFilterContext *bufferSinkCtx;
   std::shared_ptr<AVFilterGraph> graph;
   std::string definition;
-private:
-  bool eof_;
-  Frame nextFrame;
+  std::atomic_bool reconfigure;
+public:
+  virtual ~Filter() = default;
+  virtual Frame filterFrame(const Frame &frame);
+  bool eof() { return eof_; };
+  Resolution getFilteredResolution();
+  void reconfigureOnNextFrame() { reconfigure = true; };
 };
 
 struct VideoFilterFormatParameters {

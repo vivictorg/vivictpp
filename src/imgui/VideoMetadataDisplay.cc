@@ -5,6 +5,7 @@
 #include "imgui/VideoMetadataDisplay.hh"
 #include "time/TimeUtils.hh"
 #include "imgui/Colors.hh"
+#include "ui/FontSize.hh"
 
 
 void vivictpp::imgui::VideoMetadataDisplay::initMetadataText(const ui::DisplayState &displayState) {
@@ -37,10 +38,11 @@ void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &display
     initMetadataText(displayState);
   }
   if (metadataText.empty()) return;
+  float scaling = vivictpp::ui::FontSize::getScaleFactor();
   ImGui::BeginGroup();
   ImGui::BeginTable("metadata", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX);
-  ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f);
-  ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f);
+  ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f * scaling);
+  ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f * scaling);
   for (const auto &data : metadataText) {
     ImGui::TableNextRow();
     ImGui::TableNextColumn();
@@ -54,8 +56,8 @@ void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &display
   if (!displayState.isPlaying) {
     initFrameMetadataText(displayState);
     ImGui::BeginTable("framemetadata", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX);
-    ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f);
-    ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f);
+    ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f * scaling);
+    ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f * scaling);
     for (const auto &data : frameMetadataText) {
       ImGui::TableNextRow();
       ImGui::TableNextColumn();

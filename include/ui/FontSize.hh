@@ -15,7 +15,7 @@ extern "C" {
 
 namespace vivictpp::ui {
 
-const float REFERENCE_DPI = 170;
+const float REFERENCE_DPI = 150;
 
 class FontSize {
 public:
@@ -37,6 +37,7 @@ public:
 
   float scaledSizeFloat() const {  return round(size * (scalingEnabled ? scaleFactor : 1.0)); };
   int scaledSize() const { return (int) scaledSizeFloat(); };
+  static float getScaleFactor() { return scaleFactor; };
 private:
     int size;
     static bool scalingEnabled;

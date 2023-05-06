@@ -10,6 +10,10 @@
 #include "imgui_impl_sdlrenderer.h"
 #include "ui/FontSize.hh"
 #include <memory>
+extern "C" {
+#include "SDL.h"
+}
+
 
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
@@ -31,10 +35,25 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
 
 //  ui::initIconTextures(renderer);
 
+  int rw = 0, rh = 0;
+  SDL_GetRendererOutputSize(renderer, &rw, &rh);
+  bool scaleRenderer = rw != windowWidth;;
+  if(scaleRenderer) {
+    float widthScale = (float)rw / (float) windowWidth;
+    float heightScale = (float)rh / (float) windowHeight;
+
+    if(widthScale != heightScale) {
+      fprintf(stderr, "WARNING: width scale != height scale\n");
+    }
+
+    SDL_RenderSetScale(renderer, widthScale, heightScale);
+  }
+  
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer_Init(renderer);
-      vivictpp::ui::FontSize::setScaling(!uiOptions.disableFontAutoScaling,
+  // Dont't scale fonts in relation to dpi if we are scaling the renderer
+  vivictpp::ui::FontSize::setScaling(!scaleRenderer && !uiOptions.disableFontAutoScaling,
                                          uiOptions.fontCustomScaling);
   initFonts();
 

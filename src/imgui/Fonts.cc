@@ -50,6 +50,6 @@ void vivictpp::imgui::initFonts() {
     io.Fonts->AddFontDefault(&fontConfig);
 
     iconFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(
-      vivictIconsTtf_compressed_data_base85, 40.0f, nullptr, icons_ranges);
+      vivictIconsTtf_compressed_data_base85, vivictpp::ui::FontSize(40.0).scaledSizeFloat(), nullptr, icons_ranges);
     io.Fonts->Build();
 }
