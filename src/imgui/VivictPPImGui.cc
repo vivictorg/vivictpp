@@ -143,10 +143,7 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
     }
     videoPos = pad;
 
-//           displayState.splitPercent = 100.0 * std::clamp((mouseMotion->x - videoWindow.getVideoPos().x) / videoWindow.getVideoSize().x, 0.0f, 1.0f);
-    float splitFraction = (pad.x + ImGui::GetIO().MousePos.x) / videoSize.x;
-//    float splitFraction = displayState.splitPercent / 100;
-    float splitX = pad.x + splitFraction * videoSize.x;
+    float splitX = std::clamp(ImGui::GetMousePos().x, pad.x, pad.x + scaledVideoSize.x);
     ImVec2 drawPos = {pad.x - scrollX, pad.y - scrollY}; //cursorPos;
     ImVec2 uvMin(0, 0);
 
