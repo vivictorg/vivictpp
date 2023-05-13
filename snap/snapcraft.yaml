@@ -6,7 +6,7 @@ summary: Vivict video comparison tool++
 description: |
   Side-by-side/split-view video comparison tool. See also https://github.com/svt/vivictpp
 
-grade: devel # must be 'stable' to release into candidate/stable channels
+grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
 
