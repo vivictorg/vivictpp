@@ -45,7 +45,7 @@ q      Quit application
 
 See also  https://github.com/svt/vivictpp#readme
 
-Vivict++ )" + std::string(VPP_VERSION) + " " + std::string(VPP_GIT_HASH);
+Vivict++ )" + std::string(VPP_VERSION) + " (" + std::string(VPP_GIT_HASH) + ")";
 
 
 std::vector<std::string> splitString(const std::string &input) {

@@ -156,6 +156,8 @@ sources = [
   imgui_sources
 ]
 
+extra_args += '-DVPP_GIT_HASH="' + git_hash + '"'
+
 vivictpplib = static_library('vivictpplib',
                              sources: sources,
                              dependencies: deps,
@@ -163,7 +165,7 @@ vivictpplib = static_library('vivictpplib',
                              cpp_args: extra_args)
 
 vpp_extra_args = extra_args
-vpp_extra_args += '-DVPP_GIT_HASH="' + git_hash + '"'
+#vpp_extra_args += '-DVPP_GIT_HASH="' + git_hash + '"'
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps,
            include_directories: incdir, install: true, cpp_args : vpp_extra_args, link_args: '-g')
