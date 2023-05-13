@@ -1,0 +1,52 @@
+name: windows-build
+on: push
+jobs:
+  windows-build:
+    name: windows-build
+    runs-on: windows-2022
+    steps:
+      - name: Add wix toolset to path
+        run: |
+          echo "c:\Program Files (x86)\Wix Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - uses: actions/checkout@v2
+      - name: Restore cached dependencies
+        id: cache-dependencies-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            winlibs
+          key: windows-build-dependencies
+      - name: Download dependencies
+        if: steps.cache-dependencies-restore.outputs.cache-hit != 'true'
+        run: |
+          mkdir winlibs
+          curl https://libsdl.org/release/SDL2-devel-2.26.5-VC.zip -o SDL2-devel-2.26.5-VC.zip
+          7z x SDL2-devel-2.26.5-VC.zip -owinlibs
+          curl https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.20.2-VC.zip -o SDL2_ttf-devel-2.20.2-VC.zip
+          7z x SDL2_ttf-devel-2.20.2-VC.zip -owinlibs
+          curl https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-5.1.2-full_build-shared.7z -o ffmpeg-5.1.2-full_build-shared.7z
+          7z x ffmpeg-5.1.2-full_build-shared.7z -owinlibs
+      - name: Cache dependencies
+        id: cache-dependencies-save
+        if: steps.cache-dependencies-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            winlibs
+          key: windows-build-dependencies
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Meson build
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: build
+          meson-version: 0.63.1
+          setup-options: -Dbuildtype=release
+      - name: Build installer
+        run: |
+          candle vivictpp.wxs
+          light vivictpp.wixobj
+      - name: Save installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: vivictpp.msi
+          path: vivictpp.msi
