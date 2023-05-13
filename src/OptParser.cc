@@ -43,7 +43,7 @@ p      Toggle visibility of vmaf plot (if vmaf data present)
 
 q      Quit application
 
-See also  https://github.com/svt/vivictpp#readme
+See also  https://github.com/vivictorg/vivictpp#readme
 
 Vivict++ )" + std::string(VPP_VERSION) + " (" + std::string(VPP_GIT_HASH) + ")";
 
