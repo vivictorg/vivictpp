@@ -24,19 +24,6 @@ namespace vivictpp {
 namespace libav {
 
 class Decoder {
-public:
-  explicit Decoder(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
-  ~Decoder() = default;
-
-  std::vector<vivictpp::libav::Frame> handlePacket(vivictpp::libav::Packet packet);
-  void flush();
-  AVCodecContext *getCodecContext() { return this->codecContext.get(); }
-private:
-  void initCodecContext(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
-  void initHardwareContext(std::string hwAccel);
-  void openCodec();
-  void logAudioCodecInfo();
-  void selectSwPixelFormat();
 private:
   std::shared_ptr<AVCodecContext> codecContext;
   vivictpp::libav::Frame nextFrame;
@@ -44,6 +31,21 @@ private:
   std::shared_ptr<AVBufferRef> hwDeviceContext;
   AVPixelFormat hwPixelFormat;
   AVPixelFormat swPixelFormat;
+  AVHWDeviceType hwDeviceType{AV_HWDEVICE_TYPE_NONE};
+public:
+  explicit Decoder(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
+  ~Decoder() = default;
+
+  std::vector<vivictpp::libav::Frame> handlePacket(vivictpp::libav::Packet packet);
+  void flush();
+  AVCodecContext *getCodecContext() { return this->codecContext.get(); }
+  AVHWDeviceType getHwDeviceType() { return hwDeviceType; }
+private:
+  void initCodecContext(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
+  void initHardwareContext(std::string hwAccel);
+  void openCodec();
+  void logAudioCodecInfo();
+  void selectSwPixelFormat();
 };
 
 std::shared_ptr<AVCodecContext> createCodecContext(AVCodecParameters *codecParameters);

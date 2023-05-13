@@ -53,7 +53,11 @@ void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos, vivictpp::
         dw->messageQueue.clearDataOlderThan(serialNo);
         dw->state = InputWorkerState::SEEKING;
         dw->decoder->flush();
-        dw->filter->reconfigureOnNextFrame();
+        // For some reason it seems necessary to reconfigure filter on seek when using videotoolbox
+        // Haven't investigated it much but this seems to work.
+        if (dw->decoder->getHwDeviceType() == AV_HWDEVICE_TYPE_VIDEOTOOLBOX) {
+          dw->filter->reconfigureOnNextFrame();
+        }
         dw->frameBuffer.clear();
         dw->seekPos = pos;
         dw->seekCallback = callback;

@@ -19,7 +19,7 @@ extern "C" {
 static enum AVPixelFormat getHwFormat(AVCodecContext *ctx,
                                       const enum AVPixelFormat *pix_fmts) {
   const AVPixelFormat *wantedPixelFormat = (AVPixelFormat*) ctx->opaque;
-  
+
   const enum AVPixelFormat *p;
 
   for (p = pix_fmts; *p != -1; p++) {
@@ -141,7 +141,7 @@ void vivictpp::libav::Decoder::initHardwareContext(std::string hwAccel) {
     logger->info("No hardware device found for codec {}", this->codecContext.get()->codec->name);
     return;
   }
-
+  hwDeviceType = foundType;
   char buf[512];
   logger->info("Using hardware device of type {}, HW pixel format: {}",
                av_hwdevice_get_type_name(foundType),
