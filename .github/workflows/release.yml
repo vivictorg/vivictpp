@@ -12,12 +12,15 @@ jobs:
     outputs:
       releasetype: ${{ steps.release-info.outputs.releasetype }}
       vivictpp_version: ${{ steps.release-info.outputs.vivictpp_version }}
-      vivictpp_full_version: ${{ steps.release-info.outputs.vivictpp_full_version }}
+      vivictpp_fullversion: ${{ steps.release-info.outputs.vivictpp_fullversion }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - id: build-info
+      - name: fetch tags
+        run: |
+          git fetch --tags --force # Retrieve annotated tags. see https://github.com/actions/checkout/issues/290
+      - id: release-info
         run: |
           if [[ $GITHUB_REF_NAME =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]]
           then
@@ -30,7 +33,7 @@ jobs:
             echo "snapchannel=edge" >> "$GITHUB_OUTPUT"
           fi
           echo "vivictpp_version=$(./get-version.sh)" >> "$GITHUB_OUTPUT"
-          echo "vivictpp_full_version=$(git describe)" >> "$GITHUB_OUTPUT"
+          echo "vivictpp_fullversion=$(git describe)" >> "$GITHUB_OUTPUT"
       - uses: snapcore/action-build@v1
         id: build
       - uses: snapcore/action-publish@v1
@@ -38,7 +41,7 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPSTORE_LOGIN }}
         with: 
           snap: ${{ steps.build.outputs.snap }}
-          release: ${{ steps.build-info.outputs.snapchannel }}
+          release: ${{ steps.release-info.outputs.snapchannel }}
 
   windows-release-build:
     runs-on: windows-2022
