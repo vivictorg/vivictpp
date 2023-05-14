@@ -7,12 +7,13 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+-*'
 
 jobs:
-  snapcraft-publish:
+  release-info:
     runs-on: ubuntu-latest
     outputs:
       releasetype: ${{ steps.release-info.outputs.releasetype }}
       vivictpp_version: ${{ steps.release-info.outputs.vivictpp_version }}
       vivictpp_fullversion: ${{ steps.release-info.outputs.vivictpp_fullversion }}
+      snapchannel: ${{ steps.release-info.outputs.snapchannel }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -34,6 +35,21 @@ jobs:
           fi
           echo "vivictpp_version=$(./get-version.sh)" >> "$GITHUB_OUTPUT"
           echo "vivictpp_fullversion=$(git describe)" >> "$GITHUB_OUTPUT"
+  
+  snapcraft-publish:
+    runs-on: ubuntu-latest
+    needs: release-info
+    outputs:
+      releasetype: ${{ steps.release-info.outputs.releasetype }}
+      vivictpp_version: ${{ steps.release-info.outputs.vivictpp_version }}
+      vivictpp_fullversion: ${{ steps.release-info.outputs.vivictpp_fullversion }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: fetch tags
+        run: |
+          git fetch --tags --force # Retrieve annotated tags. see https://github.com/actions/checkout/issues/290
       - uses: snapcore/action-build@v1
         id: build
       - uses: snapcore/action-publish@v1
@@ -41,11 +57,15 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPSTORE_LOGIN }}
         with: 
           snap: ${{ steps.build.outputs.snap }}
-          release: ${{ steps.release-info.outputs.snapchannel }}
+          release: ${{ needs.release-info.outputs.snapchannel }}
 
   windows-release-build:
     runs-on: windows-2022
-    needs: snapcraft-publish
+    needs: release-info
+    env:
+      VIVICTPP_FULLVERSION: ${{ needs.release-info.outputs.vivictpp_fullversion }}
+      VIVICTPP_VERSION: ${{ needs.release-info.outputs.vivictpp_version }}
+
     steps:
       - name: Add wix toolset to path
         run: |
@@ -84,17 +104,11 @@ jobs:
           meson-version: 0.63.1
           setup-options: -Dbuildtype=release
       - name: Build installer
-        env:
-          VIVICTPP_FULLVERSION: ${{ needs.snap-publish.outputs.vivictpp_fullversion }}
-          VIVICTPP_VERSION: ${{ needs.snap-publish.outputs.vivictpp_version }}
         run: |
           candle vivictpp.wxs
           light vivictpp.wixobj -out vivictpp-$env:VIVICTPP_FULLVERSION.msi
       - name: Save installer
         uses: actions/upload-artifact@v2
-        env:
-          VIVICTPP_VERSION: ${{ needs.snap-publish.outputs.vivictpp_version }}
-          VIVICTPP_FULLVERSION: ${{ needs.snap-publish.outputs.vivictpp_fullversion }}
         with:
           name: vivictpp-$env:VIVICTPP_FULLVERSION-wininstaller
           path: vivictpp-$env:VIVICTPP_FULLVERSION.msi
