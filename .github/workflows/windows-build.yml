@@ -15,6 +15,7 @@ jobs:
         shell: bash
         run: |
           VIVICTPP_VERSION=$(./get-version.sh)
+          VIVICTPP_FULLVERSION=$(git describe)
           echo "VIVICTPP_VERSION=$VIVICTPP_VERSION" >> "$GITHUB_ENV"
           echo "Version set to $VIVICTPP_VERSION"
       - name: Restore cached dependencies
@@ -52,9 +53,9 @@ jobs:
       - name: Build installer
         run: |
           candle vivictpp.wxs
-          light vivictpp.wixobj -out vivictpp-$env:VIVICTPP_VERSION.msi
+          light vivictpp.wixobj -out vivictpp-$env:VIVICTPP_FULLVERSION.msi
       - name: Save installer
         uses: actions/upload-artifact@v2
         with:
-          name: vivictpp-$env:VIVICTPP_VERSION-wininstaller
-          path: vivictpp-$env:VIVICTPP_VERSION.msi
+          name: vivictpp-$env:VIVICTPP_FULLVERSION-wininstaller
+          path: vivictpp-$env:VIVICTPP_FULLVERSION.msi
