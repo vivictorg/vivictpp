@@ -12,8 +12,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set vivictpp version
+        shell: bash
         run: |
-          echo "VIVICTPP_VERSION=$($(git describe).substring(1))" >> "$env:GITHUB_ENV"          
+          echo "VIVICTPP_VERSION=$(./get-version.sh)" >> "$GITHUB_ENV"
+          echo "Version set to $VIVICTPP_VERSION"
       - name: Restore cached dependencies
         id: cache-dependencies-restore
         uses: actions/cache/restore@v3
