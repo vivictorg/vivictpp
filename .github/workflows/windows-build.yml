@@ -1,5 +1,9 @@
 name: windows-build
-on: push
+on:
+  push:
+    branches:
+      - '**'
+
 jobs:
   windows-build:
     name: windows-build
