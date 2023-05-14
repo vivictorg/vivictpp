@@ -5,7 +5,7 @@
            Manufacturer="Vivictorg"
            Name="VivictPP"
            UpgradeCode="15FC7C52-6A8B-4269-BD7D-51590AE09658"
-           Version="0.2.6">
+           Version="$(env.VIVICTPP_VERSION)">
 
     <Package InstallScope="perMachine" Compressed="yes" />
 
