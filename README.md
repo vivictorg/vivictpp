@@ -26,6 +26,10 @@ the code is not as clean as one would wish etc. See [known issues](#known-issues
 ### Snap
 
 ```
+sudo snap install vivictpp
+```
+or alternatively, to install from edge channel,
+```
 sudo snap install --edge vivictpp
 ```
 Note that due to snap security features, vivictpp will only be able to access files in your home folder
@@ -40,6 +44,11 @@ sudo snap connect vivictpp:removable-media :removable-media
 brew tap grusell/vivictpp
 brew install vivictpp
 ```
+
+### Windows installer
+Download and run the installer from [the latest release](https://github.com/vivictorg/vivictpp/releases/latest)
+
+You an also download the installer from a prerelase if you want to try out the latest unreleased features.
 
 ## Building
 
