@@ -9,15 +9,6 @@ jobs:
         run: |
           echo "c:\Program Files (x86)\Wix Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Set vivictpp version
-        shell: bash
-        run: |
-          VIVICTPP_VERSION=$(./get-version.sh)
-          VIVICTPP_FULLVERSION=$(git describe)
-          echo "VIVICTPP_VERSION=$VIVICTPP_VERSION" >> "$GITHUB_ENV"
-          echo "Version set to $VIVICTPP_VERSION"
       - name: Restore cached dependencies
         id: cache-dependencies-restore
         uses: actions/cache/restore@v3
@@ -50,12 +41,3 @@ jobs:
           action: build
           meson-version: 0.63.1
           setup-options: -Dbuildtype=release
-      - name: Build installer
-        run: |
-          candle vivictpp.wxs
-          light vivictpp.wixobj -out vivictpp-$env:VIVICTPP_FULLVERSION.msi
-      - name: Save installer
-        uses: actions/upload-artifact@v2
-        with:
-          name: vivictpp-$env:VIVICTPP_FULLVERSION-wininstaller
-          path: vivictpp-$env:VIVICTPP_FULLVERSION.msi

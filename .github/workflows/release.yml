@@ -1,0 +1,97 @@
+name: Do release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+
+jobs:
+  snapcraft-publish:
+    runs-on: ubuntu-latest
+    outputs:
+      releasetype: ${{ steps.release-info.outputs.releasetype }}
+      vivictpp_version: ${{ steps.release-info.outputs.vivictpp_version }}
+      vivictpp_full_version: ${{ steps.release-info.outputs.vivictpp_full_version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: build-info
+        run: |
+          if [[ $GITHUB_REF_NAME =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]]
+          then
+            echo "release"
+            echo "releasetype=release" >> "$GITHUB_OUTPUT"
+            echo "snapchannel=stable" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease"
+            echo "releasetype=prerelease" >> "$GITHUB_OUTPUT"
+            echo "snapchannel=edge" >> "$GITHUB_OUTPUT"
+          fi
+          echo "vivictpp_version=$(./get-version.sh)" >> "$GITHUB_OUTPUT"
+          echo "vivictpp_full_version=$(git describe)" >> "$GITHUB_OUTPUT"
+      - uses: snapcore/action-build@v1
+        id: build
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPSTORE_LOGIN }}
+        with: 
+          snap: ${{ steps.build.outputs.snap }}
+          release: ${{ steps.build-info.outputs.snapchannel }}
+
+  windows-release-build:
+    runs-on: windows-2022
+    needs: snapcraft-publish
+    steps:
+      - name: Add wix toolset to path
+        run: |
+          echo "c:\Program Files (x86)\Wix Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - uses: actions/checkout@v2
+      - name: Restore cached dependencies
+        id: cache-dependencies-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            winlibs
+          key: windows-build-dependencies
+      - name: Download dependencies
+        if: steps.cache-dependencies-restore.outputs.cache-hit != 'true'
+        run: |
+          mkdir winlibs
+          curl https://libsdl.org/release/SDL2-devel-2.26.5-VC.zip -o SDL2-devel-2.26.5-VC.zip
+          7z x SDL2-devel-2.26.5-VC.zip -owinlibs
+          curl https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.20.2-VC.zip -o SDL2_ttf-devel-2.20.2-VC.zip
+          7z x SDL2_ttf-devel-2.20.2-VC.zip -owinlibs
+          curl https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-5.1.2-full_build-shared.7z -o ffmpeg-5.1.2-full_build-shared.7z
+          7z x ffmpeg-5.1.2-full_build-shared.7z -owinlibs
+      - name: Cache dependencies
+        id: cache-dependencies-save
+        if: steps.cache-dependencies-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            winlibs
+          key: windows-build-dependencies
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Meson build
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: build
+          meson-version: 0.63.1
+          setup-options: -Dbuildtype=release
+      - name: Build installer
+        env:
+          VIVICTPP_FULLVERSION: ${{ needs.snap-publish.outputs.vivictpp_fullversion }}
+          VIVICTPP_VERSION: ${{ needs.snap-publish.outputs.vivictpp_version }}
+        run: |
+          candle vivictpp.wxs
+          light vivictpp.wixobj -out vivictpp-$env:VIVICTPP_FULLVERSION.msi
+      - name: Save installer
+        uses: actions/upload-artifact@v2
+        env:
+          VIVICTPP_VERSION: ${{ needs.snap-publish.outputs.vivictpp_version }}
+          VIVICTPP_FULLVERSION: ${{ needs.snap-publish.outputs.vivictpp_fullversion }}
+        with:
+          name: vivictpp-$env:VIVICTPP_FULLVERSION-wininstaller
+          path: vivictpp-$env:VIVICTPP_FULLVERSION.msi
