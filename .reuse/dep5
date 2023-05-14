@@ -13,16 +13,16 @@ Copyright: 2021 Sveriges Television AB
 License: CC0-1.0
 
 Files: subprojects/cli11.wrap
-Copyright: 2021 Sveriges Television AB
-License: CC0-1.0
+Copyright: 2021 The Meson development team
+License: MIT
 
 Files: subprojects/spdlog.wrap
-Copyright: 2021 Sveriges Television AB
-License: CC0-1.0
+Copyright:  2021 The Meson development team
+License: MIT
 
 Files: subprojects/catch2.wrap
-Copyright: 2021 Sveriges Television AB
-License: CC0-1.0
+Copyright:  2021 The Meson development team
+License: MIT
 
 Files: subprojects/fmt.wrap
 Copyright: 2021 The Meson development team
@@ -33,6 +33,14 @@ Copyright: 2021 The Meson development team
 License: MIT
 
 Files: subprojects/sdl2_ttf.wrap
+Copyright: 2021 The Meson development team
+License: MIT
+
+Files: subprojects/freetype2.wrap
+Copyright: 2021 The Meson development team
+License: MIT
+
+Files: subprojects/zlib.wrap
 Copyright: 2021 The Meson development team
 License: MIT
 
@@ -79,5 +87,25 @@ License: CC-BY-3.0
 Files: imgui/*
 Copyright: 2014-2023 Omar Cornut
 License: MIT
+
+Files: libs/ImGuiFileDialog/*
+Copyright: 2018-2022 Stephane Cuillerdier (aka Aiekick)
+License: MIT
+
+Files: libs/ImGuiFileDialog/dirent/*
+Copyright: 1998-2019 Toni Ronkko
+License: MIT
+
+Files: get-version.sh
+Copyright: 2023 Gustav Grusell
+License: CC0-1.0
+
+Files: vivictpp.wxs
+Copyright: 2023 Gustav Grusell
+License: CC0-1.0
+
+Files: license-info.txt
+Copyright: 2023 Gustav Grusell
+License: CC0-1.0
 
 # Third-party files.
