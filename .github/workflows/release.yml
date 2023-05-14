@@ -1,5 +1,3 @@
-name: Do release
-
 on:
   push:
     tags:
@@ -110,5 +108,5 @@ jobs:
       - name: Save installer
         uses: actions/upload-artifact@v2
         with:
-          name: vivictpp-$env:VIVICTPP_FULLVERSION-wininstaller
-          path: vivictpp-$env:VIVICTPP_FULLVERSION.msi
+          name: ${{ format('vivictpp-{0}-wininstaller', env.VIVICTPP_FULLVERSION) }}
+          path: ${{ format('vivictpp-{0}.msi', env.VIVICTPP_FULLVERSION) }}
