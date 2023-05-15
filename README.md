@@ -41,7 +41,7 @@ sudo snap connect vivictpp:removable-media :removable-media
 
 ### Homebrew
 ```
-brew tap grusell/vivictpp
+brew tap vivictorg/vivictpp
 brew install vivictpp
 ```
 
