@@ -1,7 +1,7 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
-## Current
+## 0.3.0 - 2023-05-15
 
 ### Changed
 - Major UI update, project now uses imgui library. Old UI still available with the --disable-imgui flag.
