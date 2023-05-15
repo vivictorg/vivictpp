@@ -24,8 +24,8 @@ public:
   virtual ~PacketWorker();
   void addDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   void removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
-  bool hasDecoders() { return !decoderWorkers.empty(); };
-  int nDecoders() { return decoderWorkers.size(); };
+  bool hasDecoders() { return _nDecoders != 0; };
+  int nDecoders() { return _nDecoders; };
   void seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback,
             vivictpp::time::Time streamSeekOffset = 0);
   const std::vector<VideoMetadata> &getVideoMetadata() {
@@ -48,6 +48,7 @@ private:
   AVPacket* currentPacket;
   std::vector<VideoMetadata> videoMetadata;
   std::mutex videoMetadataMutex;
+  int _nDecoders{0};
 
 };
 }  // namespace workers

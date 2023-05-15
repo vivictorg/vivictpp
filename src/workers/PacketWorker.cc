@@ -50,7 +50,7 @@ void  vivictpp::workers::PacketWorker::initVideoMetadata() {
 }
 
 void vivictpp::workers::PacketWorker::doWork() {
-  if (!hasDecoders()) {
+  if (decoderWorkers.empty()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
      return;
   }
@@ -93,6 +93,7 @@ void vivictpp::workers::PacketWorker::unrefCurrentPacket() {
 }
 
 void vivictpp::workers::PacketWorker::addDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker) {
+  _nDecoders++;
   PacketWorker *pw(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
         (void) serialNo;
@@ -104,6 +105,7 @@ void vivictpp::workers::PacketWorker::addDecoderWorker(const std::shared_ptr<Dec
 }
 
 void vivictpp::workers::PacketWorker::removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker) {
+  _nDecoders--;
   PacketWorker *pw(this);
   sendCommand(new vivictpp::workers::Command([=](uint64_t serialNo) {
                                                (void) serialNo;

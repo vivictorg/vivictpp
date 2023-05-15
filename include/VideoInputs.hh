@@ -32,6 +32,7 @@ struct MediaPipe {
 
 class SeekState {
 public:
+    SeekState();
     int reset(int nSeeks, vivictpp::SeekCallback onFinished);
     void handleSeekFinished(int seekId, int seekPos, bool error);
 
@@ -42,6 +43,7 @@ private:
     vivictpp::SeekCallback callback;
     std::mutex m;
     bool error;
+    vivictpp::logging::Logger logger;
 };
 
 class VideoInputs {

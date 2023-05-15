@@ -15,6 +15,7 @@ int vivictpp::VideoPlayback::SeekState::seekStart(vivictpp::time::Time seekTarge
 };
 
 void vivictpp::VideoPlayback::SeekState::seekFinished(int seekId, vivictpp::time::Time pos, bool err) {
+  spdlog::debug("Seek finished");
   std::lock_guard<std::mutex> lg(m);
   if (seekId != currentSeekId) {
     return;
@@ -22,6 +23,10 @@ void vivictpp::VideoPlayback::SeekState::seekFinished(int seekId, vivictpp::time
   seekDone = true;
   seekEndPos = pos;
   error = err;
+}
+
+void vivictpp::VideoPlayback::SeekState::sync() {
+  std::lock_guard<std::mutex> lg(m);
 }
 
 vivictpp::VideoPlayback::VideoPlayback(VivictPPConfig vivictPPConfig):
@@ -74,11 +79,13 @@ void vivictpp::VideoPlayback::play() {
 void vivictpp::VideoPlayback::pause() { playbackState.playing = false; }
 
 void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,  vivictpp::time::Time streamSeekOffset) {
+  logger->debug("seek: pts={}", seekPts);
   seekPts = std::max(seekPts, videoInputs.minPts());
   if (videoInputs.hasMaxPts()) {
     seekPts = std::min(seekPts, videoInputs.maxPts());
   }
   if (!playbackState.seeking && videoInputs.ptsInRange(seekPts)) {
+    logger->debug("seek: pts is in range");
     advanceFrame(seekPts);
     stepped = true;
     if (playbackState.playing) {
@@ -89,6 +96,7 @@ void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,  vivictpp::time
     int seekId = seekState.seekStart(seekPts);
     seekState.seekFinished(seekId, seekPts, false);
   } else {
+    logger->debug("seek: pts is not in range");
     playbackState.seeking = true;
     int seekId = seekState.seekStart(seekPts);
     videoInputs.seek(seekPts, [this, seekId](vivictpp::time::Time pos, bool error) {
@@ -99,6 +107,7 @@ void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,  vivictpp::time
 
 void vivictpp::VideoPlayback::seekRelative(vivictpp::time::Time deltaPts) {
   if (playbackState.seeking) {
+    seekState.sync();
     seek(seekState.seekTarget + deltaPts);
   } else {
     seek(playbackState.pts + deltaPts);
@@ -123,11 +132,13 @@ void vivictpp::VideoPlayback::seekRelativeFrame(int distance) {
 }
 
 bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
-  if (playbackState.seeking && !seekState.seekDone) {
-    // videoInputs.dropIfFullAndNextOutOfRange(nextPts, 1);
-    return false;
-  }
+  logger->debug("checkAdvanceFrame");
   if (playbackState.seeking) {
+    seekState.sync();
+    if (!seekState.seekDone) {
+      logger->debug("checkAdvanceFrame: seekState.seekDone=false");
+      return false;
+    }
 //    logger->debug("checkAdvanceFrame playbackState.seeking=true, seekEndPos={}", seekState.seekEndPos);
     if (seekState.seekEndPos - seekState.seekTarget > 1000) {
       logger->debug("seekEndPos={} seekTarget={}", seekState.seekEndPos, seekState.seekTarget);

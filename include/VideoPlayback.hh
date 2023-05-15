@@ -45,6 +45,7 @@ private:
   public:
     int seekStart(vivictpp::time::Time seekTarget);
     void seekFinished(int seekId, vivictpp::time::Time pos, bool err);
+    void sync();
   };
 
   VideoInputs videoInputs;

@@ -10,6 +10,9 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 
+SeekState::SeekState():
+  logger(vivictpp::logging::getOrCreateLogger("VideoInputs::SeekState")) { }
+
 int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
   std::lock_guard<std::mutex> lg(m);
   remainingSeeks = nSeeks;
@@ -28,6 +31,7 @@ void SeekState::handleSeekFinished(int seekId, int seekPos, bool error) {
     this->error = true;
   }
   remainingSeeks--;
+  logger->debug("handleSeekFinished: remainingSeeks={}", remainingSeeks);
   if (remainingSeeks == 0) {
     vivictpp::time::Time minPos = *std::min_element(seekEndPos.begin(), seekEndPos.end());
     callback(minPos, this->error);
@@ -163,11 +167,11 @@ void VideoInputs::stepForward(vivictpp::time::Time pts) {
   leftInput.decoder->frames().stepForward(pts + leftPtsOffset);
   if (rightInput.decoder) {
     rightInput.decoder->frames().stepForward(pts);
-    logger->info("stepForward Left pts={}, Right pts={}",
+    logger->debug("stepForward Left pts={}, Right pts={}",
                  leftInput.decoder->frames().currentPts() - leftPtsOffset,
                  rightInput.decoder->frames().currentPts());
   } else {
-    logger->info("stepForward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+    logger->debug("stepForward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
   }
 
 }
@@ -177,11 +181,11 @@ void VideoInputs::stepBackward(vivictpp::time::Time pts) {
   leftInput.decoder->frames().stepBackward(pts + leftPtsOffset);
   if (rightInput.decoder) {
     rightInput.decoder->frames().stepBackward(pts);
-    logger->info("stepBackward Left pts={}, Right pts={}",
+    logger->debug("stepBackward Left pts={}, Right pts={}",
                  leftInput.decoder->frames().currentPts() - leftPtsOffset,
                  rightInput.decoder->frames().currentPts());
   }else {
-    logger->info("stepBackward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
+    logger->debug("stepBackward Left pts={}", leftInput.decoder->frames().currentPts() - leftPtsOffset);
   }
 
 }
@@ -219,6 +223,7 @@ void VideoInputs::seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFi
   for (auto packetWorker : packetWorkers) {
     nDecoders += packetWorker->nDecoders();
   }
+  logger->debug("seek: nDecoders={}", nDecoders);
   int seekId = seekState.reset(nDecoders, onSeekFinished);
   for (auto packetWorker : packetWorkers) {
     if (packetWorker == leftInput.packetWorker) {
