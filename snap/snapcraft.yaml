@@ -127,6 +127,7 @@ parts:
       - libxdmcp6
       - libxext6
       - libxfixes3
+      - zlib1g
     source: https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz
     plugin: autotools
     autotools-configure-parameters:
