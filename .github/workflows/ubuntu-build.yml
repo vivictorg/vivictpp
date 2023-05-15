@@ -1,5 +1,9 @@
 name: ubuntu-build
 on: push
+  push:
+    branches:
+      - '**'
+
 jobs:
   ubuntu-build:
     name: build

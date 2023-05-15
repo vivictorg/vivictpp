@@ -1,5 +1,9 @@
-name: macos-build-ffmpeg5
+name: macos-build
 on: push
+  push:
+    branches:
+      - '**'
+
 jobs:
   macos-build:
     name: build
