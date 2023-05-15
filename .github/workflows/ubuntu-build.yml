@@ -27,20 +27,3 @@ jobs:
         with:
           name: ubuntu-build-logs
           path: build/meson-logs
-
-  snapcraft-publish-edge:
-    needs: ubuntu-build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/snapcraft-ci'
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: snapcore/action-build@v1
-        id: build
-      - uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPSTORE_LOGIN }}
-        with: 
-          snap: ${{ steps.build.outputs.snap }}
-          release: edge
