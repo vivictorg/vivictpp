@@ -92,6 +92,35 @@ $ meson compile -C builddir
 
 4. The `vivictpp` executable should now be available in `builddir`
 
+### MacOS
+
+1. Install dependencies
+
+Installing vivictpp from brew should install the necessary dependencies.
+```console
+$ brew tap vivictorg/vivictpp
+$ brew install vivictpp
+```
+
+2. Create meson builddir
+
+```console
+
+$ meson  builddir
+
+```
+
+3. Compile
+
+```console
+
+$ meson compile -C builddir
+
+```
+
+4. The `vivictpp` executable should now be available in `builddir`
+
+
 ### Windows
 _This has been tested on windows 11_
 
@@ -119,11 +148,6 @@ meson compile -C builddir
 ```console
 PATH=%PATH%;<VIVICTPPDIR>\winlibs\SDL2-2.26.5\lib\x64;<VIVICTPPDIR>\winlibs\SDL2_ttf-2.20.2\lib\x64;<VIVICTPPDIR>\winlibs\ffmpeg-5.1.2-full_build-shared\lib
 ```
-
-### Other platforms
-
-Vivict++ is intended to be cross platform, so building on Windows or macOS should be possible.
-Testing and help would be appreciated.
 
 ## Usage
 Run with the -h flag to see the commandline options
