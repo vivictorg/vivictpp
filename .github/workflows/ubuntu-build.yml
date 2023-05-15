@@ -1,5 +1,5 @@
 name: ubuntu-build
-on: push
+on:
   push:
     branches:
       - '**'
