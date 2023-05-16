@@ -158,6 +158,7 @@ parts:
       - libva-wayland2
       - libva2
       - vainfo
+      - zlib1g
     # See 'snapcraft plugins'
     source: /root/project
     source-type: git
