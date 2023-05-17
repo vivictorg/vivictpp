@@ -1,5 +1,7 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
+## 0.3.1 - 2023-05-17
+- Fix snap package
 
 ## 0.3.0 - 2023-05-15
 
