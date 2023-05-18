@@ -30,6 +30,10 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
 
   ImGui::CreateContext();
 
+  ImGuiIO& io = ImGui::GetIO();
+  // disable imgui.ini (which otherwise litters the current working directory)
+  io.IniFilename = NULL;
+
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
 
