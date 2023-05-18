@@ -12,6 +12,7 @@ cli11_proj = subproject('cli11', default_options: 'warning_level=0')
 catch2_proj = subproject('catch2', default_options: 'warning_level=0')
 freetype2_proj = subproject('freetype2', default_options: 'warning_level=0')
 zlib_proj = subproject('zlib', default_options: 'warning_level=0')
+platformfolders_proj = subproject('platformfolders', default_options: 'warning_level=0')
 
 if build_machine.system() == 'windows'
 
@@ -74,6 +75,7 @@ deps = [
   spdlog_proj.get_variable('spdlog_dep'),
   cli11_proj.get_variable('CLI11_dep'),
   fmt_proj.get_variable('fmt_dep'),
+  platformfolders_proj.get_variable('platformfolders_dep')
 #  sdl2_image_proj.get_variable('sdl2_image_dep')        
 ]
 

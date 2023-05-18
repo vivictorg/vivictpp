@@ -4,6 +4,7 @@ vpp
 builddir
 subprojects/*
 !subprojects/*.wrap
+!subprojects/packagefiles
 .#*
 vivictpp_*.snap
 .dir-locals.el

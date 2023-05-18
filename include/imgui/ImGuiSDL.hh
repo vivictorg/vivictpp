@@ -11,6 +11,7 @@
 #include "VivictPPConfig.hh"
 #include <vector>
 #include <memory>
+#include <filesystem>
 
 
 namespace vivictpp::imgui {
@@ -26,6 +27,7 @@ private:
   SDL_Renderer *renderer;
   vivictpp::ui::VideoTextures videoTextures;
   bool fullscreen{false};
+  std::filesystem::path iniFilename;
 public:
   ImGuiSDL(const UiOptions &uiOptions);
   ~ImGuiSDL();

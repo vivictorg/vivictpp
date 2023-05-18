@@ -9,6 +9,9 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_sdlrenderer.h"
 #include "ui/FontSize.hh"
+#include "platform_folders.h"
+#include "fmt/core.h"
+#include <filesystem>
 #include <memory>
 extern "C" {
 #include "SDL.h"
@@ -24,15 +27,17 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
   window(windowPtr.get()),
   rendererPtr(vivictpp::sdl::createRenderer(window,
                                             SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)),
-  renderer(rendererPtr.get())
+  renderer(rendererPtr.get()),
+  iniFilename(fmt::format("{}/vivictpp/imgui.ini", sago::getConfigHome()))
 {
   IMGUI_CHECKVERSION();
 
   ImGui::CreateContext();
 
   ImGuiIO& io = ImGui::GetIO();
-  // disable imgui.ini (which otherwise litters the current working directory)
-  io.IniFilename = NULL;
+  // Create vivictpp config directory
+  std::filesystem::create_directories(iniFilename.parent_path());
+  io.IniFilename = iniFilename.c_str();
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
@@ -52,7 +57,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
 
     SDL_RenderSetScale(renderer, widthScale, heightScale);
   }
-  
+
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer_Init(renderer);
