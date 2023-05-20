@@ -16,6 +16,7 @@
 extern "C" {
 #include "SDL.h"
 }
+#include "logging/Logging.hh"
 
 
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
@@ -28,16 +29,19 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
   rendererPtr(vivictpp::sdl::createRenderer(window,
                                             SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)),
   renderer(rendererPtr.get()),
-  iniFilename(fmt::format("{}/vivictpp/imgui.ini", sago::getConfigHome()))
+  iniFilename(std::filesystem::path(fmt::format("{}/vivictpp/imgui.ini", sago::getConfigHome())).make_preferred()),
+  iniFilenameStr(iniFilename.string())
 {
   IMGUI_CHECKVERSION();
-
+  
   ImGui::CreateContext();
 
   ImGuiIO& io = ImGui::GetIO();
+  iniFilename.make_preferred();
   // Create vivictpp config directory
   std::filesystem::create_directories(iniFilename.parent_path());
-  io.IniFilename = iniFilename.string().c_str();
+  spdlog::debug("Using ini file: {}", iniFilename.string());
+  io.IniFilename = iniFilenameStr.c_str();
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();

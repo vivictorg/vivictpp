@@ -12,7 +12,7 @@
 #include <vector>
 #include <memory>
 #include <filesystem>
-
+#include <string>
 
 namespace vivictpp::imgui {
 
@@ -28,6 +28,7 @@ private:
   vivictpp::ui::VideoTextures videoTextures;
   bool fullscreen{false};
   std::filesystem::path iniFilename;
+  std::string iniFilenameStr;
 public:
   ImGuiSDL(const UiOptions &uiOptions);
   ~ImGuiSDL();
