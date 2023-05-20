@@ -20,7 +20,7 @@ index 0000000..4f2c4d8
 +platformfolders_inc = include_directories('sago')
 +
 +
-+platformfolders_lib = library('platform_folders', 'sago/platform_folders.cpp', include_directories: platformfolders_inc)
++platformfolders_lib = static_library('platform_folders', 'sago/platform_folders.cpp', include_directories: platformfolders_inc)
 +
 +
 +platformfolders_dep = declare_dependency(
