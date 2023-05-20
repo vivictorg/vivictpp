@@ -1,7 +1,12 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
-## Current
+## 0.3.2-pre2 - 2023-05-20
+### Changed
+- Save imgui.ini in proper location, ie $XDG_USER_CONFIG/vivictpp/imgui.ini
+- File open dialog now defaults XDG_VIDEOS_DIR
+
+## 0.3.2-pre1 - 2023-05-18
 ### Changed
 - Disable saving of imgui.ini
 
