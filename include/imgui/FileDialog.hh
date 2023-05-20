@@ -7,6 +7,7 @@
 
 #include "ImGuiFileDialog.h"
 #include "Events.hh"
+#include "platform_folders.h"
 
 namespace vivictpp::imgui {
 
@@ -16,7 +17,7 @@ class FileDialog {
 private:
   ImGuiFileDialog fileDialog;
   LeftRight leftRight{LeftRight::Left};
-  std::string folder{"."};
+  std::string folder{sago::getVideoFolder()};
 
 public:
   FileDialog() {}
