@@ -324,6 +324,7 @@ Vivict++ uses the following thirdparty dependencies.
 * [Catch2](https://github.com/catchorg/Catch2) ([Boost Software License 1.0](https://raw.githubusercontent.com/catchorg/Catch2/devel/LICENSE.txt))
 * [FreeMono from GNU freefont](http://savannah.gnu.org/projects/freefont/) ([GPL License](https://www.gnu.org/software/freefont/license.html))
 * [vivict-icons](https://github.com/vivictorg/vivict-icons) ([MIT License](https://github.com/vivictorg/vivict-icons/blob/main/LICENSE))
+* [PlatformFolders](https://github.com/sago007/PlatformFolders) ([MIT License](https://github.com/sago007/PlatformFolders/blob/master/LICENSE)
 
 ## License
 
