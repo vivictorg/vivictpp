@@ -37,7 +37,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
   ImGuiIO& io = ImGui::GetIO();
   // Create vivictpp config directory
   std::filesystem::create_directories(iniFilename.parent_path());
-  io.IniFilename = iniFilename.c_str();
+  io.IniFilename = iniFilename.string().c_str();
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
