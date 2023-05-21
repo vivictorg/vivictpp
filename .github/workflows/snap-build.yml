@@ -1,0 +1,19 @@
+name: snap-build
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:  
+  snapcraft-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: fetch tags
+        run: |
+          git fetch --tags --force # Retrieve annotated tags. see https://github.com/actions/checkout/issues/290
+      - uses: snapcore/action-build@v1
+        id: build
