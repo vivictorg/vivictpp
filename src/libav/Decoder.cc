@@ -114,7 +114,6 @@ void vivictpp::libav::Decoder::initHardwareContext(std::string hwAccel) {
     candidateTypes = supportedDeviceTypes();
   }
 
-  AVHWDeviceType foundType = AV_HWDEVICE_TYPE_NONE;
   for (auto &type : candidateTypes) {
     for (size_t i = 0;; i++) {
       const AVCodecHWConfig *config = avcodec_get_hw_config(codecContext->codec, i);
@@ -123,37 +122,34 @@ void vivictpp::libav::Decoder::initHardwareContext(std::string hwAccel) {
       }
       if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX &&
           config->device_type == type) {
-        this->hwPixelFormat = config->pix_fmt;
-        this->codecContext->opaque = (void*) &(this->hwPixelFormat);
-        foundType = type;
-        break;
+        AVBufferRef *hwDeviceContext;
+        vivictpp::libav::AVResult ret = av_hwdevice_ctx_create(&hwDeviceContext, type,
+                                                               NULL, NULL, 0);
+        if (ret.error()) {
+          logger->info("Failed to create hardware device of type {}", av_hwdevice_get_type_name(type));
+        } else {
+          char buf[512];
+          logger->info("Using hardware device of type {}, HW pixel format: {}",
+                       av_hwdevice_get_type_name(type),
+                       av_get_pix_fmt_string(buf, 512, config->pix_fmt));
+
+          this->hwPixelFormat = config->pix_fmt;
+          this->codecContext->opaque = (void*) &(this->hwPixelFormat);
+          this->hwDeviceType = type;
+          this->codecContext->get_format = getHwFormat;
+          this->hwDeviceContext.reset(hwDeviceContext, &unrefBuffer);
+          this->codecContext->hw_device_ctx = av_buffer_ref(this->hwDeviceContext.get());
+
+          return;
+        }
       }
     }
-    if (foundType != AV_HWDEVICE_TYPE_NONE) {
-      break;
-    }
-    logger->warn("Decoder {} does not support device type {}.",
-                 this->codecContext.get()->codec->name,
-                 av_hwdevice_get_type_name(type));
-  }
 
-  if (foundType == AV_HWDEVICE_TYPE_NONE) {
-    logger->info("No hardware device found for codec {}", this->codecContext.get()->codec->name);
-    return;
+    logger->debug("Decoder {} does not support device type {}.",
+                  this->codecContext.get()->codec->name,
+                  av_hwdevice_get_type_name(type));
   }
-  hwDeviceType = foundType;
-  char buf[512];
-  logger->info("Using hardware device of type {}, HW pixel format: {}",
-               av_hwdevice_get_type_name(foundType),
-               av_get_pix_fmt_string(buf, 512, this->hwPixelFormat));
-
-  codecContext->get_format = getHwFormat;
-  AVBufferRef *hwDeviceContext;
-  vivictpp::libav::AVResult ret = av_hwdevice_ctx_create(&hwDeviceContext, foundType,
-                                                         NULL, NULL, 0);
-  ret.throwOnError("Failed to create specified HW device");
-  this->hwDeviceContext.reset(hwDeviceContext, &unrefBuffer);
-  codecContext->hw_device_ctx = av_buffer_ref(this->hwDeviceContext.get());
+  logger->info("No hardware device found for codec {}", this->codecContext.get()->codec->name);
 }
 
 void vivictpp::libav::Decoder::openCodec() {
