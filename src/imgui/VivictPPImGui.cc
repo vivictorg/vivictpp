@@ -265,6 +265,10 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(const viv
     case 'D':
       if (keyEvent.shift) return {vivictpp::imgui::ToggleImGuiDemo};
       return {vivictpp::imgui::ToggleDisplayMetadata};
+    case 'O':
+      if (keyEvent.ctrl && keyEvent.shift) return {vivictpp::imgui::ShowFileDialogRight};
+      else if (keyEvent.ctrl) return {vivictpp::imgui::ShowFileDialogLeft};
+      break;
     case 'P':
       return {vivictpp::imgui::ToggleDisplayPlot};
     case 'S':
