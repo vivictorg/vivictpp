@@ -9,7 +9,6 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 }
 
-#include <vector>
 #include <algorithm>
 
 #include "logging/Logging.hh"
@@ -39,3 +38,27 @@ bool vivictpp::libav::isHwAccelFormat(AVPixelFormat pixelFormat) {
   const AVPixFmtDescriptor *descriptor = av_pix_fmt_desc_get(pixelFormat);
   return descriptor->flags & AV_PIX_FMT_FLAG_HWACCEL;
 }
+
+std::vector<std::string> vivictpp::libav::allHwAccelFormats() {
+  std::vector<std::string> formats;
+
+  enum AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
+  while ((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
+    formats.push_back(av_hwdevice_get_type_name(type));
+  }
+  formats.push_back("test-format1");
+  formats.push_back("test-format2");
+  return formats;
+}
+
+/*
+std::string
+enum AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
+
+    printf("Hardware acceleration methods:\n");
+    while ((type = av_hwdevice_iterate_types(type)) !=
+           AV_HWDEVICE_TYPE_NONE)
+        printf("%s\n", av_hwdevice_get_type_name(type));
+    printf("\n");
+    return 0;
+ */

@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "imgui/MainMenu.hh"
+#include "imgui.h"
 #include "imgui/Events.hh"
 
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
@@ -17,6 +18,10 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
       }
       if (ImGui::MenuItem("Open right", "Ctrl+Shift+O", false, playbackState.hasLeftSource)) {
         actions.push_back({ActionType::ShowFileDialogRight});
+      }
+      ImGui::Separator();
+      if (ImGui::MenuItem("Settings")) {
+        actions.push_back({ActionType::ShowSettingsDialog});
       }
       ImGui::Separator();
       if (ImGui::MenuItem("Quit", "Ctrl+Q, Q")) {

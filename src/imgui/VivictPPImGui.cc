@@ -216,7 +216,9 @@ void vivictpp::imgui::VivictPPImGui::run() {
     if (displayState.displayAbout) {
       showAbout(displayState);
     }
-
+    if (displayState.displaySettingsDialog) {
+      settingsDialog.draw(displayState);
+    }
     imGuiSDL.render();
     tLastPresent = vivictpp::time::relativeTimeMicros();
   }
@@ -395,6 +397,9 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         break;
       case ActionType::ShowAbout:
         displayState.displayAbout = !displayState.displayAbout;
+        break;
+      case ActionType::ShowSettingsDialog:
+        displayState.displaySettingsDialog = !displayState.displaySettingsDialog;
         break;
       default:
         ;

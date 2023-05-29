@@ -110,6 +110,7 @@ imgui_sources=[
   'src/imgui/FileDialog.cc',
   'src/imgui/Help.cc',
   'src/imgui/About.cc',
+  'src/imgui/SettingsDialog.cc',
   'libs/ImGuiFileDialog/ImGuiFileDialog.cpp'
 ]
 

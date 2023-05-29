@@ -70,7 +70,8 @@ enum ActionType {
   ShowFileDialogLeft,
   ShowFileDialogRight,
   ShowHelp,
-  ShowAbout
+  ShowAbout,
+  ShowSettingsDialog
 };
 
 struct Action {
