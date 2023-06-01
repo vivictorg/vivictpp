@@ -29,11 +29,17 @@ private:
 //  std::vector<std::string> selectableHwAccelFormats;
   float textWidth;
   std::string selected;
+  bool fontSettingsUpdated{false};
 private:
   void initHwAccelStatuses();
 public:
   SettingsDialog(Settings settings);
   std::vector<Action> draw(ui::DisplayState &displayState);
+  const Settings &getSettings() { return settings; }
+  const Settings &getModifiedSettings() { return modifiedSettings; }
+  bool isFontSettingsUpdated() {
+    return fontSettingsUpdated;
+  }
 };
 
 }

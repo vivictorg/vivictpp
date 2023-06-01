@@ -15,6 +15,7 @@
 #include "time/TimeUtils.hh"
 #include "ui/DisplayState.hh"
 #include "imgui/Colors.hh"
+#include "imgui/Fonts.hh"
 #include "imgui/Help.hh"
 #include "imgui/About.hh"
 //#include "imgui/Fonts.hh"
@@ -220,9 +221,12 @@ void vivictpp::imgui::VivictPPImGui::run() {
       showAbout(displayState);
     }
     if (displayState.displaySettingsDialog) {
-      settingsDialog.draw(displayState);
+      handleActions(settingsDialog.draw(displayState));
     }
     imGuiSDL.render();
+    if (settingsDialog.isFontSettingsUpdated()) {
+      imGuiSDL.updateFontSettings(settingsDialog.getModifiedSettings());
+    }
     tLastPresent = vivictpp::time::relativeTimeMicros();
   }
 }
@@ -405,6 +409,9 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         break;
       case ActionType::ShowSettingsDialog:
         displayState.displaySettingsDialog = !displayState.displaySettingsDialog;
+        break;
+      case ActionType::UpdateSettings:
+        vivictpp::saveSettings(settingsDialog.getSettings());
         break;
       default:
         ;

@@ -30,6 +30,7 @@ private:
   bool fullscreen{false};
   std::filesystem::path iniFilename;
   std::string iniFilenameStr;
+  bool scaleRenderer;
 public:
   ImGuiSDL(const Settings &settings);
   ~ImGuiSDL();
@@ -41,6 +42,7 @@ public:
   std::vector<std::shared_ptr<Event>> handleEvents();
   void render();
   bool toggleFullscreen();
+  void updateFontSettings(const Settings &settings);
 };
 
 }  // namespace vivictpp::imgui

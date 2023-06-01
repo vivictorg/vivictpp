@@ -11,10 +11,10 @@
 namespace vivictpp {
 
 struct Settings {
-  bool disableFontAutoScaling;
-  int baseFontSize;
-  std::vector<std::string> hwAccels;
-  std::vector<std::string> preferredDecoders;
+  bool disableFontAutoScaling{false};
+  int baseFontSize{13};
+  std::vector<std::string> hwAccels{{}};
+  std::vector<std::string> preferredDecoders{{}};
 };
 
 Settings loadSettings();

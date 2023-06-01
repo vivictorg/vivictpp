@@ -87,6 +87,7 @@ incdir = include_directories('include',
                              'imgui',
                              'imgui/backends',
                              'libs/ImGuiFileDialog',
+                             'libs/tomlplusplus',
                              ffmpeg_inc)
 
 git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')

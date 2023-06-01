@@ -50,7 +50,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
 
   int rw = 0, rh = 0;
   SDL_GetRendererOutputSize(renderer, &rw, &rh);
-  bool scaleRenderer = rw != windowWidth;;
+  scaleRenderer = rw != windowWidth;;
   if(scaleRenderer) {
     float widthScale = (float)rw / (float) windowWidth;
     float heightScale = (float)rh / (float) windowHeight;
@@ -72,6 +72,14 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
 
 }
 
+void vivictpp::imgui::ImGuiSDL::updateFontSettings(const Settings &settings) {
+  ImGui::GetIO().Fonts->Clear();
+  ImGui_ImplSDLRenderer_DestroyFontsTexture();
+  vivictpp::ui::FontSize::setScaling(!scaleRenderer && !settings.disableFontAutoScaling,
+                                     settings.baseFontSize / 13.0f);
+  initFonts();
+}
+
 vivictpp::imgui::ImGuiSDL::~ImGuiSDL() {
   ImGui_ImplSDLRenderer_Shutdown();
   ImGui_ImplSDL2_Shutdown();
@@ -90,6 +98,7 @@ void vivictpp::imgui::ImGuiSDL::render() {
  SDL_RenderClear(renderer);
  ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
  SDL_RenderPresent(renderer);
+ ImGui::EndFrame();
 }
 
 void vivictpp::imgui::ImGuiSDL::updateTextures(const ui::DisplayState &displayState) {

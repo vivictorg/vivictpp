@@ -9,6 +9,7 @@
 #include "ui/DisplayState.hh"
 #include "logging/Logging.hh"
 #include "libav/HwAccelUtils.hh"
+#include "imgui/Fonts.hh"
 
 bool vectorHasElement(std::vector<std::string> v, std::string element) {
   return std::find(v.begin(), v.end(), element) != v.end();
@@ -36,7 +37,7 @@ void vivictpp::imgui::SettingsDialog::initHwAccelStatuses() {
 }
 
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivictpp::ui::DisplayState &displayState) {
-
+  fontSettingsUpdated = false;
 //  textWidth = 0.0f;
   ImVec2 textSize = {0.0f, 0.0f};
   for (const auto &name: hwAccelFormats) {
@@ -54,6 +55,7 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivic
     ImGui::SameLine();
     ImGui::SetNextItemWidth(100);
     if (ImGui::InputInt("##Base font size input", &modifiedSettings.baseFontSize)) {
+      fontSettingsUpdated = true;
       modifiedSettings.baseFontSize = std::clamp(modifiedSettings.baseFontSize, 8, 64);
     }
     ImGui::Unindent();
@@ -109,11 +111,12 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivic
     }
   }
 
-
   std::vector<vivictpp::imgui::Action> actions;
   ImGui::Unindent();
   ImGui::Dummy({20,20});
   if (ImGui::Button("Cancel")) {
+    fontSettingsUpdated = modifiedSettings.baseFontSize != settings.baseFontSize ||
+                          modifiedSettings.disableFontAutoScaling != settings.disableFontAutoScaling;
     modifiedSettings = settings;
     initHwAccelStatuses();
     displayState.displaySettingsDialog = false;
@@ -135,5 +138,6 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivic
   }
 
   ImGui::End();
+//  fontSettingsUpdated
   return actions;
 }
