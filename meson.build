@@ -120,6 +120,7 @@ sources = [
   'src/Controller.cc',
   'src/OptParser.cc',
   'src/Resolution.cc',
+  'src/Settings.cc',
   'src/VideoInputs.cc',
   'src/VideoMetadata.cc',
   'src/VideoPlayback.cc',

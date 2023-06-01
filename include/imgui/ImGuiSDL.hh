@@ -6,6 +6,7 @@
 #define VIVICTPP_IMGUI_IMGUISDL_HH_
 
 #include "imgui/Events.hh"
+#include "Settings.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/VideoTextures.hh"
 #include "VivictPPConfig.hh"
@@ -30,7 +31,7 @@ private:
   std::filesystem::path iniFilename;
   std::string iniFilenameStr;
 public:
-  ImGuiSDL(const UiOptions &uiOptions);
+  ImGuiSDL(const Settings &settings);
   ~ImGuiSDL();
   void newFrame();
   void updateTextures(const ui::DisplayState &displayState);

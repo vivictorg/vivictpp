@@ -20,7 +20,7 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
         actions.push_back({ActionType::ShowFileDialogRight});
       }
       ImGui::Separator();
-      if (ImGui::MenuItem("Settings")) {
+      if (ImGui::MenuItem("Settings", "Ctrl+Alt+S")) {
         actions.push_back({ActionType::ShowSettingsDialog});
       }
       ImGui::Separator();

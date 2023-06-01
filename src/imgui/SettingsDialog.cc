@@ -10,95 +10,130 @@
 #include "logging/Logging.hh"
 #include "libav/HwAccelUtils.hh"
 
-vivictpp::imgui::SettingsDialog::SettingsDialog():
-  hwAccelFormats(vivictpp::libav::allHwAccelFormats()),
-  selectableHwAccelFormats(hwAccelFormats) {
+bool vectorHasElement(std::vector<std::string> v, std::string element) {
+  return std::find(v.begin(), v.end(), element) != v.end();
+}
+
+vivictpp::imgui::SettingsDialog::SettingsDialog(vivictpp::Settings _settings) :
+  settings(_settings),
+  modifiedSettings(_settings),
+  hwAccelFormats(vivictpp::libav::allHwAccelFormats()) {
+  initHwAccelStatuses();
+}
+
+void vivictpp::imgui::SettingsDialog::initHwAccelStatuses() {
+  hwAccelStatuses.clear();
+  for (auto &name : settings.hwAccels) {
+    if (vectorHasElement(hwAccelFormats, name)) {
+      hwAccelStatuses.push_back({name, true});
+    }
+  }
+  for (auto &name : hwAccelFormats) {
+    if (!vectorHasElement(settings.hwAccels, name)) {
+      hwAccelStatuses.push_back({name, false});
+    }
+  }
 }
 
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivictpp::ui::DisplayState &displayState) {
-  bool myBool;
 
-  textWidth = 0.0f;
+//  textWidth = 0.0f;
+  ImVec2 textSize = {0.0f, 0.0f};
   for (const auto &name: hwAccelFormats) {
-    textWidth = std::max(textWidth, ImGui::CalcTextSize(name.c_str()).x);
+    ImVec2 ts = ImGui::CalcTextSize(name.c_str());
+    textSize.x = std::max(textSize.x, ts.x);
+    textSize.y = std::max(textSize.y, ts.y);
   }
 //  bool b2 = disableFontAutoScaling;
   if (ImGui::Begin("Settings", &displayState.displaySettingsDialog)) {
+    ImGui::Text("Font size");
+    ImGui::Indent();
+    bool &disableFontAutoScaling = modifiedSettings.disableFontAutoScaling;
     ImGui::Checkbox("Disable font autoscaling", &disableFontAutoScaling);
     ImGui::Text("Base font size");
     ImGui::SameLine();
     ImGui::SetNextItemWidth(100);
-    if (ImGui::InputInt("##Base font size input", &settings.baseFontSize)) {
-      settings.baseFontSize = std::clamp(settings.baseFontSize, 8, 64);
+    if (ImGui::InputInt("##Base font size input", &modifiedSettings.baseFontSize)) {
+      modifiedSettings.baseFontSize = std::clamp(modifiedSettings.baseFontSize, 8, 64);
     }
+    ImGui::Unindent();
     //  disableFontAutoScaling = b2;
     ImGui::Separator();
     ImGui::Text("Hardware acceleration");
     ImGui::Indent();
-    float width = textWidth;
-    for (int n = 0; n < selectedHwAccelFormats.size(); n++) {
-      std::string current = selectedHwAccelFormats[n];
+    ImGui::BeginGroup();
+    for (size_t n = 0; n < hwAccelStatuses.size(); n++) {
+      HwAccelStatus current = hwAccelStatuses[n];
+      bool &myBool = hwAccelStatuses[n].enabled;
 //      ImGui::SetNextItemWidth(ImGui::CalcTextSize(current.c_str()).x);
-//      ImGui::SetNextItemWidth(100);
-      ImGui::SetNextItemWidth(width);
-      ImGui::Text(current.c_str());
-            /*
-      ImGui::Selectable(current.c_str(), false, 0, {width, 0.0f});
-      if (ImGui::IsItemActive() && !ImGui::IsItemHovered()) {
-        int n_next = n + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
-        if (n_next >= 0 && n_next < selectedHwAccelFormats.size()) {
-          //item_names[n] = item_names[n_next];
-          selectedHwAccelFormats[n] = selectedHwAccelFormats[n_next];
-          selectedHwAccelFormats[n_next] = current;
-          ImGui::ResetMouseDragDelta();
-        }
-      }
-      */
-      ImGui::SameLine();
-      ImGui::PushID(n);
-      if (ImGui::ArrowButton("##moveup", ImGuiDir_Up) && n > 0) {
-        int n_next = n-1;
-        selectedHwAccelFormats[n] = selectedHwAccelFormats[n_next];
-        selectedHwAccelFormats[n_next] = current;
-      }
-      ImGui::SameLine();
-      if (ImGui::ArrowButton("##movedown", ImGuiDir_Down) && n < selectableHwAccelFormats.size() - 1) {
-        int n_next = n+1;
-        selectedHwAccelFormats[n] = selectedHwAccelFormats[n_next];
-        selectedHwAccelFormats[n_next] = current;
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("x")) {
-        selectableHwAccelFormats.push_back(selectedHwAccelFormats[n]);
-        selectedHwAccelFormats.erase(selectedHwAccelFormats.begin() + n);
-        n--;
-      }
-      ImGui::PopID();
+//      ImGui::SetNextItemWidth(width + 50);
+      ImGui::Checkbox(current.name.c_str(), &myBool);
     }
-    if (selectableHwAccelFormats.size() > 0) {
-      ImGui::SetNextItemWidth(width + 20);
-      if (ImGui::BeginCombo("##addhwaccel", selected.c_str())) {
-        for (auto &a : selectableHwAccelFormats) {
-          if (ImGui::Selectable(a.c_str(), false, 0, {width, 0.0f} )) {
-            selected = a;
-            spdlog::info("Selected: {}", selected);
-          }
-        }
-        ImGui::EndCombo();
-      }
+    ImGui::EndGroup();
+    if (hwAccelStatuses.size() > 1) {
       ImGui::SameLine();
-      if (ImGui::Button("Add")) {
-        selectedHwAccelFormats.push_back(selected);
-        selectableHwAccelFormats.erase(std::remove(selectableHwAccelFormats.begin(), selectableHwAccelFormats.end(), selected),
-                                       selectableHwAccelFormats.end());
-        selected = selectableHwAccelFormats.size() > 0 ? selectableHwAccelFormats[0] : "";
+      ImGui::Dummy({50,10});
+      ImGui::SameLine();
+      ImGui::BeginGroup();
+      ImGui::PushItemWidth(8.0f);
+      for (size_t n = 0; n < hwAccelStatuses.size(); n++) {
+        HwAccelStatus current = hwAccelStatuses[n];
+        ImGui::PushID(n);
+        if (n == 0) {
+          ImGui::BeginDisabled();
+        }
+        if (ImGui::ArrowButton("##moveup", ImGuiDir_Up)) {
+          int n_next = n-1;
+          hwAccelStatuses[n] = hwAccelStatuses[n_next];
+          hwAccelStatuses[n_next] = current;
+        }
+        if (n == 0) {
+          ImGui::EndDisabled();
+        }
+        ImGui::SameLine();
+        if (n == hwAccelStatuses.size() - 1) {
+          ImGui::BeginDisabled();
+        }
+        if (ImGui::ArrowButton("##movedown", ImGuiDir_Down)) {
+          int n_next = n+1;
+          hwAccelStatuses[n] = hwAccelStatuses[n_next];
+          hwAccelStatuses[n_next] = current;
+        }
+        if (n == hwAccelStatuses.size() - 1) {
+          ImGui::EndDisabled();
+        }
+        ImGui::PopID();
       }
+      ImGui::PopItemWidth();
+      ImGui::EndGroup();
     }
-    ImGui::Unindent();
-//    for (auto &hwAccel : hwAccelFormats) {
-//
-//    }
   }
+
+
+  std::vector<vivictpp::imgui::Action> actions;
+  ImGui::Unindent();
+  ImGui::Dummy({20,20});
+  if (ImGui::Button("Cancel")) {
+    modifiedSettings = settings;
+    initHwAccelStatuses();
+    displayState.displaySettingsDialog = false;
+  }
+  ImGui::SameLine();
+  ImGui::Dummy({50,20});
+    ImGui::SameLine();
+  if (ImGui::Button("OK")) {
+    // Save settings
+    modifiedSettings.hwAccels.clear();
+    for (auto &status : hwAccelStatuses) {
+      if (status.enabled) {
+        modifiedSettings.hwAccels.push_back(status.name);
+      }
+    }
+    settings = modifiedSettings;
+    displayState.displaySettingsDialog = false;
+    actions.push_back({vivictpp::imgui::ActionType::UpdateSettings});
+  }
+
   ImGui::End();
-  return std::vector<vivictpp::imgui::Action>();
+  return actions;
 }

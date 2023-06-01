@@ -8,27 +8,31 @@
 #include "ui/DisplayState.hh"
 #include <vector>
 #include <string>
+#include "Settings.hh"
 
-struct Settings {
-  bool disableFontAutoScaling;
-  int baseFontSize{13};
-  std::vector<std::string> hwAccels;
-  std::vector<std::string> preferredDecoders;
+struct HwAccelStatus {
+  std::string name;
+  bool enabled;
 };
+
 
 namespace vivictpp::imgui {
 
 class SettingsDialog {
 private:
-  Settings settings;
-  bool disableFontAutoScaling{false};
+  vivictpp::Settings settings;
+  vivictpp::Settings modifiedSettings;
+  //bool disableFontAutoScaling{false};
   std::vector<std::string> hwAccelFormats;
-  std::vector<std::string> selectedHwAccelFormats;
-  std::vector<std::string> selectableHwAccelFormats;
+  std::vector<HwAccelStatus> hwAccelStatuses;
+//  std::vector<std::string> selectedHwAccelFormats;
+//  std::vector<std::string> selectableHwAccelFormats;
   float textWidth;
   std::string selected;
+private:
+  void initHwAccelStatuses();
 public:
-  SettingsDialog();
+  SettingsDialog(Settings settings);
   std::vector<Action> draw(ui::DisplayState &displayState);
 };
 

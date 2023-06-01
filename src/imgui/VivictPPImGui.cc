@@ -5,6 +5,7 @@
 #include "imgui/VivictPPImGui.hh"
 
 #include "SDL_video.h"
+#include "Settings.hh"
 #include "imgui.h"
 #include "imgui/Events.hh"
 #include "imgui_internal.h"
@@ -167,8 +168,10 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
 }
 
 vivictpp::imgui::VivictPPImGui::VivictPPImGui(VivictPPConfig vivictPPConfig):
-  imGuiSDL(vivictPPConfig.uiOptions),
-  videoPlayback(vivictPPConfig)
+  settings(vivictpp::loadSettings()),
+  imGuiSDL(settings),
+  videoPlayback(vivictPPConfig),
+  settingsDialog(settings)
 {
   displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;
   if (displayState.splitScreenDisabled) {
@@ -274,7 +277,9 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(const viv
     case 'P':
       return {vivictpp::imgui::ToggleDisplayPlot};
     case 'S':
-      return {vivictpp::imgui::ToggleFitToScreen};
+      if (keyEvent.ctrl && keyEvent.alt) return {vivictpp::imgui::ShowSettingsDialog};
+      else if (keyEvent.noModifiers()) return {vivictpp::imgui::ToggleFitToScreen};
+      break;
     case '[':
       return {vivictpp::imgui::PlaybackSpeedDecrease};
     case ']':

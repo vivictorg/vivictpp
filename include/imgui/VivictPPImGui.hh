@@ -6,6 +6,7 @@
 #define VIVICTPP_IMGUI_VIVICTPPIMGUI_HH_
 
 #include "VideoPlayback.hh"
+#include "Settings.hh"
 #include "VivictPPConfig.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/DisplayState.hh"
@@ -48,6 +49,7 @@ public:
 
 class VivictPPImGui {
 private:
+  Settings settings;
   ImGuiSDL imGuiSDL;
   VideoPlayback videoPlayback;
   bool done{false};

@@ -21,7 +21,7 @@ extern "C" {
 
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
-vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
+vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
   sdlInitializer(false),
   windowPtr(vivictpp::sdl::createWindow(
            windowWidth, windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI)),
@@ -33,7 +33,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
   iniFilenameStr(iniFilename.string())
 {
   IMGUI_CHECKVERSION();
-  
+
   ImGui::CreateContext();
 
   ImGuiIO& io = ImGui::GetIO();
@@ -66,8 +66,8 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const UiOptions &uiOptions):
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer_Init(renderer);
   // Dont't scale fonts in relation to dpi if we are scaling the renderer
-  vivictpp::ui::FontSize::setScaling(!scaleRenderer && !uiOptions.disableFontAutoScaling,
-                                         uiOptions.fontCustomScaling);
+  vivictpp::ui::FontSize::setScaling(!scaleRenderer && !settings.disableFontAutoScaling,
+                                         settings.baseFontSize / 13.0f);
   initFonts();
 
 }

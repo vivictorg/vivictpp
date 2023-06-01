@@ -40,6 +40,9 @@ public:
   bool shift{false};
   bool ctrl{false};
   bool alt{false};
+  bool noModifiers() const {
+    return !shift && !ctrl && !alt;
+  }
 };
 
 
@@ -71,7 +74,8 @@ enum ActionType {
   ShowFileDialogRight,
   ShowHelp,
   ShowAbout,
-  ShowSettingsDialog
+  ShowSettingsDialog,
+  UpdateSettings
 };
 
 struct Action {
