@@ -168,10 +168,10 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
   ImGui::PopStyleVar(2);
 }
 
-vivictpp::imgui::VivictPPImGui::VivictPPImGui(VivictPPConfig vivictPPConfig):
-  settings(vivictpp::loadSettings()),
+vivictpp::imgui::VivictPPImGui::VivictPPImGui(const VivictPPConfig &vivictPPConfig):
+  settings(vivictPPConfig.settings),
   imGuiSDL(settings),
-  videoPlayback(vivictPPConfig),
+  videoPlayback(vivictPPConfig.sourceConfigs),
   settingsDialog(settings)
 {
   displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;
@@ -275,8 +275,8 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(const viv
       if (keyEvent.shift) return {vivictpp::imgui::ToggleImGuiDemo};
       return {vivictpp::imgui::ToggleDisplayMetadata};
     case 'O':
-      if (keyEvent.ctrl && keyEvent.shift) return {vivictpp::imgui::ShowFileDialogRight};
-      else if (keyEvent.ctrl) return {vivictpp::imgui::ShowFileDialogLeft};
+      if (keyEvent.isCtrlAlt()) return {vivictpp::imgui::ShowFileDialogRight};
+      else if (keyEvent.isCtrl()) return {vivictpp::imgui::ShowFileDialogLeft};
       break;
     case 'P':
       return {vivictpp::imgui::ToggleDisplayPlot};
@@ -387,14 +387,14 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         }
         break;
       case ActionType::OpenFileLeft:
-        videoPlayback.setLeftSource(action.file);
+        videoPlayback.setLeftSource({action.file, settings.hwAccels, settings.preferredDecoders});
         displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
         displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
         imGuiSDL.updateTextures(displayState);
         imGuiSDL.fitWindowToTextures();
         break;
       case ActionType::OpenFileRight:
-        videoPlayback.setRightSource(action.file);
+        videoPlayback.setRightSource({action.file, settings.hwAccels, settings.preferredDecoders});
         displayState.splitScreenDisabled = false;
         displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
         displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());

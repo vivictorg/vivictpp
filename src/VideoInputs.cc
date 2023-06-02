@@ -39,11 +39,11 @@ void SeekState::handleSeekFinished(int seekId, int seekPos, bool error) {
 }
 
 
-VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
+VideoInputs::VideoInputs():
   _leftFrameOffset(0),
   leftPtsOffset(0),
-  decoderOptions(vivictPPConfig.decoderOptions),
   logger(vivictpp::logging::getOrCreateLogger("VideoInputs")) {
+  /*
   for (auto source: vivictPPConfig.sourceConfigs) {
     auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
       new vivictpp::workers::PacketWorker(source.path, source.formatOptions));
@@ -79,24 +79,25 @@ VideoInputs::VideoInputs(VivictPPConfig vivictPPConfig):
     spdlog::trace("VideoInputs::VideoInputs starting packetWorker");
     packetWorker->start();
   }
+  */
 }
 
-void VideoInputs::openLeft(std::string source, std::string formatOptions) {
+void VideoInputs::openLeft(const SourceConfig &sourceConfig) {
   // TODO: Need to add audio packet worker for audio support
   packetWorkers.clear();
   leftInput.packetWorker.reset();
   leftInput.decoder.reset();
   auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
-    new vivictpp::workers::PacketWorker(source, formatOptions));
+    new vivictpp::workers::PacketWorker(sourceConfig.path, sourceConfig.formatOptions));
   packetWorkers.push_back(packetWorker);
   if (packetWorker->getVideoStreams().empty()) {
-    throw std::runtime_error("No video stream in source" + source);
+    throw std::runtime_error("No video stream in source" + sourceConfig.path);
   }
   leftInput.packetWorker = packetWorker;
   leftInput.decoder.reset(
-    // TODO: Add support for decoderOptions and filter
           new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               "", decoderOptions));
+                                               sourceConfig.filter,
+                                               {sourceConfig.hwAccels, sourceConfig.preferredDecoders}));
   packetWorker->addDecoderWorker(leftInput.decoder);
   leftInput.decoder->start();
   if (rightInput.packetWorker) {
@@ -105,23 +106,23 @@ void VideoInputs::openLeft(std::string source, std::string formatOptions) {
   packetWorker->start();
 };
 
-void VideoInputs::openRight(std::string source, std::string formatOptions) {
+void VideoInputs::openRight(const SourceConfig &sourceConfig) {
   // TODO: Need to add audio packet worker for audio support
   packetWorkers.clear();
   packetWorkers.push_back(leftInput.packetWorker);
   rightInput.packetWorker.reset();
   rightInput.decoder.reset();
   auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
-    new vivictpp::workers::PacketWorker(source, formatOptions));
+    new vivictpp::workers::PacketWorker(sourceConfig.path, sourceConfig.formatOptions));
   packetWorkers.push_back(packetWorker);
   if (packetWorker->getVideoStreams().empty()) {
-    throw std::runtime_error("No video stream in source" + source);
+    throw std::runtime_error("No video stream in source" + sourceConfig.path);
   }
   rightInput.packetWorker = packetWorker;
   rightInput.decoder.reset(
-    // TODO: Add support for decoderOptions and filter
-          new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               "", decoderOptions));
+    new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
+                                         sourceConfig.filter,
+                                         {sourceConfig.hwAccels, sourceConfig.preferredDecoders}));
   packetWorker->addDecoderWorker(rightInput.decoder);
   rightInput.decoder->start();
   packetWorker->start();

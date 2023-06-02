@@ -42,7 +42,7 @@ public:
   AVHWDeviceType getHwDeviceType() { return hwDeviceType; }
 private:
   void initCodecContext(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
-  void initHardwareContext(std::string hwAccel);
+  void initHardwareContext(std::vector<std::string> hwAccels);
   void openCodec();
   void logAudioCodecInfo();
   void selectSwPixelFormat();

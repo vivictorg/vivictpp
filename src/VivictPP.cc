@@ -44,7 +44,7 @@ VivictPP::VivictPP(VivictPPConfig vivictPPConfig,
                    vivictpp::audio::AudioOutputFactory &audioOutputFactory)
   : state(),
     eventScheduler(eventScheduler),
-    videoInputs(vivictPPConfig),
+    videoInputs(),
     audioOutput(nullptr),
     logger(vivictpp::logging::getOrCreateLogger("VivictPP")),
     seeklog(vivictpp::logging::getOrCreateLogger("seeklog")){
@@ -324,4 +324,3 @@ void VivictPP::switchStream(int delta) {
 //  }
 */
 }
-

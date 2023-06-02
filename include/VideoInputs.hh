@@ -59,13 +59,12 @@ private:
         logger->debug("leftPtsOffset: {}", leftPtsOffset);
     }
     SeekState seekState;
-    vivictpp::libav::DecoderOptions decoderOptions;
     vivictpp::logging::Logger logger;
 
 public:
-    explicit VideoInputs(VivictPPConfig vivictPPConfig);
-    void openLeft(std::string source, std::string formatOptions = "");
-    void openRight(std::string source, std::string formatOptions = "");
+    explicit VideoInputs();
+    void openLeft(const SourceConfig &sourceConfig);
+    void openRight(const SourceConfig &sourceConfig);
     bool hasLeftSource() { return !!leftInput.packetWorker; }
     bool hasRightSource() { return !!rightInput.packetWorker; }
     bool ptsInRange(vivictpp::time::Time pts);

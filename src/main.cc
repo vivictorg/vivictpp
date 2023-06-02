@@ -20,6 +20,7 @@
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
 #include "imgui/VivictPPImGui.hh"
+#include "Settings.hh"
 
 int main(int argc, char **argv) {
   try {
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
       return optParser.exitCode;
     }
     VivictPPConfig vivictPPConfig = optParser.vivictPPConfig;
-
+    vivictPPConfig.applySettings(vivictpp::loadSettings());
     vivictpp::logging::initializeLogging();
 
 

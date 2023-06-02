@@ -25,7 +25,7 @@ vivictpp::Controller::Controller(std::shared_ptr<EventLoop> eventLoop,
     display(display),
     vivictPP(vivictPPConfig, eventLoop, vivictpp::sdl::audioOutputFactory),
     splitScreenDisabled(vivictPPConfig.sourceConfigs.size() == 1),
-    plotEnabled(vivictPPConfig.hasVmafData()),
+    plotEnabled(false),
     startTime(vivictPP.getVideoInputs().startTime()),
     inputDuration(vivictPP.getVideoInputs().duration()),
     logger(vivictpp::logging::getOrCreateLogger("Controller")) {

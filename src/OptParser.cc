@@ -126,20 +126,21 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
       sources.push_back(rightVideo);
     }
     std::vector<std::string> filters = {leftFilter, rightFilter};
-    std::vector<std::string> vmafLogfiles = {leftVmaf, rightVmaf};
+//    std::vector<std::string> vmafLogfiles = {leftVmaf, rightVmaf};
     std::vector<std::string> formatOptions = {leftInputFormat, rightInputFormat};
     std::vector<std::string> preferredDecoders = splitString(preferredDecodersStr);
-
+    std::vector<std::string> hwAccels = splitString(hwAccel);
 
     std::vector<SourceConfig> sourceConfigs;
     for (size_t i = 0; i<sources.size(); i++) {
         std::string filter = i < filters.size() ? filters[i] : "";
-        std::string vmafLogFile = i < vmafLogfiles.size() ? vmafLogfiles[i] : "";
+//        std::string vmafLogFile = i < vmafLogfiles.size() ? vmafLogfiles[i] : "";
         std::string format = i < formatOptions.size() ? formatOptions[i] : "";
-        sourceConfigs.push_back(SourceConfig(sources[i], filter, vmafLogFile, format));
+        sourceConfigs.push_back(SourceConfig(sources[i], hwAccels,
+                                             splitString(preferredDecodersStr),filter, format));
     }
 
     this->vivictPPConfig =
-      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui},  {hwAccel, preferredDecoders});
+      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui},  {hwAccels, preferredDecoders});
     return true;
   };

@@ -46,8 +46,6 @@ std::vector<std::string> vivictpp::libav::allHwAccelFormats() {
   while ((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
     formats.push_back(av_hwdevice_get_type_name(type));
   }
-  formats.push_back("test-format1");
-  formats.push_back("test-format2");
   return formats;
 }
 

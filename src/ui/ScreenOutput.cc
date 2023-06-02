@@ -25,9 +25,9 @@ const int splashHeight = 480;
 
 std::vector<vivictpp::vmaf::VmafLog> vmafLogs(const std::vector<SourceConfig> &sourceConfigs) {
   std::vector<vivictpp::vmaf::VmafLog> vmafLogs;
-  for (auto sourceConfig: sourceConfigs) {
-    vmafLogs.push_back(sourceConfig.vmafLog);
-  }
+//  for (auto sourceConfig: sourceConfigs) {
+//    vmafLogs.push_back(sourceConfig.vmafLog);
+//  }
   return vmafLogs;
 }
 
@@ -122,7 +122,7 @@ void vivictpp::ui::ScreenOutput::displayFrame(
     initialize(displayState);
     videoMetadataVersion = displayState.videoMetadataVersion;
   }
-  
+
 //  if (!initialized && !displayState.leftFrame.empty()) {
 //    logger->debug("vivictpp::ui::ScreenOutput::displayFrame initializing");
 //    initialize(displayState);

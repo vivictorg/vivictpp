@@ -39,7 +39,7 @@ vivictpp::libav::Decoder::Decoder(AVCodecParameters *codecParameters,
       hwPixelFormat(AV_PIX_FMT_NONE),
       swPixelFormat(AV_PIX_FMT_NONE){
   initCodecContext(codecParameters, decoderOptions);
-  initHardwareContext(decoderOptions.hwAccel);
+  initHardwareContext(decoderOptions.hwAccels);
   openCodec();
 }
 
@@ -90,13 +90,13 @@ void logSupportedDeviceTypes() {
   }
 }
 
-void vivictpp::libav::Decoder::initHardwareContext(std::string hwAccel) {
-  if (hwAccel.empty() || hwAccel == "none") {
+void vivictpp::libav::Decoder::initHardwareContext(std::vector<std::string> hwAccels) {
+  if (hwAccels.empty()) {
     return;
   }
 
-  std::set<AVHWDeviceType> candidateTypes;
-  if (hwAccel != "auto") {
+  std::vector<AVHWDeviceType> candidateTypes;
+  for (auto &hwAccel : hwAccels) {
     AVHWDeviceType type = av_hwdevice_find_type_by_name(hwAccel.c_str());
     if (type == AV_HWDEVICE_TYPE_NONE) {
       logger->warn("Unknown hardware device type: {}", hwAccel);
@@ -104,14 +104,12 @@ void vivictpp::libav::Decoder::initHardwareContext(std::string hwAccel) {
       return;
     }
 
-    if (!deviceTypeSupported(type)) {
+    if (deviceTypeSupported(type)) {
+      candidateTypes.push_back(type);
+    } else {
       logger->warn("Device type not supported: {}", hwAccel);
       logSupportedDeviceTypes();
-      return;
     }
-    candidateTypes.insert(type);
-  } else {
-    candidateTypes = supportedDeviceTypes();
   }
 
   for (auto &type : candidateTypes) {

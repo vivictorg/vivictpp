@@ -29,11 +29,17 @@ void vivictpp::VideoPlayback::SeekState::sync() {
   std::lock_guard<std::mutex> lg(m);
 }
 
-vivictpp::VideoPlayback::VideoPlayback(VivictPPConfig vivictPPConfig):
-  videoInputs(vivictPPConfig),
+vivictpp::VideoPlayback::VideoPlayback(const std::vector<SourceConfig> &sourceConfigs):
+  videoInputs(),
   logger(vivictpp::logging::getOrCreateLogger("vivictpp::VideoPlayback"))
 {
-  if (!vivictPPConfig.sourceConfigs.empty()) {
+  if (sourceConfigs.size() >= 1) {
+    videoInputs.openLeft(sourceConfigs[0]);
+  }
+  if (sourceConfigs.size() >=2 ) {
+    videoInputs.openRight(sourceConfigs[1]);
+  }
+  if (!sourceConfigs.empty()) {
     initPlaybackState();
   }
 }
@@ -47,13 +53,13 @@ void vivictpp::VideoPlayback::initPlaybackState() {
   playbackState.ready = playbackState.hasLeftSource;
 }
 
-void vivictpp::VideoPlayback::setLeftSource(std::string source) {
+void vivictpp::VideoPlayback::setLeftSource(const SourceConfig &source) {
   videoInputs.openLeft(source);
   initPlaybackState();
   seek(videoInputs.startTime());
 }
 
-void vivictpp::VideoPlayback::setRightSource(std::string source) {
+void vivictpp::VideoPlayback::setRightSource(const SourceConfig &source) {
   videoInputs.openRight(source);
   initPlaybackState();
   seek(videoInputs.startTime());

@@ -7,26 +7,33 @@
 #define SOURCECONFIG_HH_
 
 #include <string>
-#include "vmaf/VmafLog.hh"
+#include <vector>
+//#include "vmaf/VmafLog.hh"
 #include "libav/DecoderOptions.hh"
 
 class SourceConfig {
 public:
   SourceConfig(std::string path,
+               std::vector<std::string> hwAccels = {},
+               std::vector<std::string> preferredDecoders = {},
                std::string filter = "",
-               std::string vmafLogFile = "",
+//               std::string vmafLogFile = "",
                std::string formatOptions = ""):
     path(path),
+    hwAccels(hwAccels),
+    preferredDecoders(preferredDecoders),
     filter(filter),
-    vmafLog(vmafLogFile),
+//    vmafLog(vmafLogFile),
     formatOptions(formatOptions)
     {
     }
 
-  const std::string path;
-  const std::string filter;
-  const vivictpp::vmaf::VmafLog vmafLog;
-  const std::string formatOptions;
+  std::string path;
+  std::vector<std::string> hwAccels;
+  std::vector<std::string> preferredDecoders;
+  std::string filter;
+//  const vivictpp::vmaf::VmafLog vmafLog;
+  std::string formatOptions;
 };
 
 #endif  // SOURCECONFIG_HH_

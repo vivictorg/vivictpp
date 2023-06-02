@@ -12,7 +12,7 @@ namespace vivictpp {
 namespace libav {
 
 struct  DecoderOptions {
-  std::string hwAccel;
+  std::vector<std::string> hwAccels;
   std::vector<std::string> preferredDecoders;
 };
 

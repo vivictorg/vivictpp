@@ -60,9 +60,9 @@ private:
 private:
   void initPlaybackState();
 public:
-  VideoPlayback(VivictPPConfig vivictPPConfig);
-  void setLeftSource(std::string source);
-  void setRightSource(std::string source);
+  VideoPlayback(const std::vector<SourceConfig> &sourceConfigs);
+  void setLeftSource(const SourceConfig &source);
+  void setRightSource(const SourceConfig &source);
   void togglePlaying();
   void play();
   void pause();

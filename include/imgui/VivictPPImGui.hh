@@ -65,7 +65,7 @@ private:
   std::vector<Action> handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
 public:
-  VivictPPImGui(VivictPPConfig vivictPPConfig);
+  VivictPPImGui(const VivictPPConfig &vivictPPConfig);
   void run();
 };
 

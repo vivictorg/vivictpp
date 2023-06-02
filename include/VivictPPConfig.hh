@@ -11,6 +11,7 @@
 #include "SourceConfig.hh"
 #include "vmaf/VmafLog.hh"
 #include "libav/DecoderOptions.hh"
+#include "Settings.hh"
 
 struct UiOptions {
   bool disableFontAutoScaling;
@@ -39,11 +40,22 @@ public:
 
   vivictpp::libav::DecoderOptions decoderOptions;
 
-public:
-  bool hasVmafData() {
-    return std::any_of(sourceConfigs.begin(),
-                sourceConfigs.end(),
-                [](const SourceConfig &sc) { return !sc.vmafLog.empty(); });
+  vivictpp::Settings settings;
+
+  void applySettings(const vivictpp::Settings &settings) {
+    this->settings = settings;
+    for (auto &sourceConfig: sourceConfigs) {
+      if (sourceConfig.hwAccels.empty() || sourceConfig.hwAccels[0].empty()) {
+        sourceConfig.hwAccels = settings.hwAccels;
+      } else if (sourceConfig.hwAccels[0] == "none") {
+        sourceConfig.hwAccels = {};
+      }
+      if (sourceConfig.preferredDecoders.empty() ||
+          sourceConfig.preferredDecoders[0].empty()) {
+        sourceConfig.preferredDecoders = settings.preferredDecoders;
+      }
+    }
+
   }
 };
 

@@ -16,7 +16,7 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
       if (ImGui::MenuItem("Open left", "Ctrl+O")) {
         actions.push_back({ActionType::ShowFileDialogLeft});
       }
-      if (ImGui::MenuItem("Open right", "Ctrl+Shift+O", false, playbackState.hasLeftSource)) {
+      if (ImGui::MenuItem("Open right", "Ctrl+Alt+O", false, playbackState.hasLeftSource)) {
         actions.push_back({ActionType::ShowFileDialogRight});
       }
       ImGui::Separator();

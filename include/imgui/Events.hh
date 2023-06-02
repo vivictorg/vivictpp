@@ -43,6 +43,18 @@ public:
   bool noModifiers() const {
     return !shift && !ctrl && !alt;
   }
+  bool isShift() const {
+    return shift && !ctrl && !alt;
+  }
+  bool isCtrl() const {
+    return !shift && ctrl && !alt;
+  }
+  bool isCtrlShift() const {
+    return shift && ctrl && !alt;
+  }
+  bool isCtrlAlt() const {
+    return !shift && ctrl && alt;
+  }
 };
 
 
