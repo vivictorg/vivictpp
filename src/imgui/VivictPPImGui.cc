@@ -387,19 +387,10 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         }
         break;
       case ActionType::OpenFileLeft:
-        videoPlayback.setLeftSource({action.file, settings.hwAccels, settings.preferredDecoders});
-        displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
-        displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
-        imGuiSDL.updateTextures(displayState);
-        imGuiSDL.fitWindowToTextures();
+        openFile(action);
         break;
       case ActionType::OpenFileRight:
-        videoPlayback.setRightSource({action.file, settings.hwAccels, settings.preferredDecoders});
-        displayState.splitScreenDisabled = false;
-        displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
-        displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
-        imGuiSDL.updateTextures(displayState);
-        imGuiSDL.fitWindowToTextures();
+        openFile(action);
         break;
       case ActionType::ShowHelp:
         displayState.displayHelp = !displayState.displayHelp;
@@ -417,4 +408,29 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         ;
       }
     }
+}
+
+void vivictpp::imgui::VivictPPImGui::openFile(const vivictpp::imgui::Action &action) {
+  std::vector<std::string> hwAccels;
+  if (fileDialog.selectedHwAccel() == "auto") {
+    hwAccels = settings.hwAccels;
+  } else if (fileDialog.selectedHwAccel() != "none") {
+    hwAccels.push_back(fileDialog.selectedHwAccel());
+  }
+  std::vector<std::string> preferredDecoders;
+  if (fileDialog.selectedDecoder() == "auto") {
+    preferredDecoders = settings.preferredDecoders;
+  } else {
+    preferredDecoders.push_back(fileDialog.selectedDecoder());
+  }
+  if (action.type == ActionType::OpenFileLeft) {
+    videoPlayback.setLeftSource({action.file, hwAccels, preferredDecoders});
+  } else {
+    videoPlayback.setRightSource({action.file, hwAccels, preferredDecoders});
+    displayState.splitScreenDisabled = false;
+  }
+  displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+  displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+  imGuiSDL.updateTextures(displayState);
+  imGuiSDL.fitWindowToTextures();
 }

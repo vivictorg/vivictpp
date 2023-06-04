@@ -7,7 +7,9 @@
 
 #include "ImGuiFileDialog.h"
 #include "Events.hh"
+#include "libav/HwAccelUtils.hh"
 #include "platform_folders.h"
+#include "libav/Utils.hh"
 
 namespace vivictpp::imgui {
 
@@ -18,19 +20,36 @@ private:
   ImGuiFileDialog fileDialog;
   LeftRight leftRight{LeftRight::Left};
   std::string folder{sago::getVideoFolder()};
+  std::vector<std::string> hwAccelOptions;
+  std::vector<std::string> preferredDecoderOptions;
+  std::string currentHwAccelOption;
+  std::string currentDecoderOption;
+private:
+  void openDialog(std::string text);
+  void optionsPane();
 
 public:
-  FileDialog() {}
+  FileDialog():
+    hwAccelOptions({"auto", "none"}),
+    preferredDecoderOptions({"auto"}),
+    currentHwAccelOption(hwAccelOptions[0]),
+    currentDecoderOption(preferredDecoderOptions[0])
+    {
+      for (auto &hwAccel : vivictpp::libav::allHwAccelFormats()) {
+        hwAccelOptions.push_back(hwAccel);
+      }
+      for (auto &decoder: vivictpp::libav::allVideoDecoders()) {
+        preferredDecoderOptions.push_back(decoder);
+      }
+    }
 
-  void openLeft() {
-    this->leftRight = LeftRight::Left;
-    fileDialog.OpenDialog("ChooseFileDlgKey", "Choose Left Source File", ".*", folder + "/");
-  }
+  void openLeft();
 
-  void openRight() {
-    this->leftRight = LeftRight::Right;
-    fileDialog.OpenDialog("ChooseFileDlgKey", "Choose Right Source File", ".*", folder + "/");
-  }
+  void openRight();
+
+  const std::string selectedHwAccel() { return currentHwAccelOption; }
+
+  const std::string selectedDecoder() { return currentDecoderOption; }
 
   std::vector<Action> draw();
 

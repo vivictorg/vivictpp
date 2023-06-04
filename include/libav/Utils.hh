@@ -6,6 +6,7 @@
 #define LIBAV_UTILS_HH
 
 #include <string>
+#include <vector>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -19,6 +20,8 @@ int getChannels(AVCodecContext *codecContext);
 int getChannels(AVFrame *frame);
 
 std::string getChannelLayout(AVCodecContext *codecContext);
+
+std::vector<std::string> allVideoDecoders();
 
 }  // namespace vivictpp::libav
 

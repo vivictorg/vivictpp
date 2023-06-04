@@ -64,6 +64,7 @@ private:
   Action handleKeyEvent(const KeyEvent &keyEvent);
   std::vector<Action> handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
+  void openFile(const vivictpp::imgui::Action &action);
 public:
   VivictPPImGui(const VivictPPConfig &vivictPPConfig);
   void run();

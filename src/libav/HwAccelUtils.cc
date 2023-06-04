@@ -48,15 +48,3 @@ std::vector<std::string> vivictpp::libav::allHwAccelFormats() {
   }
   return formats;
 }
-
-/*
-std::string
-enum AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
-
-    printf("Hardware acceleration methods:\n");
-    while ((type = av_hwdevice_iterate_types(type)) !=
-           AV_HWDEVICE_TYPE_NONE)
-        printf("%s\n", av_hwdevice_get_type_name(type));
-    printf("\n");
-    return 0;
- */

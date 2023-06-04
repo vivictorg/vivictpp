@@ -6,10 +6,12 @@
 #include "imgui/SettingsDialog.hh"
 #include "imgui.h"
 #include "imgui/Events.hh"
+#include "libav/Utils.hh"
 #include "ui/DisplayState.hh"
 #include "logging/Logging.hh"
 #include "libav/HwAccelUtils.hh"
 #include "imgui/Fonts.hh"
+#include "imgui/WidgetUtils.hh"
 
 bool vectorHasElement(std::vector<std::string> v, std::string element) {
   return std::find(v.begin(), v.end(), element) != v.end();
@@ -18,7 +20,8 @@ bool vectorHasElement(std::vector<std::string> v, std::string element) {
 vivictpp::imgui::SettingsDialog::SettingsDialog(vivictpp::Settings _settings) :
   settings(_settings),
   modifiedSettings(_settings),
-  hwAccelFormats(vivictpp::libav::allHwAccelFormats()) {
+  hwAccelFormats(vivictpp::libav::allHwAccelFormats()),
+  decoders(vivictpp::libav::allVideoDecoders()) {
   initHwAccelStatuses();
 }
 
@@ -38,14 +41,7 @@ void vivictpp::imgui::SettingsDialog::initHwAccelStatuses() {
 
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivictpp::ui::DisplayState &displayState) {
   fontSettingsUpdated = false;
-//  textWidth = 0.0f;
-  ImVec2 textSize = {0.0f, 0.0f};
-  for (const auto &name: hwAccelFormats) {
-    ImVec2 ts = ImGui::CalcTextSize(name.c_str());
-    textSize.x = std::max(textSize.x, ts.x);
-    textSize.y = std::max(textSize.y, ts.y);
-  }
-//  bool b2 = disableFontAutoScaling;
+
   if (ImGui::Begin("Settings", &displayState.displaySettingsDialog)) {
     ImGui::Text("Font size");
     ImGui::Indent();
@@ -59,55 +55,36 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivic
       modifiedSettings.baseFontSize = std::clamp(modifiedSettings.baseFontSize, 8, 64);
     }
     ImGui::Unindent();
-    //  disableFontAutoScaling = b2;
     ImGui::Separator();
     ImGui::Text("Hardware acceleration");
     ImGui::Indent();
-    ImGui::BeginGroup();
-    for (size_t n = 0; n < hwAccelStatuses.size(); n++) {
-      HwAccelStatus current = hwAccelStatuses[n];
-      bool &myBool = hwAccelStatuses[n].enabled;
-//      ImGui::SetNextItemWidth(ImGui::CalcTextSize(current.c_str()).x);
-//      ImGui::SetNextItemWidth(width + 50);
-      ImGui::Checkbox(current.name.c_str(), &myBool);
-    }
-    ImGui::EndGroup();
-    if (hwAccelStatuses.size() > 1) {
-      ImGui::SameLine();
-      ImGui::Dummy({50,10});
-      ImGui::SameLine();
-      ImGui::BeginGroup();
-      ImGui::PushItemWidth(8.0f);
-      for (size_t n = 0; n < hwAccelStatuses.size(); n++) {
-        HwAccelStatus current = hwAccelStatuses[n];
-        ImGui::PushID(n);
-        if (n == 0) {
-          ImGui::BeginDisabled();
-        }
-        if (ImGui::ArrowButton("##moveup", ImGuiDir_Up)) {
-          int n_next = n-1;
-          hwAccelStatuses[n] = hwAccelStatuses[n_next];
-          hwAccelStatuses[n_next] = current;
-        }
-        if (n == 0) {
-          ImGui::EndDisabled();
-        }
-        ImGui::SameLine();
-        if (n == hwAccelStatuses.size() - 1) {
-          ImGui::BeginDisabled();
-        }
-        if (ImGui::ArrowButton("##movedown", ImGuiDir_Down)) {
-          int n_next = n+1;
-          hwAccelStatuses[n] = hwAccelStatuses[n_next];
-          hwAccelStatuses[n_next] = current;
-        }
-        if (n == hwAccelStatuses.size() - 1) {
-          ImGui::EndDisabled();
-        }
-        ImGui::PopID();
-      }
-      ImGui::PopItemWidth();
-      ImGui::EndGroup();
+    std::function<void(HwAccelStatus&)> renderHwAccelStatus = [](HwAccelStatus &has) {
+      ImGui::Checkbox(has.name.c_str(), &has.enabled);
+    };
+    prioritizedList("hwaccellist", ImGui::GetContentRegionAvail().x * 0.6f, hwAccelStatuses, renderHwAccelStatus);
+
+    ImGui::Unindent();
+    ImGui::Separator();
+    ImGui::Text("Preferred decoders");
+    ImGui::Indent();
+    std::function<void(std::string&)> renderDecoder = [](std::string &decoder) {
+      ImGui::Text("%s", decoder.c_str());
+    };
+
+    prioritizedList("preferredDecoders", ImGui::GetContentRegionAvail().x * 0.6f,
+                    modifiedSettings.preferredDecoders, renderDecoder, true);
+    std::function<bool(const std::string&)> exclude = [&](const std::string &decoder) -> bool {
+      return std::find(modifiedSettings.preferredDecoders.begin(), modifiedSettings.preferredDecoders.end(), decoder) !=
+        modifiedSettings.preferredDecoders.end();
+    };
+
+    static std::string currentDecoder = decoders[0];
+    ImGui::Text("---");
+    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.6f);
+    comboBox("##Decoders", decoders, currentDecoder, exclude);
+    ImGui::SameLine();
+    if (ImGui::Button("add")) {
+      modifiedSettings.preferredDecoders.push_back(currentDecoder);
     }
   }
 

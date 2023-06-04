@@ -25,6 +25,8 @@ private:
   //bool disableFontAutoScaling{false};
   std::vector<std::string> hwAccelFormats;
   std::vector<HwAccelStatus> hwAccelStatuses;
+  std::vector<std::string> decoders;
+//  std::vector<std::string> preferredDecoders;
 //  std::vector<std::string> selectedHwAccelFormats;
 //  std::vector<std::string> selectableHwAccelFormats;
   float textWidth;
