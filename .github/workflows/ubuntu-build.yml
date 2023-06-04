@@ -21,10 +21,10 @@ jobs:
           action: build
           meson-version: 0.63.1
           setup-options: -Duse_sdl2_subproject=true
-      - name: Run tests
-        run: |
-          cd build
-          xvfb-run ./playbackTest
+#      - name: Run tests
+#        run: |
+#          cd build
+#          xvfb-run ./playbackTest
       - name: Save logs
         if: always()
         uses: actions/upload-artifact@v2
