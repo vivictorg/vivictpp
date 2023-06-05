@@ -6,6 +6,7 @@
 
 #include "SDL_video.h"
 #include "Settings.hh"
+#include "SourceConfig.hh"
 #include "imgui.h"
 #include "imgui/Events.hh"
 #include "imgui_internal.h"
@@ -423,10 +424,11 @@ void vivictpp::imgui::VivictPPImGui::openFile(const vivictpp::imgui::Action &act
   } else {
     preferredDecoders.push_back(fileDialog.selectedDecoder());
   }
+  SourceConfig sourceConfig = {action.file, hwAccels, preferredDecoders, fileDialog.filter(), fileDialog.formatOptions()};
   if (action.type == ActionType::OpenFileLeft) {
-    videoPlayback.setLeftSource({action.file, hwAccels, preferredDecoders});
+    videoPlayback.setLeftSource(sourceConfig);
   } else {
-    videoPlayback.setRightSource({action.file, hwAccels, preferredDecoders});
+    videoPlayback.setRightSource(sourceConfig);
     displayState.splitScreenDisabled = false;
   }
   displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());

@@ -24,6 +24,8 @@ private:
   std::vector<std::string> preferredDecoderOptions;
   std::string currentHwAccelOption;
   std::string currentDecoderOption;
+  char filterStr[512]{'\0'};
+  char formatOptionsStr[512]{'\0'};
 private:
   void openDialog(std::string text);
   void optionsPane();
@@ -50,6 +52,10 @@ public:
   const std::string selectedHwAccel() { return currentHwAccelOption; }
 
   const std::string selectedDecoder() { return currentDecoderOption; }
+
+  const std::string filter() { return std::string(filterStr); }
+
+  const std::string formatOptions() { return std::string(formatOptionsStr); }
 
   std::vector<Action> draw();
 

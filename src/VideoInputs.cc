@@ -43,43 +43,6 @@ VideoInputs::VideoInputs():
   _leftFrameOffset(0),
   leftPtsOffset(0),
   logger(vivictpp::logging::getOrCreateLogger("VideoInputs")) {
-  /*
-  for (auto source: vivictPPConfig.sourceConfigs) {
-    auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
-      new vivictpp::workers::PacketWorker(source.path, source.formatOptions));
-    packetWorkers.push_back(packetWorker);
-    if (!packetWorker->getVideoStreams().empty()) {
-      if (!leftInput.decoder) {
-        leftInput.packetWorker = packetWorker;
-        leftInput.decoder.reset(
-          new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               source.filter, decoderOptions));
-        packetWorker->addDecoderWorker(leftInput.decoder);
-        leftInput.decoder->start();
-      } else if (!rightInput.decoder) {
-        rightInput.packetWorker = packetWorker;
-        rightInput.decoder.reset(
-          new vivictpp::workers::DecoderWorker(packetWorker->getVideoStreams()[0],
-                                               source.filter, decoderOptions));
-        packetWorker->addDecoderWorker(rightInput.decoder);
-        rightInput.decoder->start();
-      }
-    }
-
-    if (!vivictPPConfig.disableAudio && !packetWorker->getAudioStreams().empty()) {
-      if (!audio1.decoder) {
-        audio1.packetWorker = packetWorker;
-        audio1.decoder.reset(
-          new vivictpp::workers::DecoderWorker(packetWorker->getAudioStreams()[0]));
-        packetWorker->addDecoderWorker(audio1.decoder);
-        audio1.decoder->start();
-      }
-    }
-
-    spdlog::trace("VideoInputs::VideoInputs starting packetWorker");
-    packetWorker->start();
-  }
-  */
 }
 
 void VideoInputs::openLeft(const SourceConfig &sourceConfig) {

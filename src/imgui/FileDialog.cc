@@ -13,6 +13,12 @@ void vivictpp::imgui::FileDialog::optionsPane() {
     ImGui::Dummy({1,10});
     ImGui::Text("Preferred decoder");
     vivictpp::imgui::comboBox("##Decoder", preferredDecoderOptions, currentDecoderOption);
+    ImGui::Dummy({1,10});
+    ImGui::Text("Filter");
+    ImGui::InputText("##filterinput", filterStr, IM_ARRAYSIZE(filterStr));
+    ImGui::Dummy({1,10});
+    ImGui::Text("Format options");
+    ImGui::InputText("##formatoptions", formatOptionsStr, IM_ARRAYSIZE(formatOptionsStr));
 }
 
 void vivictpp::imgui::FileDialog::openLeft() {
