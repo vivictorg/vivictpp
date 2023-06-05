@@ -234,29 +234,39 @@ For example, to compare an interlaced source with a transcoded and deinterlaced 
     > vivictpp --left-filter yadif SOURCEVIDEO TRANSCODEDVIDEO
 
 
-### Hardware accelerated decoding (experimental)
+### Hardware accelerated decoding
 There are two kind of hardware accelerated decoders in ffmpeg/libav, internal hwaccel decoders and external wrapper
-decoders. Vivict++ has support for both, allthough this should be considered an experimental feature.
+decoders. Vivict++ has support for both. Use of nternal hardware accelerated decoders are controlled by
+the hardware acceleration settings described in this section. To use external wrapper decoders,
+use the Preferred decoders section below.
 
-To use libav internal hwaccel decoders, the `--hwaccel` option can be used. By default it is set to `none` which mean
-internal hardware accelerated decoders will be disabled. If `auto` is passed to the `--hwaccel` option any available api
-for hardware accelerated decoding will be used. It is also possible to specify a specific hardware acceleration api to use
-, such as `vaapi`, `videotoolbox` etc.
+To use libav internal hwaccel decoders, hardware acceleration can be enabled in the Settings dialog (File->Settings).
+Each supported hardware acceleration method can be enabled/disabled individually.
 
-To use external wrapper decoders, use the `--preferred-decoders` option (see below) to specify the decoders to use.
+It is also possible to control use of hardware acceleration from the 'Open file' dialog. The 'hardware acceleration'
+combox allows for selecting options `auto` (use default hardware acceleration as configured in settings),
+`none` (use no hardware acceleration), or selecting a specific supported hardware acceleration method.
+
+On the commandline, the `--hwaccel` option can be used to control hardware acceleration for files specified on
+the commandline.
 
 For more info on harware accelerating decoding, see https://trac.ffmpeg.org/wiki/HWAccelIntro .
 
 Note that even with hardware accelerated decoding, depending of the format of the source video, vivict++ might still
-use quite a bit of cpu to do pixel format conversion. With `--hwaccel cuda` or `--hwaccel vaapi` pixel format conversion may be done on
-the gpu.
+use quite a bit of cpu to do pixel format conversion since (for now) vivictpp only support 8bit yuv output.
+With `cuda` or `vaapi` hardware acceleration the necessary pixel format conversion may be done on the gpu.
 
 ### Specify preferred decoder
 In some cases it might be preferable to use a different decoder than the libav default. For instance, `libopenjpeg` may give
 better performance than libav's native jpeg2000 decoder, and one may want to use `hevc_cuvid` instead of the x265 decoder.
-A comma separated list of preferred codecs can be specified on the commandline with the `--preferred-decoders` option.
-The codec name should be as listed by `ffmpeg -codecs` . The first, if any, of the listed preferred codecs that is aplicable
-for the input will be used for decoding. Non-applicable codecs will simply be ignored.
+
+The settings dialog allows configuration of an order list of decoders that should be preferred when they are applicable.
+The first, if any, of the listed preferred codecs that is aplicable for the input will be used for decoding.
+Non-applicable codecs will simply be ignored, if none of the preferred decoders can be used vivictpp will try to find
+some other applicable decoder.
+
+A comma separated list of preferred codecs can be specified on the commandline with the `--preferred-decoders` option,
+this list of decoders will be used only for files also specified on the commandline.
 
 For instance, to use cuvid decoders for h264 and h265, and libopenjpeg for jpeg 2000 input,  one would call vivictpp like below.
 
@@ -271,7 +281,10 @@ Vivict++ can display VMAF data if such is provided by using the `--left-vmaf` an
 options. The command line options take a path to a csv-file containing the data as argument. The file is expected to be a csv-file created by the [FFmpeg libvmaf filter](http://ffmpeg.org/ffmpeg-filters.html#libvmaf) with `log_fmt=csv`.
 
 ### Specifying input format
-In case your input file is in a format this not easily identified, ie raw video, you can use the `--left-format` and `--right-format` to tell vivictpp how to interpret the input file. These options should be followed by a colon-separated list of key=value pairs. If `format` is specified as key, the corresponding value will be passed to [av_find_input_format](https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#ga40034b6d64d372e1c989e16dde4b459a) to find the correct input format. Any other key value pairs will be passed to [avformat_open_input](https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gac05d61a2b492ae3985c658f34622c19d) through the `options` parameter.
+In case your input file is in a format this not easily identified, ie raw video, you can use the
+`format` input in the open file dialog, or the
+`--left-format` and `--right-format` command line flags,
+to tell vivictpp how to interpret the input file. These options should be followed by a colon-separated list of key=value pairs. If `format` is specified as key, the corresponding value will be passed to [av_find_input_format](https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#ga40034b6d64d372e1c989e16dde4b459a) to find the correct input format. Any other key value pairs will be passed to [avformat_open_input](https://ffmpeg.org/doxygen/trunk/group__lavf__decoding.html#gac05d61a2b492ae3985c658f34622c19d) through the `options` parameter.
 
 Example for playing a file containing raw video data:
 
@@ -325,6 +338,7 @@ Vivict++ uses the following thirdparty dependencies.
 * [FreeMono from GNU freefont](http://savannah.gnu.org/projects/freefont/) ([GPL License](https://www.gnu.org/software/freefont/license.html))
 * [vivict-icons](https://github.com/vivictorg/vivict-icons) ([MIT License](https://github.com/vivictorg/vivict-icons/blob/main/LICENSE))
 * [PlatformFolders](https://github.com/sago007/PlatformFolders) ([MIT License](https://github.com/sago007/PlatformFolders/blob/master/LICENSE)
+* [tomlplusplus](https://github.com/marzer/tomlplusplus) ([MIT License](https://github.com/marzer/tomlplusplus/blob/master/LICENSE)
 
 ## License
 
