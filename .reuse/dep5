@@ -44,6 +44,10 @@ Files: subprojects/zlib.wrap
 Copyright: 2021 The Meson development team
 License: MIT
 
+Files: subprojects/platformfolders.wrap
+Copyright: 2023 Gustav Grusell
+License: MIT
+
 Files: subprojects/packagefiles/catch2-2.13.3-2.tar.gz
 Copyright: 2018 The Meson Development team
 License: MIT
