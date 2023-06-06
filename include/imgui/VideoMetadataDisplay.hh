@@ -27,6 +27,7 @@ public:
   VideoMetadataDisplay(Type type):
     type(type) {};
   void draw(const ui::DisplayState &displayState);
+  float calcWidth();
 };
 
 

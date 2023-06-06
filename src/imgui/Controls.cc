@@ -160,7 +160,7 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
       ImGui::SetCursorPosX(10.0f);
       ImGui::SetCursorPosY(10.0f);
       leftMetadata.draw(displayState);
-      ImGui::SetCursorPosX(work_size.x - 250.0f - 20.0f);
+      ImGui::SetCursorPosX(work_size.x - rightMetadata.calcWidth() - 20.0f);
       ImGui::SetCursorPosY(10.0f);
       rightMetadata.draw(displayState);
     }

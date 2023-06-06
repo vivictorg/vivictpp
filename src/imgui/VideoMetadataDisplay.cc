@@ -7,6 +7,9 @@
 #include "imgui/Colors.hh"
 #include "ui/FontSize.hh"
 
+const float FIRST_COLUMN_WIDTH = 150.0f;
+const float SECOND_COLUMN_WIDTH = 100.0f;
+
 
 void vivictpp::imgui::VideoMetadataDisplay::initMetadataText(const ui::DisplayState &displayState) {
   const VideoMetadata &metadata = (type == Type::LEFT) ? displayState.leftVideoMetadata :
@@ -33,6 +36,8 @@ void vivictpp::imgui::VideoMetadataDisplay::initFrameMetadataText(const ui::Disp
   frameMetadataText.push_back({"Frame size", std::to_string(metadata.size)});
 }
 
+float vivictpp::imgui::VideoMetadataDisplay::calcWidth() { return vivictpp::ui::FontSize::getScaleFactor() * (FIRST_COLUMN_WIDTH + SECOND_COLUMN_WIDTH); }
+
 void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &displayState) {
   if (displayState.videoMetadataVersion != metadataVersion) {
     initMetadataText(displayState);
@@ -41,8 +46,8 @@ void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &display
   float scaling = vivictpp::ui::FontSize::getScaleFactor();
   ImGui::BeginGroup();
   ImGui::BeginTable("metadata", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX);
-  ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f * scaling);
-  ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f * scaling);
+  ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, FIRST_COLUMN_WIDTH * scaling);
+  ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, SECOND_COLUMN_WIDTH * scaling);
   for (const auto &data : metadataText) {
     ImGui::TableNextRow();
     ImGui::TableNextColumn();
@@ -56,8 +61,8 @@ void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &display
   if (!displayState.isPlaying) {
     initFrameMetadataText(displayState);
     ImGui::BeginTable("framemetadata", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_NoHostExtendX);
-    ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, 150.0f * scaling);
-    ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, 100.0f * scaling);
+    ImGui::TableSetupColumn("1",ImGuiTableColumnFlags_WidthFixed, FIRST_COLUMN_WIDTH * scaling);
+    ImGui::TableSetupColumn("2",ImGuiTableColumnFlags_WidthFixed, SECOND_COLUMN_WIDTH * scaling);
     for (const auto &data : frameMetadataText) {
       ImGui::TableNextRow();
       ImGui::TableNextColumn();
