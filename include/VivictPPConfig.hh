@@ -16,12 +16,11 @@
 struct UiOptions {
   bool disableFontAutoScaling;
   float fontCustomScaling;
-  bool enableImGui;
 };
 
 class VivictPPConfig {
 public:
-  VivictPPConfig(): VivictPPConfig({}, false, {false, 1.0, false}, {}) {}
+  VivictPPConfig(): VivictPPConfig({}, false, {false, 1.0}, {}) {}
 
   VivictPPConfig(std::vector<SourceConfig> sourceConfigs,
                  bool disableAudio,

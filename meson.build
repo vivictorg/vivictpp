@@ -119,14 +119,12 @@ imgui_sources=[
 
 sources = [
   'src/AVSync.cc',
-  'src/Controller.cc',
   'src/OptParser.cc',
   'src/Resolution.cc',
   'src/Settings.cc',
   'src/VideoInputs.cc',
   'src/VideoMetadata.cc',
   'src/VideoPlayback.cc',
-  'src/VivictPP.cc',
   'src/libav/Decoder.cc',
   'src/libav/Filter.cc',
   'src/libav/FormatHandler.cc',
@@ -136,22 +134,10 @@ sources = [
   'src/libav/Utils.cc',
   'src/logging/Logging.cc',
   'src/sdl/SDLAudioOutput.cc',
-  'src/sdl/SDLEventLoop.cc',
-  'src/sdl/SDLUtils.cc',
   'src/sdl/SDLUtils.cc',
   'src/time/TimeUtils.cc',
-  'src/ui/Container.cc',
   'src/ui/FontSize.cc',
-  'src/ui/Fonts.cc',
-  'src/ui/MetadataDisplay.cc',
-  'src/ui/ScreenOutput.cc',
-  'src/ui/SeekBar.cc',
-  'src/ui/TextBox.cc',
-  'src/ui/TextTexture.cc',
-  'src/ui/VideoDisplay.cc',
-  'src/ui/VideoScaler.cc',
   'src/ui/VideoTextures.cc',
-  'src/ui/VmafGraph.cc',
   'src/vmaf/VmafLog.cc',
   'src/workers/DecoderWorker.cc',
   'src/workers/FrameBuffer.cc',
@@ -178,5 +164,5 @@ executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps
 
 #seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
 # test('FormatHandler.seek', seekTest)
-playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
-test('Playback', playbackTest)
+#playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
+#test('Playback', playbackTest)

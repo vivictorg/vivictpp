@@ -165,8 +165,6 @@ Run with the -h flag to see the commandline options
       --left-filter TEXT          Video filters for left video
       --right-filter TEXT         Video filters for left video
       --enable-audio              Enable audio
-      --left-vmaf TEXT            Path to csv-file containing vmaf data for left video
-      --right-vmaf TEXT           Path to csv-file containing vmaf data for right video
       --left-format TEXT          Format options for left video input
       --right-format TEXT         Format options for right video input
       --disable-font-autoscaling  Disables autoscaling of fonts based on display dpi
@@ -176,8 +174,6 @@ Run with the -h flag to see the commandline options
                                     none    Disable hardware accelerated decoding
                                     TYPE    Name of devicetype, see https://trac.ffmpeg.org/wiki/HWAccelIntro
       --preferred-decoders TEXT   Comma separated list of decoders that should be preferred over default decoder when applicable
-      --imgui,--disable-imgui{false}
-                                  Enable experimental ImGui UI
     
     
     KEYBOARD SHORTCUTS
@@ -275,10 +271,7 @@ vivictpp --preferred-decoders h264_cuvid,hevc_cuvid,libopenjpeg video.mp4
 ```
 
 ### Displaying video quality (VMAF) data
-_*Note that this functionality is currently not available in the new imgui UI. To use this functionality vivictpp must be started with the --disable-imgui flag*_
-
-Vivict++ can display VMAF data if such is provided by using the `--left-vmaf` and/or `--right-vmaf`
-options. The command line options take a path to a csv-file containing the data as argument. The file is expected to be a csv-file created by the [FFmpeg libvmaf filter](http://ffmpeg.org/ffmpeg-filters.html#libvmaf) with `log_fmt=csv`.
+_*Note that this functionality is currently not available in the new imgui UI. It mayb be reinstated in the future.*_
 
 ### Specifying input format
 In case your input file is in a format this not easily identified, ie raw video, you can use the
@@ -305,11 +298,7 @@ The log level for the libav libraries can be specified by setting the environmen
 `quiet, panic, fatal, error, warning, info, verbose, debug, trace`.
 
 ### Audio
-Audio is currently not supported in the new imgui UI. If vivictpp is started with the `--disable-imgui` flag, audio is supported.
-
-## Known issues
-
-* Audio sync is less than perfect
+Audio is currently not supported in the new imgui UI. It might be supported in the future.
 
 ## Code standard
 

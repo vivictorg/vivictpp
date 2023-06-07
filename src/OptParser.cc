@@ -81,11 +81,6 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     bool enableAudio(false);
     app.add_flag("--enable-audio",  enableAudio, "Enable audio");
 
-    std::string leftVmaf("");
-    std::string rightVmaf("");
-    app.add_option("--left-vmaf", leftVmaf, "Path to csv-file containing vmaf data for left video");
-    app.add_option("--right-vmaf", rightVmaf, "Path to csv-file containing vmaf data for right video");
-
     std::string leftInputFormat;
     std::string rightInputFormat;
     app.add_option("--left-format", leftInputFormat, "Format options for left video input");
@@ -106,9 +101,6 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     std::string preferredDecodersStr;
     app.add_option("--preferred-decoders", preferredDecodersStr,
                    std::string("Comma separated list of decoders that should be preferred over default decoder when applicable"));
-
-    bool enableImGui{true};
-    app.add_flag("--imgui,!--disable-imgui", enableImGui, "Enable experimental ImGui UI");
 
     //CLI11_PARSE(app, argc, argv);
     try {
@@ -141,6 +133,6 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     }
 
     this->vivictPPConfig =
-      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling, enableImGui},  {hwAccels, preferredDecoders});
+      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling},  {hwAccels, preferredDecoders});
     return true;
   };

@@ -18,7 +18,6 @@
 #include <thread>
 #include <iostream>
 #include "SourceConfig.hh"
-#include "Controller.hh"
 #include "time/TimeUtils.hh"
 #include "time/Time.hh"
 #include <stdlib.h>
@@ -29,7 +28,7 @@
 
 
 */
-
+/*
 static int SDLCALL my_event_filter(void *userdata, SDL_Event * event)
 {
     (void) userdata;
@@ -219,3 +218,4 @@ int main( int argc, char* argv[] ) {
 
   return result;
 }
+*/
