@@ -164,11 +164,8 @@ Run with the -h flag to see the commandline options
       -h,--help                   Print this help message and exit
       --left-filter TEXT          Video filters for left video
       --right-filter TEXT         Video filters for left video
-      --enable-audio              Enable audio
       --left-format TEXT          Format options for left video input
       --right-format TEXT         Format options for right video input
-      --disable-font-autoscaling  Disables autoscaling of fonts based on display dpi
-      --custom-font-scaling FLOAT Custom scaling factor for fonts
       --hwaccel TEXT              Select device type to use for hardware accelerated decoding. Valid values are:
                                     auto    Use any available device type (default)
                                     none    Disable hardware accelerated decoding
@@ -199,13 +196,12 @@ Run with the -h flag to see the commandline options
     s      Toggle scale content to fit window
     t      Toggle visibility of time
     d      Toggle visibility of Stream and Frame metadata
-    p      Toggle visibility of vmaf plot (if vmaf data present)
     
     q      Quit application
     
-    See also  https://github.com/svt/vivictpp#readme
+    See also  https://github.com/vivictorg/vivictpp#readme
     
-    Vivict++ 0.2.5 
+    Vivict++ 0.3.1
 
 
 To visually compare two videos in files (or urls) VIDEO1 and VIDEO2 respectively:

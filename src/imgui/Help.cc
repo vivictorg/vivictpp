@@ -31,7 +31,6 @@ i      Zoom out
 s      Toggle scale content to fit window
 t      Toggle visibility of time
 d      Toggle visibility of Stream and Frame metadata
-p      Toggle visibility of vmaf plot (if vmaf data present)
 
 q      Quit application)";
 

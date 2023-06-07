@@ -13,29 +13,20 @@
 #include "libav/DecoderOptions.hh"
 #include "Settings.hh"
 
-struct UiOptions {
-  bool disableFontAutoScaling;
-  float fontCustomScaling;
-};
-
 class VivictPPConfig {
 public:
-  VivictPPConfig(): VivictPPConfig({}, false, {false, 1.0}, {}) {}
+  VivictPPConfig(): VivictPPConfig({}, false, {}) {}
 
   VivictPPConfig(std::vector<SourceConfig> sourceConfigs,
                  bool disableAudio,
-                 UiOptions uiOptions,
                  vivictpp::libav::DecoderOptions decoderOptions):
     sourceConfigs(sourceConfigs),
     disableAudio(disableAudio),
-    uiOptions(uiOptions),
     decoderOptions(decoderOptions) {}
 
   std::vector<SourceConfig> sourceConfigs;
 
   bool disableAudio;
-
-  UiOptions uiOptions;
 
   vivictpp::libav::DecoderOptions decoderOptions;
 

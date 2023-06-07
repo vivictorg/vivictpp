@@ -79,17 +79,12 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     app.add_option("--right-filter", rightFilter, "Video filters for left video");
 
     bool enableAudio(false);
-    app.add_flag("--enable-audio",  enableAudio, "Enable audio");
+//    app.add_flag("--enable-audio",  enableAudio, "Enable audio");
 
     std::string leftInputFormat;
     std::string rightInputFormat;
     app.add_option("--left-format", leftInputFormat, "Format options for left video input");
     app.add_option("--right-format", rightInputFormat, "Format options for right video input");
-
-    bool disableFontAutoScaling(false);
-    float fontCustomScaling{1};
-    app.add_flag("--disable-font-autoscaling", disableFontAutoScaling, "Disables autoscaling of fonts based on display dpi");
-    app.add_option("--custom-font-scaling", fontCustomScaling, "Custom scaling factor for fonts");
 
     std::string hwAccel("none");
     app.add_option("--hwaccel", hwAccel,
@@ -133,6 +128,6 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
     }
 
     this->vivictPPConfig =
-      VivictPPConfig(sourceConfigs, !enableAudio, {disableFontAutoScaling, fontCustomScaling},  {hwAccels, preferredDecoders});
+      VivictPPConfig(sourceConfigs, !enableAudio,  {hwAccels, preferredDecoders});
     return true;
   };
