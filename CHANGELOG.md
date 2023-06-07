@@ -1,6 +1,11 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## 0.3.2-pre3 - 2023-06-07
+- Settings dialog allows configuring fontsize and decoding settings
+- Open file dialog allows specifying hardware acceleration, decoder, input format and filter
+- Right metadatabox now scales properly with fontsize
+
 ## 0.3.2-pre2 - 2023-05-20
 ### Changed
 - Save imgui.ini in proper location, ie $XDG_USER_CONFIG/vivictpp/imgui.ini
