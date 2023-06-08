@@ -85,7 +85,7 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
 
     ImGui::SameLine();
     button(displayState.fullscreen ? ICON_VPP_COLLAPSE : ICON_VPP_EXPAND,
-           displayState.fullscreen ? "Enter fullscreen mode" : "Exit fullscreen mode",
+           displayState.fullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode",
            [&actions]{ actions.push_back({ActionType::ToggleFullscreen}); });
 
     ImGui::PopStyleColor();
