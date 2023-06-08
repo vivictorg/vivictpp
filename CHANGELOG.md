@@ -1,6 +1,10 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## Current
+### Changed
+- Remove legacy gui
+
 ## 0.3.2-pre3 - 2023-06-07
 - Settings dialog allows configuring fontsize and decoding settings
 - Open file dialog allows specifying hardware acceleration, decoder, input format and filter
