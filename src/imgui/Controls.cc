@@ -40,7 +40,9 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
 
   std::vector<Action> actions;
   bool myBool;
-  ImVec2 pos = {30, work_size.y - 100};
+  ImGui::PushFont(vivictpp::imgui::getIconFont());
+  ImVec2 pos = {30, work_size.y - ImGui::GetFrameHeight() * 2};
+  ImGui::PopFont();
 
   ImGui::SetNextWindowPos(work_pos, ImGuiCond_Always);
   ImGui::SetNextWindowSize({work_size.x, work_size.y});

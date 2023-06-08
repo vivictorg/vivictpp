@@ -49,7 +49,9 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivic
     ImGui::Checkbox("Disable font autoscaling", &disableFontAutoScaling);
     ImGui::Text("Base font size");
     ImGui::SameLine();
-    ImGui::SetNextItemWidth(100);
+    ImVec2 ts = ImGui::CalcTextSize("000");
+    // Use the fact that the buttons are square so button width equals text height
+    ImGui::SetNextItemWidth(ts.x + 3 * ImGui::GetFrameHeight());
     if (ImGui::InputInt("##Base font size input", &modifiedSettings.baseFontSize)) {
       fontSettingsUpdated = true;
       modifiedSettings.baseFontSize = std::clamp(modifiedSettings.baseFontSize, 8, 64);
