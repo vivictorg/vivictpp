@@ -34,3 +34,9 @@ void vivictpp::imgui::comboBox(std::string label,
     ImGui::EndCombo();
   }
 }
+
+
+template <>
+void vivictpp::imgui::tableRow<std::string>(const char* label, const char* format, std::string value) {
+  tableRow(label, format, value.c_str());
+}

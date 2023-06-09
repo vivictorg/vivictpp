@@ -10,6 +10,7 @@
 #include <functional>
 #include "imgui.h"
 #include "logging/Logging.hh"
+#include "imgui/Colors.hh"
 
 namespace vivictpp::imgui {
 
@@ -67,6 +68,17 @@ void prioritizedList (const char* str_id,
   }
 
   ImGui::PopID();
+}
+
+template <typename T>
+void tableRow(const char* label, const char* format, T value) {
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("%s", label);
+    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+    ImGui::TableNextColumn();
+    ImGui::Text(format, value);
+    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
 }
 
 }  // namespace vivictpp::imgui

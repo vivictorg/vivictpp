@@ -17,12 +17,7 @@ public:
   enum Type {LEFT, RIGHT};
 private:
   Type type;
-  int metadataVersion{-1};
   ImVec2 pos{10,10};
-  std::vector<std::pair<std::string,std::string>> metadataText;
-  std::vector<std::pair<std::string,std::string>> frameMetadataText;
-  void initMetadataText(const ui::DisplayState &displayState);
-  void initFrameMetadataText(const ui::DisplayState &displayState);
 public:
   VideoMetadataDisplay(Type type):
     type(type) {};
