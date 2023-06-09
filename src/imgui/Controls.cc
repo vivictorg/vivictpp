@@ -46,7 +46,8 @@ std::vector<vivictpp::imgui::Action>  vivictpp::imgui::Controls::draw(
 
   ImGui::SetNextWindowPos(work_pos, ImGuiCond_Always);
   ImGui::SetNextWindowSize({work_size.x, work_size.y});
-  window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
+  window_flags |= ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoBringToFrontOnFocus |
+                  ImGuiWindowFlags_NoFocusOnAppearing;
   ImGui::SetNextWindowBgAlpha(0.0f); // Transparent background
 
   if (ImGui::Begin("Video controls", &myBool, window_flags)) {
