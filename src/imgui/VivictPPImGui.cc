@@ -23,6 +23,7 @@
 #include "ImGuiFileDialog.h"
 #include <map>
 #include <memory>
+#include "imgui/Splash.hh"
 
 //ImU32 transparentBg = ImGui::ColorConvertFloat4ToU32({0.0f, 0.0f, 0.0f, 0.4f});
 
@@ -187,6 +188,34 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(const VivictPPConfig &vivictPPConf
   }
 }
 
+void drawSplash() {
+  const ImGuiViewport* viewport = ImGui::GetMainViewport();
+  ImVec2 work_size = viewport->WorkSize;
+//  ImVec2 work_pos =  viewport->WorkPos;
+  bool myBool;
+  ImVec2 size = work_size;
+  ImVec2 textSize = ImGui::CalcTextSize(vivictpp::imgui::SPLASH_TEXT.c_str());
+  ImVec2 pos{(size.x - textSize.x) / 2, 0.8f * (size.y - textSize.y) / 2};
+  ImGui::SetNextWindowPos(pos);
+  ImGui::SetNextWindowSize({10.f + textSize.x, 10.f + textSize.y});
+  if (ImGui::Begin("Splash", &myBool,  ImGuiWindowFlags_AlwaysAutoResize |
+                   ImGuiWindowFlags_NoBackground |
+                   ImGuiWindowFlags_NoDecoration |
+                   ImGuiWindowFlags_NoSavedSettings |
+                   ImGuiWindowFlags_NoFocusOnAppearing |
+                   ImGuiWindowFlags_NoNav |
+                   ImGuiWindowFlags_NoBringToFrontOnFocus |
+                   ImGuiWindowFlags_NoTitleBar |
+                   ImGuiWindowFlags_NoScrollbar)) {
+//    ImGui::Text("size=%.1f, %.1f textSize=%.1f, %.1f pos=%.1f, %.1f",
+//                size.x, size.y, textSize.x, textSize.y, pos.x, pos.y);
+//    ImGui::SetCursorPosX(pos.x);
+//    ImGui::SetCursorPosY(pos.y);
+    ImGui::Text("%s", vivictpp::imgui::SPLASH_TEXT.c_str());
+    ImGui::End();
+  }
+}
+
 void vivictpp::imgui::VivictPPImGui::run() {
 
   while (!done) {
@@ -196,10 +225,9 @@ void vivictpp::imgui::VivictPPImGui::run() {
     if (!displayState.fullscreen) {
       handleActions(mainMenu.draw(videoPlayback.getPlaybackState(), displayState));
     }
-
     handleActions(fileDialog.draw());
-
     if (videoPlayback.getPlaybackState().ready) {
+      handleActions(controls.draw(videoPlayback.getPlaybackState(), displayState));
       int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
       if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
         displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
@@ -208,9 +236,10 @@ void vivictpp::imgui::VivictPPImGui::run() {
       displayState.pts = videoPlayback.getPlaybackState().pts;
       displayState.isPlaying = videoPlayback.isPlaying();
       videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
+    } else {
+      drawSplash();
     }
 
-    handleActions(controls.draw(videoPlayback.getPlaybackState(), displayState));
     if (displayState.displayImGuiDemo) {
       bool aBool;
       ImGui::ShowDemoWindow(&aBool);
