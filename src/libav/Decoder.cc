@@ -60,6 +60,7 @@ void vivictpp::libav::Decoder::initCodecContext(AVCodecParameters *codecParamete
   if (codec == nullptr) {
     throw std::runtime_error(std::string("No codec found for codec ID: ") + std::string(avcodec_get_name(codecId)));
   }
+  decoderMetadata.name = codec->name;
   logger->info("Using codec {} ({})", codec->name, codec->long_name);
   AVCodecContext *codecContext = avcodec_alloc_context3(codec);
   vivictpp::libav::AVResult ret = avcodec_parameters_to_context(codecContext,
@@ -130,7 +131,8 @@ void vivictpp::libav::Decoder::initHardwareContext(std::vector<std::string> hwAc
           logger->info("Using hardware device of type {}, HW pixel format: {}",
                        av_hwdevice_get_type_name(type),
                        av_get_pix_fmt_string(buf, 512, config->pix_fmt));
-
+          this->decoderMetadata.hwAccel = av_hwdevice_get_type_name(type);
+          this->decoderMetadata.hwPixelFormat = av_get_pix_fmt_name(config->pix_fmt);
           this->hwPixelFormat = config->pix_fmt;
           this->codecContext->opaque = (void*) &(this->hwPixelFormat);
           this->hwDeviceType = type;

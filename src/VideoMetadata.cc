@@ -5,6 +5,7 @@
 #include "VideoMetadata.hh"
 #include "time/TimeUtils.hh"
 #include <libavformat/avformat.h>
+#include <libavutil/pixfmt.h>
 
 int getBitrate(AVStream *videoStream) {
   int bitrate = videoStream->codecpar->bit_rate;
@@ -38,7 +39,7 @@ VideoMetadata::VideoMetadata(
     AVStream *videoStream,
     FilteredVideoMetadata filteredVideoMetadata)
     : source(source),
-      //   pixelFormat(std::string(av_get_pix_fmt_name(codecContext->pix_fmt))),
+      pixelFormat(std::string(av_get_pix_fmt_name((AVPixelFormat) videoStream->codecpar->format))),
       streamIndex(videoStream->index),
       resolution(videoStream->codecpar->width, videoStream->codecpar->height),
       filteredResolution(filteredVideoMetadata.empty() ? resolution : filteredVideoMetadata.resolution),

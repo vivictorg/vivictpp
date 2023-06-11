@@ -17,7 +17,8 @@ public:
   enum Type {LEFT, RIGHT};
 private:
   Type type;
-  ImVec2 pos{10,10};
+  ImVec2 p1{10,10};
+  ImVec2 p2{100,100};
 public:
   VideoMetadataDisplay(Type type):
     type(type) {};

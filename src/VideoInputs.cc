@@ -4,6 +4,7 @@
 
 #include "VideoInputs.hh"
 #include "Seeking.hh"
+#include "libav/DecoderMetadata.hh"
 #include "spdlog/spdlog.h"
 #include "time/Time.hh"
 extern "C" {
@@ -208,6 +209,14 @@ std::array<std::vector<VideoMetadata>, 2> VideoInputs::metadata() {
   std::array<std::vector<VideoMetadata>, 2> result = {
     leftInput.packetWorker->getVideoMetadata(),
     rightInput.packetWorker ? rightInput.packetWorker->getVideoMetadata() : std::vector<VideoMetadata>()};
+  return result;
+}
+
+std::array<vivictpp::libav::DecoderMetadata, 2> VideoInputs::decoderMetadata() {
+  std::array<vivictpp::libav::DecoderMetadata, 2> result = {
+    leftInput.decoder->getDecoderMetadata(),
+    rightInput.decoder ? rightInput.decoder->getDecoderMetadata() : vivictpp::libav::DecoderMetadata()
+  };
   return result;
 }
 

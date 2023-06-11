@@ -183,6 +183,7 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(const VivictPPConfig &vivictPPConf
   if (videoPlayback.getPlaybackState().ready) {
     displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
     displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+    displayState.updateDecoderMetadata(videoPlayback.getVideoInputs().decoderMetadata());
     imGuiSDL.updateTextures(displayState);
     imGuiSDL.fitWindowToTextures();
   }
@@ -463,6 +464,7 @@ void vivictpp::imgui::VivictPPImGui::openFile(const vivictpp::imgui::Action &act
   }
   displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
   displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+  displayState.updateDecoderMetadata(videoPlayback.getVideoInputs().decoderMetadata());
   imGuiSDL.updateTextures(displayState);
   imGuiSDL.fitWindowToTextures();
 }

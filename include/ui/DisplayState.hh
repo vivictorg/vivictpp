@@ -15,6 +15,7 @@
 #include "VideoMetadata.hh"
 #include "time/Time.hh"
 #include "libav/Frame.hh"
+#include "libav/DecoderMetadata.hh"
 
 
 namespace vivictpp {
@@ -75,6 +76,8 @@ struct DisplayState {
   vivictpp::libav::Frame rightFrame;
   VideoMetadata leftVideoMetadata;
   VideoMetadata rightVideoMetadata;
+  libav::DecoderMetadata leftDecoderMetadata;
+  libav::DecoderMetadata rightDecoderMetadata;
   int videoMetadataVersion{0};
   std::string playbackSpeedStr;
   bool displayImGuiDemo{false};
@@ -93,6 +96,11 @@ struct DisplayState {
       rightVideoMetadata = metadata[1][0];
     }
     videoMetadataVersion++;
+  }
+
+  void updateDecoderMetadata(std::array<vivictpp::libav::DecoderMetadata, 2> metadata) {
+    leftDecoderMetadata = metadata[0];
+    rightDecoderMetadata = metadata[1];
   }
 };
 

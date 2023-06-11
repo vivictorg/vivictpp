@@ -6,6 +6,7 @@
 #ifndef VIDEOINPUTS_HH_
 #define VIDEOINPUTS_HH_
 
+#include "libav/DecoderMetadata.hh"
 #include "time/Time.hh"
 extern "C" {
 #include <libavformat/avformat.h>
@@ -77,6 +78,7 @@ public:
     void seek(vivictpp::time::Time pts, vivictpp::SeekCallback onSeekFinished,
               vivictpp::time::Time streamSeekOffset = 0);
     std::array<std::vector<VideoMetadata>, 2> metadata();
+    std::array<vivictpp::libav::DecoderMetadata, 2> decoderMetadata();
     vivictpp::time::Time duration();
     vivictpp::time::Time startTime();
     vivictpp::time::Time frameDuration() {

@@ -11,6 +11,7 @@
 #include "libav/Filter.hh"
 #include "workers/FrameBuffer.hh"
 #include "libav/Decoder.hh"
+#include "libav/DecoderMetadata.hh"
 #include "time/Time.hh"
 #include "Seeking.hh"
 
@@ -43,6 +44,7 @@ public:
     }
     return FilteredVideoMetadata();
   }
+  const vivictpp::libav::DecoderMetadata &getDecoderMetadata() { return decoder->getMetadata(); }
 public:
   const int streamIndex;
 private:

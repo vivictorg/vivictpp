@@ -18,6 +18,7 @@ extern "C" {
 #include "libav/DecoderOptions.hh"
 #include "libav/Packet.hh"
 #include "libav/Frame.hh"
+#include "libav/DecoderMetadata.hh"
 #include "logging/Logging.hh"
 
 namespace vivictpp {
@@ -32,6 +33,7 @@ private:
   AVPixelFormat hwPixelFormat;
   AVPixelFormat swPixelFormat;
   AVHWDeviceType hwDeviceType{AV_HWDEVICE_TYPE_NONE};
+  DecoderMetadata decoderMetadata;
 public:
   explicit Decoder(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
   ~Decoder() = default;
@@ -40,6 +42,7 @@ public:
   void flush();
   AVCodecContext *getCodecContext() { return this->codecContext.get(); }
   AVHWDeviceType getHwDeviceType() { return hwDeviceType; }
+  const DecoderMetadata &getMetadata() { return decoderMetadata; }
 private:
   void initCodecContext(AVCodecParameters *codecParameters, const DecoderOptions &decoderOptions);
   void initHardwareContext(std::vector<std::string> hwAccels);
