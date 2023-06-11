@@ -432,7 +432,8 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
         displayState.displaySettingsDialog = !displayState.displaySettingsDialog;
         break;
       case ActionType::UpdateSettings:
-        vivictpp::saveSettings(settingsDialog.getSettings());
+        settings = settingsDialog.getSettings();
+        vivictpp::saveSettings(settings);
         break;
       default:
         ;
