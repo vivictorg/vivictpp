@@ -81,6 +81,13 @@ void tableRow(const char* label, const char* format, T value) {
     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
 }
 
+template <typename T>
+void tableRow2(float firstColumnWidth, const char* label, const char* format, T value) {
+    ImGui::Text("%s", label);
+    ImGui::SameLine(firstColumnWidth);
+    ImGui::Text(format, value);
+}
+
 }  // namespace vivictpp::imgui
 
 

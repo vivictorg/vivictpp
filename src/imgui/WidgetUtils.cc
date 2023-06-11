@@ -40,3 +40,8 @@ template <>
 void vivictpp::imgui::tableRow<std::string>(const char* label, const char* format, std::string value) {
   tableRow(label, format, value.c_str());
 }
+
+template<>
+void vivictpp::imgui::tableRow2<std::string>(const float firstColumnWidth, const char* label, const char* format, std::string value) {
+  tableRow2(firstColumnWidth, label, format, value.c_str());
+}
