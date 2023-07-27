@@ -38,7 +38,13 @@ void vivictpp::imgui::comboBox(std::string label,
 
 template <>
 void vivictpp::imgui::tableRow<std::string>(const char* label, const char* format, std::string value) {
-  tableRow(label, format, value.c_str());
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("%s", label);
+    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+    ImGui::TableNextColumn();
+    ImGui::Text(format, value.c_str());
+    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
 }
 
 template<>
