@@ -23,6 +23,7 @@ void vivictpp::imgui::VideoMetadataDisplay::initMetadataText(const ui::DisplaySt
   metadataText.push_back({"duration", vivictpp::time::formatTime(metadata.duration)});
   metadataText.push_back({"start time", vivictpp::time::formatTime(metadata.startTime)});
   metadataText.push_back({"pixel format", metadata.pixelFormat});
+  metadataText.push_back({"Hardware accelerated", metadata.hwAccel ? "true" : "false"});
 }
 
 void vivictpp::imgui::VideoMetadataDisplay::initFrameMetadataText(const ui::DisplayState &displayState) {

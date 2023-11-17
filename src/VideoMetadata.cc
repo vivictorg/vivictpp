@@ -22,6 +22,10 @@ int getBitrate(AVStream *videoStream) {
   return bitrate;
 }
 
+bool hasHwAccel(AVCodecContext *codecContext) {
+  return codecContext ? codecContext->hw_device_ctx != NULL : false;
+}
+
 vivictpp::time::Time getStartTime(AVStream *stream) {
   return stream->start_time == AV_NOPTS_VALUE ? 0 :
     av_rescale_q(stream->start_time, stream->time_base, vivictpp::time::TIME_BASE_Q);
@@ -36,7 +40,8 @@ VideoMetadata::VideoMetadata(
     std::string source,
     AVFormatContext *formatContext,
     AVStream *videoStream,
-    FilteredVideoMetadata filteredVideoMetadata)
+    FilteredVideoMetadata filteredVideoMetadata,
+    AVCodecContext *codecContext)
     : source(source),
       //   pixelFormat(std::string(av_get_pix_fmt_name(codecContext->pix_fmt))),
       streamIndex(videoStream->index),
@@ -51,6 +56,7 @@ VideoMetadata::VideoMetadata(
       duration(formatContext->duration), // allready in av_time_base
       endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)),
+      hwAccel(hasHwAccel(codecContext)),
       _empty(false) {}
 
 std::string VideoMetadata::resolutionAsString() const {

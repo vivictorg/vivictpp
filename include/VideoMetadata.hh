@@ -39,7 +39,8 @@ public:
   VideoMetadata(std::string source,
                 AVFormatContext *formatContext,
                 AVStream *videoStream,
-                FilteredVideoMetadata filteredVideoMetadata);
+                FilteredVideoMetadata filteredVideoMetadata,
+                AVCodecContext *codecContext);
 
   std::string source;
   int streamIndex;
@@ -54,6 +55,7 @@ public:
   vivictpp::time::Time duration;
   vivictpp::time::Time endTime;
   std::string codec;
+  bool hwAccel;
 
   std::string toString() const;
   bool empty() const { return _empty; }

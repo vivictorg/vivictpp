@@ -39,8 +39,10 @@ void  vivictpp::workers::PacketWorker::initVideoMetadata() {
     for (auto const &videoStream : formatHandler.getVideoStreams()) {
         std::shared_ptr<vivictpp::workers::DecoderWorker> decoderWorker = findDecoderWorkerForStream(decoderWorkers, videoStream);
         auto filteredVideoMetadata = decoderWorker ? decoderWorker->getFilteredVideoMetadata() : FilteredVideoMetadata();
+        auto codecContext = decoderWorker ? decoderWorker->getCodecContext() : NULL;
         VideoMetadata m =
-            VideoMetadata(formatHandler.inputFile, formatHandler.getFormatContext(), videoStream, filteredVideoMetadata);
+            VideoMetadata(formatHandler.inputFile, formatHandler.getFormatContext(), videoStream, filteredVideoMetadata, codecContext);
+        logger->info("successfully created metadata instance");
         metadata.push_back(m);
     }
     {
