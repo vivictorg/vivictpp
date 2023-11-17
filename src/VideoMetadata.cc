@@ -26,6 +26,16 @@ bool hasHwAccel(AVCodecContext *codecContext) {
   return codecContext ? codecContext->hw_device_ctx != NULL : false;
 }
 
+// TODO: Rework this to show the actual decoder
+std::string getDecoderName(AVCodecContext *codecContext) {
+    if (hasHwAccel(codecContext)) {
+      AVHWDeviceContext *deviceContext = (AVHWDeviceContext*) codecContext->hw_device_ctx->data;
+      return av_hwdevice_get_type_name(deviceContext->type);
+    } else {
+      return "software";
+    }
+}
+
 vivictpp::time::Time getStartTime(AVStream *stream) {
   return stream->start_time == AV_NOPTS_VALUE ? 0 :
     av_rescale_q(stream->start_time, stream->time_base, vivictpp::time::TIME_BASE_Q);
@@ -57,6 +67,7 @@ VideoMetadata::VideoMetadata(
       endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)),
       hwAccel(hasHwAccel(codecContext)),
+      decoderName(getDecoderName(codecContext)),
       _empty(false) {}
 
 std::string VideoMetadata::resolutionAsString() const {

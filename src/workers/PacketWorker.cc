@@ -42,7 +42,6 @@ void  vivictpp::workers::PacketWorker::initVideoMetadata() {
         auto codecContext = decoderWorker ? decoderWorker->getCodecContext() : NULL;
         VideoMetadata m =
             VideoMetadata(formatHandler.inputFile, formatHandler.getFormatContext(), videoStream, filteredVideoMetadata, codecContext);
-        logger->info("successfully created metadata instance");
         metadata.push_back(m);
     }
     {

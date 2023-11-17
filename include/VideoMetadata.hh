@@ -56,6 +56,7 @@ public:
   vivictpp::time::Time endTime;
   std::string codec;
   bool hwAccel;
+  std::string decoderName;
 
   std::string toString() const;
   bool empty() const { return _empty; }

@@ -14,6 +14,8 @@ void vivictpp::imgui::VideoMetadataDisplay::initMetadataText(const ui::DisplaySt
   metadataText.clear();
   if (metadata.empty()) return;
   metadataText.push_back({"codec", metadata.codec});
+  metadataText.push_back({"decoder", metadata.decoderName});
+  metadataText.push_back({"hardware accelerated", metadata.hwAccel ? "true" : "false"});
   metadataText.push_back({"resolution", metadata.filteredResolution.toString()});
   if (metadata.filteredResolution != metadata.resolution) {
       metadataText.push_back({"orig resolution", metadata.resolution.toString()});
@@ -23,7 +25,6 @@ void vivictpp::imgui::VideoMetadataDisplay::initMetadataText(const ui::DisplaySt
   metadataText.push_back({"duration", vivictpp::time::formatTime(metadata.duration)});
   metadataText.push_back({"start time", vivictpp::time::formatTime(metadata.startTime)});
   metadataText.push_back({"pixel format", metadata.pixelFormat});
-  metadataText.push_back({"Hardware accelerated", metadata.hwAccel ? "true" : "false"});
 }
 
 void vivictpp::imgui::VideoMetadataDisplay::initFrameMetadataText(const ui::DisplayState &displayState) {
