@@ -10,7 +10,9 @@ as others who are interested in this solution.
 ## Changing the code-base
 
 Generally speaking, you should fork this repository, make changes in your
-own fork, and then submit a pull-request. This is often called the [Fork-and-Pull model](https://gist.github.com/Chaser324/ce0505fbed06b947d962) 
+own fork, and then submit a pull-request. This is often called the [Fork-and-Pull model](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
+
+The `dev` branch is the most up to date version so base your changes on this. Also make any pull requests target the dev branch.
 
 * All contributions to this project will be released under the LICENSE.
 * By submitting a pull request or filing a bug, issue, or
