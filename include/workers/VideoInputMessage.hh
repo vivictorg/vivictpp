@@ -12,6 +12,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <functional>
+#include <stdexcept>
 
 namespace vivictpp {
 namespace workers {
