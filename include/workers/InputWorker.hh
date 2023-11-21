@@ -64,7 +64,7 @@ private:
 template<class T>
 InputWorker<T>::InputWorker(int queueDataLimit, std::string name):
     logger(vivictpp::logging::getOrCreateLogger(name)),
-    seeklog(vivictpp::logging::getOrCreateLogger("seeklog")),
+    seeklog(vivictpp::logging::getOrCreateLogger("vivictpp::seeklog")),
     state(InputWorkerState::INACTIVE),
     messageQueue(queueDataLimit) {
 }

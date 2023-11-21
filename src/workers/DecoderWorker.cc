@@ -32,7 +32,7 @@ vivictpp::workers::DecoderWorker::DecoderWorker(AVStream *stream,
                                                 vivictpp::libav::DecoderOptions decoderOptions,
                                                 int frameBufferSize,
                                                 int packetQueueSize) :
-  InputWorker(packetQueueSize, "DecoderWorker"),
+  InputWorker(packetQueueSize, "vivictpp::workers::DecoderWorker"),
   streamIndex(stream->index),
   stream(stream),
   frameBuffer(frameBufferSize),

@@ -12,7 +12,7 @@ extern "C" {
 }
 
 SeekState::SeekState():
-  logger(vivictpp::logging::getOrCreateLogger("VideoInputs::SeekState")) { }
+  logger(vivictpp::logging::getOrCreateLogger("SeekState")) { }
 
 int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
   std::lock_guard<std::mutex> lg(m);

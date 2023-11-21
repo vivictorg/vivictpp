@@ -19,6 +19,7 @@
 #include "imgui/Fonts.hh"
 #include "imgui/Help.hh"
 #include "imgui/About.hh"
+#include "imgui/Logs.hh"
 //#include "imgui/Fonts.hh"
 #include "ImGuiFileDialog.h"
 #include <map>
@@ -251,6 +252,9 @@ void vivictpp::imgui::VivictPPImGui::run() {
     if (displayState.displayAbout) {
       showAbout(displayState);
     }
+    if (displayState.displayLogs) {
+      showLogs(displayState);
+    }
     if (displayState.displaySettingsDialog) {
       handleActions(settingsDialog.draw(displayState));
     }
@@ -435,6 +439,10 @@ void vivictpp::imgui::VivictPPImGui::handleActions(std::vector<vivictpp::imgui::
       case ActionType::UpdateSettings:
         settings = settingsDialog.getSettings();
         vivictpp::saveSettings(settings);
+        vivictpp::logging::setLogLevels(settings.logLevels);
+        break;
+      case ActionType::ShowLogs:
+        displayState.displayLogs = !displayState.displayLogs;
         break;
       default:
         ;

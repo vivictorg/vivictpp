@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 namespace vivictpp {
 
@@ -15,6 +16,10 @@ struct Settings {
   int baseFontSize{13};
   std::vector<std::string> hwAccels{{}};
   std::vector<std::string> preferredDecoders{{}};
+  int logBufferSize{128};
+  bool logToFile{false};
+  std::string logFile;
+  std::map<std::string, std::string> logLevels{{"default", "info"}};
 };
 
 Settings loadSettings();

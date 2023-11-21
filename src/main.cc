@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     }
     VivictPPConfig vivictPPConfig = optParser.vivictPPConfig;
     vivictPPConfig.applySettings(vivictpp::loadSettings());
-    vivictpp::logging::initializeLogging();
+    vivictpp::logging::initializeLogging(vivictPPConfig.settings);
 
 
     for (auto sourceConfig : vivictPPConfig.sourceConfigs) {

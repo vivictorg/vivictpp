@@ -32,6 +32,7 @@ private:
   float textWidth;
   std::string selected;
   bool fontSettingsUpdated{false};
+  char logFileStr[512]{'\0'};
 private:
   void initHwAccelStatuses();
 public:

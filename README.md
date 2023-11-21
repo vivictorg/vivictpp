@@ -284,14 +284,8 @@ Playback speed can be controlled with `[` and `]`.
 
 ### Logging
 
-Logging for debugging purposes can be enabled by setting the environment variable `SPDLOG_LEVEL` to `DEBUG` or even `TRACE`.
-
-Some classes have a named logger, setting for a specific logger can be done like below
-
-    SPDLOG_LEVEL=info,DecoderWorker=debug vpp file1 file2
-
-The log level for the libav libraries can be specified by setting the environment variable `AVLOG_LEVEL`. Valid values are
-`quiet, panic, fatal, error, warning, info, verbose, debug, trace`.
+Logs can be shown in the gui by opening the log window from the menu `Help`->`Logs`. The settings dialog has various options for configuring logging.
+The `libav` logger is used for logs from libav.
 
 ### Audio
 Audio is currently not supported in the new imgui UI. It might be supported in the future.

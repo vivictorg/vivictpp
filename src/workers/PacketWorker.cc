@@ -23,7 +23,7 @@ std::shared_ptr<vivictpp::workers::DecoderWorker> findDecoderWorkerForStream(std
 }
 
 vivictpp::workers::PacketWorker::PacketWorker(std::string source, std::string format):
-    InputWorker<int>(0, "PacketWorker"),
+    InputWorker<int>(0, "vivictpp::workers::PacketWorker"),
     formatHandler(source, format),
     currentPacket(nullptr) {
     this->initVideoMetadata();

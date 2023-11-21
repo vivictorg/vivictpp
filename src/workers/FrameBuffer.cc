@@ -29,7 +29,7 @@ std::string ptsBufferToString(const std::vector<vivictpp::time::Time> &ptsBuffer
 
 
 vivictpp::workers::FrameBuffer::FrameBuffer(int _maxSize):
-    logger(vivictpp::logging::getOrCreateLogger("FrameBuffer")),
+    logger(vivictpp::logging::getOrCreateLogger("vivictpp::workers::FrameBuffer")),
     queue(_maxSize),
     ptsBuffer(_maxSize),
     _writePos(0, _maxSize),

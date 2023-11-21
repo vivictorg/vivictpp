@@ -34,7 +34,7 @@ static enum AVPixelFormat getHwFormat(AVCodecContext *ctx,
 vivictpp::libav::Decoder::Decoder(AVCodecParameters *codecParameters,
                                   const DecoderOptions &decoderOptions)
     : codecContext(nullptr),
-      logger(vivictpp::logging::getOrCreateLogger("Decoder")),
+      logger(vivictpp::logging::getOrCreateLogger("vivictpp::libav::Decoder")),
       hwDeviceContext(nullptr),
       hwPixelFormat(AV_PIX_FMT_NONE),
       swPixelFormat(AV_PIX_FMT_NONE){
@@ -84,7 +84,7 @@ bool deviceTypeSupported(AVHWDeviceType type) {
 }
 
 void logSupportedDeviceTypes() {
-  auto logger = vivictpp::logging::getOrCreateLogger("Decoder");
+  auto logger = vivictpp::logging::getOrCreateLogger("vivictpp::libav::Decoder");
   logger->warn("Supported device types:");
   for (auto &type : supportedDeviceTypes()) {
     logger->warn("  {}", av_hwdevice_get_type_name(type));

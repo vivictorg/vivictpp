@@ -39,8 +39,8 @@ void parseFormatOptions(std::string formatOptions, std::string &format, AVDictio
 
 vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string formatOptions)
     : formatContext(nullptr), inputFile(inputFile), packet(nullptr),
-      logger(vivictpp::logging::getOrCreateLogger("FormatHandler")),
-      seeklog(vivictpp::logging::getOrCreateLogger("seeklog")){
+      logger(vivictpp::logging::getOrCreateLogger("vivictpp::libav::FormatHandler")),
+      seeklog(vivictpp::logging::getOrCreateLogger("vivictpp::seeklog")){
 #if LIBAVFORMAT_VERSION_MAJOR >= 59
   const AVInputFormat *inputFormat = nullptr;
 #else

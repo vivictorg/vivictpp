@@ -87,7 +87,8 @@ enum ActionType {
   ShowHelp,
   ShowAbout,
   ShowSettingsDialog,
-  UpdateSettings
+  UpdateSettings,
+  ShowLogs
 };
 
 struct Action {

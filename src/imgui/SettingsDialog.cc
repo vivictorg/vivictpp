@@ -13,6 +13,39 @@
 #include "imgui/Fonts.hh"
 #include "imgui/WidgetUtils.hh"
 
+std::string longestString(const std::vector<std::string> & strs);
+std::vector<std::string> getSelectableLogLevels();
+
+
+static const std::vector<std::string> selectableLogLevels = getSelectableLogLevels();
+
+static const std::string longestLoggerName = longestString(vivictpp::logging::getLoggers());
+
+std::string longestString(const std::vector<std::string> & strs) {
+    if (strs.empty()) return "";
+    std::string longest = strs[0];
+    for (size_t i = 1; i < strs.size(); i++) {
+        if (strs[i].length() > longest.length()) {
+            longest = strs[i];
+        }
+    }
+    return longest;
+}
+
+std::vector<std::string> getSelectableLogLevels() {
+    std::vector<std::string> levels;
+    levels.push_back("(default)");
+    for (auto l : vivictpp::logging::getLogLevels()) {
+        levels.push_back(l.first);
+    }
+    return levels;
+}
+
+void copyAndNullTerminate(const std::string &str, char *buf, size_t bufSize) {
+    str.copy(buf, bufSize - 1);
+    buf[std::min(str.length(), bufSize - 1)] = '\0';
+}
+
 bool vectorHasElement(std::vector<std::string> v, std::string element) {
   return std::find(v.begin(), v.end(), element) != v.end();
 }
@@ -22,6 +55,7 @@ vivictpp::imgui::SettingsDialog::SettingsDialog(vivictpp::Settings _settings) :
   modifiedSettings(_settings),
   hwAccelFormats(vivictpp::libav::allHwAccelFormats()),
   decoders(vivictpp::libav::allVideoDecoders()) {
+    copyAndNullTerminate(settings.logFile, logFileStr, 512);
   initHwAccelStatuses();
 }
 
@@ -88,15 +122,71 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivic
     if (ImGui::Button("add")) {
       modifiedSettings.preferredDecoders.push_back(currentDecoder);
     }
+    ImGui::Unindent();
+
+    ImGui::Separator();
+    ImGui::Text("Logging");
+    ImGui::Indent();
+    ImGui::Text("Log buffer size");
+    ts = ImGui::CalcTextSize("0000");
+    // Use the fact that the buttons are square so button width equals text height
+    ImGui::SetNextItemWidth(ts.x + 3 * ImGui::GetFrameHeight());
+    if (ImGui::InputInt("## Log buffer size input", &modifiedSettings.logBufferSize)) {
+      //fontSettingsUpdated = true;
+      modifiedSettings.logBufferSize = std::clamp(modifiedSettings.logBufferSize, 1, 1024);
+    }
+    bool &logToFile = modifiedSettings.logToFile;
+    ImGui::Checkbox("Log to file", &logToFile);
+    ImGui::SameLine();
+
+    ImGui::BeginDisabled(!logToFile);
+    ImGui::InputText("### Log file", logFileStr, IM_ARRAYSIZE(logFileStr));
+    ImGui::EndDisabled();
+
+    if (ImGui::CollapsingHeader("Loglevels")) {
+        ts = ImGui::CalcTextSize(longestLoggerName.c_str());
+        int i = 0;
+        for (auto logger: vivictpp::logging::getLoggers()) {
+            if (modifiedSettings.logLevels.find(logger) == modifiedSettings.logLevels.end()) {
+                if (logger == vivictpp::logging::LIBAV_LOGGER_NAME) {
+                    modifiedSettings.logLevels[logger] = "warning";
+                } else {
+                    modifiedSettings.logLevels[logger] = "(default)";
+                }
+            }
+            std::string &selectedLevel = modifiedSettings.logLevels[logger];
+            ImGui::Text("%s", logger.c_str());
+            ImGui::SameLine(ts.x + 100);
+            ImGui::PushID(i++);
+            ImGui::SetNextItemWidth(200.);
+            if (ImGui::BeginCombo("### Defaultlogger", selectedLevel.c_str())) {
+                int j = 0;
+                for (auto level : selectableLogLevels) {
+                    ImGui::PushID(j);
+                    const bool isSelected = selectedLevel == level;
+                    if (ImGui::Selectable(level.c_str(), isSelected)) {
+                        selectedLevel = level;
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::PopID();
+        }
+    }
   }
 
+
   std::vector<vivictpp::imgui::Action> actions;
-  ImGui::Unindent();
   ImGui::Dummy({20,20});
   if (ImGui::Button("Cancel")) {
     fontSettingsUpdated = modifiedSettings.baseFontSize != settings.baseFontSize ||
                           modifiedSettings.disableFontAutoScaling != settings.disableFontAutoScaling;
     modifiedSettings = settings;
+    copyAndNullTerminate(settings.logFile, logFileStr, 512);
     initHwAccelStatuses();
     displayState.displaySettingsDialog = false;
   }
@@ -105,6 +195,7 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(vivic
     ImGui::SameLine();
   if (ImGui::Button("OK")) {
     // Save settings
+      modifiedSettings.logFile = std::string(logFileStr);
     modifiedSettings.hwAccels.clear();
     for (auto &status : hwAccelStatuses) {
       if (status.enabled) {

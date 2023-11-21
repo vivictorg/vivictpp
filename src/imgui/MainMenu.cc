@@ -73,6 +73,9 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
       if (ImGui::MenuItem("Help", "", false)) {
         actions.push_back({ActionType::ShowHelp});
       }
+      if (ImGui::MenuItem("Logs", "", false)) {
+        actions.push_back({ActionType::ShowLogs});
+      }
       if (ImGui::MenuItem("ImGui Demo", NULL, false)) {
         actions.push_back({ActionType::ToggleImGuiDemo});
       }

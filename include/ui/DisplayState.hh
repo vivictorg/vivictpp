@@ -84,6 +84,7 @@ struct DisplayState {
   bool displayHelp{false};
   bool displayAbout{false};
   bool displaySettingsDialog{false};
+  bool displayLogs{false};
 
   void updateFrames(std::array<vivictpp::libav::Frame, 2> frames) {
     leftFrame = frames[0];
