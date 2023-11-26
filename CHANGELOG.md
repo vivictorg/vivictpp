@@ -1,23 +1,22 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
-## Current
-### Changed
-- Remove legacy gui
-
-## 0.3.2-pre3 - 2023-06-07
+## 1.0.0-pre1
+### Added
 - Settings dialog allows configuring fontsize and decoding settings
 - Open file dialog allows specifying hardware acceleration, decoder, input format and filter
-- Right metadatabox now scales properly with fontsize
-
-## 0.3.2-pre2 - 2023-05-20
+- Logo displays on startup
+- Info about Hardware acceleration info shown in metadata box
+- Logging can be configured in settings dialog
+- Logs can be viewed in gui
 ### Changed
 - Save imgui.ini in proper location, ie $XDG_USER_CONFIG/vivictpp/imgui.ini
 - File open dialog now defaults XDG_VIDEOS_DIR
+- Remove legacy gui
 
-## 0.3.2-pre1 - 2023-05-18
-### Changed
-- Disable saving of imgui.ini
+### Fixed
+- Right metadatabox now scales properly with fontsize
+- Font size selector and controls now look ok with large font size
 
 ## 0.3.1 - 2023-05-17
 ### Fixed
