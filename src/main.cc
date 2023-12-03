@@ -9,24 +9,33 @@
 #include <vector>
 #include <string>
 
-#include "SDL_video.h"
-#include "sdl/SDLUtils.hh"
 #include "spdlog/spdlog.h"
-#include "ui/FontSize.hh"
 
 #include "OptParser.hh"
 #include "SourceConfig.hh"
-#include "vmaf/VmafLog.hh"
+
 #include "imgui/VivictPPImGui.hh"
 #include "Settings.hh"
+#include "VivictPPConfig.hh"
 
+#ifdef _WIN32
+#include <windows.h>
+
+int APIENTRY WinMain(HINSTANCE hInstance,
+                   HINSTANCE hPrevInstance,
+                   LPSTR cmdLine,
+                   int cmdShow) {
+    VivictPPConfig vivictppConfig
+#else
 int main(int argc, char **argv) {
   try {
     vivictpp::OptParser optParser;
     if (!optParser.parseOptions(argc, argv)) {
       return optParser.exitCode;
     }
+
     VivictPPConfig vivictPPConfig = optParser.vivictPPConfig;
+#endif
     vivictPPConfig.applySettings(vivictpp::loadSettings());
     vivictpp::logging::initializeLogging(vivictPPConfig.settings);
 
