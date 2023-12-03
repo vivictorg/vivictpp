@@ -25,7 +25,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
                    LPSTR cmdLine,
                    int cmdShow) {
-    VivictPPConfig vivictppConfig
+    VivictPPConfig vivictPPConfig;
+    try {
 #else
 int main(int argc, char **argv) {
   try {

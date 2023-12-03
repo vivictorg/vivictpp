@@ -10,8 +10,8 @@ fmt_proj = subproject('fmt', default_options: ['warning_level=0', 'default_libra
 spdlog_proj = subproject('spdlog', default_options: 'warning_level=0')
 cli11_proj = subproject('cli11', default_options: 'warning_level=0')
 catch2_proj = subproject('catch2', default_options: 'warning_level=0')
-freetype2_proj = subproject('freetype2', default_options: 'warning_level=0')
 zlib_proj = subproject('zlib', default_options: 'warning_level=0')
+freetype2_proj = subproject('freetype2', default_options: 'warning_level=0')
 platformfolders_proj = subproject('platformfolders', default_options: 'warning_level=0')
 
 if build_machine.system() == 'windows'
@@ -60,10 +60,10 @@ endif
 
 
 deps = [
+  zlib_proj.get_variable('zlib_dep'),
   sdl2_dep,
   sdl2_ttf_dep,
   #  dependency('freetype2', version: '>=2.8.1'),
-  zlib_proj.get_variable('zlib_dep'),
   #  freetype2_proj.get_variable('freetype2_dep'),
   dependency('threads'),
   libavformat_dep,
@@ -161,7 +161,8 @@ vpp_extra_args = extra_args
 #vpp_extra_args += '-DVPP_GIT_HASH="' + git_hash + '"'
 
 executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps,
-           include_directories: incdir, install: true, cpp_args : vpp_extra_args, link_args: '-g')
+           include_directories: incdir, install: true, cpp_args : vpp_extra_args, link_args: '-g',
+           win_subsystem: 'windows')
 
 #seekTest= executable('seekTest', 'test/SeekTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir)
 # test('FormatHandler.seek', seekTest)
