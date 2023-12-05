@@ -46,9 +46,13 @@ brew install vivictpp
 ```
 
 ### Windows installer
-Download and run the installer from [the latest release](https://github.com/vivictorg/vivictpp/releases/latest)
+**_Note: On windows, Vivict++ requires Microsoft Visual C++ runtime libraries to function. If you don't already have them
+installed, download and install the latest version from
+[here](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)_**
 
-You an also download the installer from a prerelase if you want to try out the latest unreleased features.
+To install Vivict++, download and run the installer from [the latest release](https://github.com/vivictorg/vivictpp/releases/latest)
+
+You can also download the installer from a prerelase if you want to try out the latest unreleased features.
 
 ## Building
 
@@ -132,7 +136,7 @@ mkdir winlibs
 3. Download the following archives and extract them to the `winlibs` folder
 * https://libsdl.org/release/SDL2-devel-2.26.5-VC.zip
 * https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.20.2-VC.zip
-* https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-5.1.2-full_build-shared.7z
+* https://github.com/GyanD/codexffmpeg/releases/download/5.1.2/ffmpeg-5.1.2-full_build-shared.7z
 
 4. Create meson builddir
 ```console
