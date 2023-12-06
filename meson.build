@@ -88,7 +88,8 @@ incdir = include_directories('include',
                              'imgui/backends',
                              'libs/ImGuiFileDialog',
                              'libs/tomlplusplus',
-                             ffmpeg_inc)
+                             ffmpeg_inc,ma
+                             'libs/utf8')
 
 git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')
 git_hash = git_hash_cmd.stdout().strip()
@@ -116,7 +117,6 @@ imgui_sources=[
   'src/imgui/Logs.cc',
   'libs/ImGuiFileDialog/ImGuiFileDialog.cpp'
 ]
-
 
 sources = [
   'src/AVSync.cc',
@@ -148,6 +148,13 @@ sources = [
   'src/workers/VideoInputMessage.cc',
   imgui_sources
 ]
+
+
+if build_machine.system() == 'windows'
+  sources += 'libs/utf8/uft8.cpp'
+                            
+endif
+
 
 extra_args += '-DVPP_GIT_HASH="' + git_hash + '"'
 

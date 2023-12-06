@@ -100,6 +100,10 @@ Files: libs/ImGuiFileDialog/dirent/*
 Copyright: 1998-2019 Toni Ronkko
 License: MIT
 
+Files: libs/utf8/*
+Copyright: 2014-2023 Mircea Neacsu
+License: MIT
+
 Files: get-version.sh
 Copyright: 2023 Gustav Grusell
 License: CC0-1.0
