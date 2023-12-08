@@ -36,6 +36,8 @@ static const char vivictIconsTtf_compressed_data_base85[3240+1] =
 
 static const ImWchar icons_ranges[] = { 0xf000, 0xf011, 0 };
 
+static const ImWchar unicode_ranges[] = { 0x1, 0xffff };
+
 static ImFont* iconFont;
 
 ImFont *vivictpp::imgui::getIconFont() {
@@ -47,7 +49,9 @@ void vivictpp::imgui::initFonts() {
     ImFontConfig fontConfig;
     fontConfig.PixelSnapH = true;
     fontConfig.SizePixels = vivictpp::ui::FontSize(13).scaledSizeFloat();
-    io.Fonts->AddFontDefault(&fontConfig);
+    //io.Fonts->AddFontDefault(&fontConfig);
+    //io.Fonts->AddFontFromFileTTF("C:\\Users\\vboxuser\\Downloads\\unifont_jp-15.1.04.otf", fontConfig.SizePixels, nullptr, unicode_ranges);
+    io.Fonts->AddFontFromFileTTF("C:\\Users\\vboxuser\\Downloads\\DroidSans.ttf", fontConfig.SizePixels, nullptr, unicode_ranges);
 
     iconFont = io.Fonts->AddFontFromMemoryCompressedBase85TTF(
       vivictIconsTtf_compressed_data_base85, vivictpp::ui::FontSize(40.0).scaledSizeFloat(), nullptr, icons_ranges);

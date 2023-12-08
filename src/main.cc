@@ -4,6 +4,9 @@
 
 #define SDL_MAIN_HANDLED
 
+// For ImGuiFileDialog
+#define USE_STD_FILESYSTEM
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -27,6 +30,7 @@ namespace utf8 {
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    setlocale(LC_ALL, ".UTF8");
     int argc;
     char **argv = utf8::get_argv(&argc);
 #else
