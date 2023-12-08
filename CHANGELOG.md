@@ -1,6 +1,10 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## 1.0.0-pre2
+### Fixed
+- On windows, no longer opens terminal window when started
+
 ## 1.0.0-pre1
 ### Added
 - Settings dialog allows configuring fontsize and decoding settings
@@ -17,7 +21,6 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 ### Fixed
 - Right metadatabox now scales properly with fontsize
 - Font size selector and controls now look ok with large font size
-- On windows, no longer opens terminal window when started
 
 ## 0.3.1 - 2023-05-17
 ### Fixed
