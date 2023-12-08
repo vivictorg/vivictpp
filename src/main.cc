@@ -19,13 +19,16 @@
 #include "VivictPPConfig.hh"
 
 #ifdef _WIN32
-#define UNICODE
 #include <windows.h>
-#include "utf8.h"
+
+namespace utf8 {
+  char** get_argv (int* argc);
+  void free_argv (int argc, char** argv);
+}
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     int argc;
-    char **argv = get_argv(&argc);
+    char **argv = utf8::get_argv(&argc);
 #else
 int main(int argc, char **argv) {
 #endif
@@ -37,7 +40,7 @@ int main(int argc, char **argv) {
 
     VivictPPConfig vivictPPConfig = optParser.vivictPPConfig;
 #ifdef _WIN32
-    free_argv(argc, argv);
+    utf8::free_argv(argc, argv);
 #endif
     vivictPPConfig.applySettings(vivictpp::loadSettings());
     vivictpp::logging::initializeLogging(vivictPPConfig.settings);

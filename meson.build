@@ -88,8 +88,7 @@ incdir = include_directories('include',
                              'imgui/backends',
                              'libs/ImGuiFileDialog',
                              'libs/tomlplusplus',
-                             ffmpeg_inc,ma
-                             'libs/utf8')
+                             ffmpeg_inc)
 
 git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')
 git_hash = git_hash_cmd.stdout().strip()
@@ -151,8 +150,7 @@ sources = [
 
 
 if build_machine.system() == 'windows'
-  sources += 'libs/utf8/uft8.cpp'
-                            
+  sources += 'libs/utf8/utf8.cpp'
 endif
 
 
