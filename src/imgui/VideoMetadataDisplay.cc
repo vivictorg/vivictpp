@@ -37,11 +37,12 @@ void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &display
   ImGui::GetWindowDrawList()->AddRect( p1, p2, border, 0.5f);
 
   std::filesystem::path sourcePath(metadata.source);
+  std::string filename = sourcePath.filename().string();
   ImGui::BeginGroup();
   float cw = FIRST_COLUMN_WIDTH * scaling;
-  ImGui::Text("%s", sourcePath.filename().c_str());
+  ImGui::Text("%s", filename.c_str());
   if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal)) {
-    ImGui::SetTooltip("%s", sourcePath.c_str());
+    ImGui::SetTooltip("%s", sourcePath.string().c_str());
    }
   ImGui::Dummy({2.0f, 1.0f});
 
