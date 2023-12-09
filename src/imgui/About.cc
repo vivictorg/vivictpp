@@ -29,6 +29,7 @@ VIVICT++ uses the following third-party libraries. See below for licenses.
 * vivict-icons (https://github.com/vivictorg/vivict-icons)
 * PlatformFolders (https://github.com/sago007/PlatformFolders)
 * tomlplusplus (https://github.com/marzer/tomlplusplus)
+* utf8 (https://github.com/neacsum/utf8)
 
 )";
 
@@ -605,6 +606,35 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 )";
 
+const std::string LICENSE10 =
+  R"(
+====
+The below license applies to utf8
+
+MIT License
+
+Copyright (c) 2014-2021 Mircea Neacsu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+)";
+
 void vivictpp::imgui::showAbout(ui::DisplayState &displayState) {
   char version[255];
   std::string hash = std::string(VPP_GIT_HASH).empty() ?
@@ -625,6 +655,7 @@ void vivictpp::imgui::showAbout(ui::DisplayState &displayState) {
     ImGui::TextUnformatted(LICENSES7.c_str());
     ImGui::TextUnformatted(LICENSES8.c_str());
     ImGui::TextUnformatted(LICENSES9.c_str());
+    ImGui::TextUnformatted(LICENSE10.c_str());
 
   }
   ImGui::End();

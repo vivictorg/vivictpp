@@ -322,6 +322,7 @@ Vivict++ uses the following thirdparty dependencies.
 * [vivict-icons](https://github.com/vivictorg/vivict-icons) ([MIT License](https://github.com/vivictorg/vivict-icons/blob/main/LICENSE))
 * [PlatformFolders](https://github.com/sago007/PlatformFolders) ([MIT License](https://github.com/sago007/PlatformFolders/blob/master/LICENSE)
 * [tomlplusplus](https://github.com/marzer/tomlplusplus) ([MIT License](https://github.com/marzer/tomlplusplus/blob/master/LICENSE)
+* [utf8](https://github.com/neacsum/utf8)([MIT License](https://raw.githubusercontent.com/neacsum/utf8/main/LICENSE)
 
 ## License
 
