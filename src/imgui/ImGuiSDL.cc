@@ -7,7 +7,15 @@
 #include "imgui/Events.hh"
 #include "imgui/Fonts.hh"
 #include "imgui_impl_sdl.h"
-#include "imgui_impl_sdlrenderer.h"
+//#include "imgui_impl_sdlrenderer.h"
+#include "imgui_impl_opengl3.h"
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+#include <SDL_opengles2.h>
+#else
+#include <SDL_opengl.h>
+#endif
+
+
 #include "ui/FontSize.hh"
 #include "platform_folders.h"
 #include "fmt/core.h"
@@ -22,13 +30,13 @@ extern "C" {
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
 vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
-  sdlInitializer(false),
-  windowPtr(vivictpp::sdl::createWindow(
-           windowWidth, windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI)),
-  window(windowPtr.get()),
-  rendererPtr(vivictpp::sdl::createRenderer(window,
-                                            SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)),
-  renderer(rendererPtr.get()),
+    sdlInitializer(false, true),
+//  windowPtr(vivictpp::sdl::createWindow(
+//           windowWidth, windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL)),
+//  window(windowPtr.get()),
+//  rendererPtr(vivictpp::sdl::createRenderer(window,
+//                                            SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)),
+//  renderer(rendererPtr.get()),
   iniFilename(std::filesystem::path(fmt::format("{}/vivictpp/imgui.ini", sago::getConfigHome())).make_preferred()),
   iniFilenameStr(iniFilename.string())
 {
@@ -43,11 +51,54 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
   spdlog::debug("Using ini file: {}", iniFilename.string());
   io.IniFilename = iniFilenameStr.c_str();
 
+  // Decide GL+GLSL versions
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+    // GL ES 2.0 + GLSL 100
+    const char* glsl_version = "#version 100";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(__APPLE__)
+    // GL 3.2 Core + GLSL 150
+    const char* glsl_version = "#version 150";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#else
+    // GL 3.0 + GLSL 130
+    const char* glsl_version = "#version 130";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#endif
+
+    // From 2.0.18: Enable native IME.
+#ifdef SDL_HINT_IME_SHOW_UI
+    SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+#endif
+
+    // Create window with graphics context
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+    windowPtr.reset(window);
+    gl_context = SDL_GL_CreateContext(window);
+    SDL_GL_MakeCurrent(window, gl_context);
+    SDL_GL_SetSwapInterval(1); // Enable vsync
+
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
   // Setup Dear ImGui style
-  ImGui::StyleColorsDark();
+    ImGui::StyleColorsDark();
 
 //  ui::initIconTextures(renderer);
-
+/*
   int rw = 0, rh = 0;
   SDL_GetRendererOutputSize(renderer, &rw, &rh);
   scaleRenderer = rw != windowWidth;;
@@ -61,10 +112,15 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
 
     SDL_RenderSetScale(renderer, widthScale, heightScale);
   }
-
+*/
   // Setup Platform/Renderer backends
+    /*
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer_Init(renderer);
+    */
+    scaleRenderer = false;
+    ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+    ImGui_ImplOpenGL3_Init(glsl_version);
   // Dont't scale fonts in relation to dpi if we are scaling the renderer
   vivictpp::ui::FontSize::setScaling(!scaleRenderer && !settings.disableFontAutoScaling,
                                          settings.baseFontSize / 13.0f);
@@ -74,41 +130,55 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
 
 void vivictpp::imgui::ImGuiSDL::updateFontSettings(const Settings &settings) {
   ImGui::GetIO().Fonts->Clear();
-  ImGui_ImplSDLRenderer_DestroyFontsTexture();
+  //ImGui_ImplSDLRenderer_DestroyFontsTexture();
+  ImGui_ImplOpenGL3_DestroyFontsTexture();
   vivictpp::ui::FontSize::setScaling(!scaleRenderer && !settings.disableFontAutoScaling,
                                      settings.baseFontSize / 13.0f);
   initFonts();
 }
 
 vivictpp::imgui::ImGuiSDL::~ImGuiSDL() {
-  ImGui_ImplSDLRenderer_Shutdown();
+//  ImGui_ImplSDLRenderer_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
+  SDL_GL_DeleteContext(gl_context);
 }
 
 void vivictpp::imgui::ImGuiSDL::newFrame() {
-  ImGui_ImplSDLRenderer_NewFrame();
+//  ImGui_ImplSDLRenderer_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
 }
 
 void vivictpp::imgui::ImGuiSDL::render() {
- ImGui::Render();
+    ImGui::Render();
+ /*
  SDL_SetRenderDrawColor(renderer, (Uint8)(CLEAR_COLOR.x * 255), (Uint8)(CLEAR_COLOR.y * 255), (Uint8)(CLEAR_COLOR.z * 255), (Uint8)(CLEAR_COLOR.w * 255));
  SDL_RenderClear(renderer);
  ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
  SDL_RenderPresent(renderer);
  ImGui::EndFrame();
+ */
+    ImGuiIO& io = ImGui::GetIO();
+    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+    glClearColor(CLEAR_COLOR.x * CLEAR_COLOR.w, CLEAR_COLOR.y * CLEAR_COLOR.w, CLEAR_COLOR.z * CLEAR_COLOR.w, CLEAR_COLOR.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    SDL_GL_SwapWindow(window);
 }
 
 void vivictpp::imgui::ImGuiSDL::updateTextures(const ui::DisplayState &displayState) {
-  videoTextures.update(renderer, displayState);
+    //videoTextures.update(renderer, displayState);
 }
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
+    /*
   SDL_DisplayMode DM;
   SDL_GetCurrentDisplayMode(0, &DM);
   SDL_SetWindowSize(window, std::min(DM.w, videoTextures.nativeResolution.w), std::min(DM.h, 20 + videoTextures.nativeResolution.h));
+    */
 }
 
 bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {

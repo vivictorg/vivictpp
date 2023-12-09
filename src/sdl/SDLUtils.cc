@@ -4,13 +4,14 @@
 
 #include "sdl/SDLUtils.hh"
 #include "SDL_pixels.h"
+#include "SDL_video.h"
 
 std::atomic<int> vivictpp::sdl::SDLInitializer::instanceCount(0);
 
-vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio) {
+vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio, bool enableOpenGl) {
   if (instanceCount++ == 0) {
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-    uint32_t flags = SDL_INIT_VIDEO | SDL_INIT_TIMER | (enableAudio ? SDL_INIT_AUDIO : 0);
+    uint32_t flags = SDL_INIT_VIDEO | SDL_INIT_TIMER | (enableAudio ? SDL_INIT_AUDIO : 0) | (enableOpenGl ? SDL_WINDOW_OPENGL : 0);
     if (SDL_Init(flags)) {
       throw SDLException("Failed to initialize SDL");
     }

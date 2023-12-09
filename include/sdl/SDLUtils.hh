@@ -32,7 +32,7 @@ class SDLInitializer {
  private:
   static std::atomic<int> instanceCount;
  public:
-  SDLInitializer(bool enableAudio = true);
+    SDLInitializer(bool enableAudio = true, bool enableOpenGl = false);
   ~SDLInitializer();
 };
 

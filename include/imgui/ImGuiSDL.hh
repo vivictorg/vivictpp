@@ -31,6 +31,7 @@ private:
   std::filesystem::path iniFilename;
   std::string iniFilenameStr;
   bool scaleRenderer;
+    SDL_GLContext gl_context;
 public:
   ImGuiSDL(const Settings &settings);
   ~ImGuiSDL();
