@@ -20,6 +20,6 @@ public:
       : pts(pts), frame(frame) {}
   Thumbnail(const Thumbnail &other) : pts(other.pts), frame(other.frame) {}
 };
-} // namespace vivictpp::video
+}; // namespace vivictpp::video
 
 #endif // VIVICTPP_THUMBNAIL_HH

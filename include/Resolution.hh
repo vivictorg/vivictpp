@@ -45,7 +45,7 @@ struct Resolution {
     // is narrower than the aspect ratio, pad width
     return Resolution(h * aspectRatio.num / aspectRatio.den, h);
   }
-  
+
   std::string toString() const {
     std::ostringstream oss;
     oss << this->w << "x" << this->h;

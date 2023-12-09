@@ -28,6 +28,7 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(
       videoPlayback(vivictPPConfig.sourceConfigs), settingsDialog(settings),
       plotWindow(videoPlayback.getVideoInputs().getLeftVideoIndex(),
                  videoPlayback.getVideoInputs().getRightVideoIndex()) {
+
   displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;
   if (displayState.splitScreenDisabled) {
     displayState.splitPercent = 100;
@@ -43,14 +44,25 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(
     imGuiSDL.fitWindowToTextures();
   }
   if (vivictPPConfig.sourceConfigs.size() > 0) {
-    leftQualityMetricsLoader.autoloadMetrics(vivictPPConfig.sourceConfigs[0].path, [this](std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error) {
-      this->loadMetricsCallback(metrics, error, vivictpp::imgui::ActionType::OpenQualityFileLeft);
-    });
+    leftQualityMetricsLoader.autoloadMetrics(
+        vivictPPConfig.sourceConfigs[0].path,
+        [this](
+            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+            std::shared_ptr<std::exception> error) {
+          this->loadMetricsCallback(
+              metrics, error, vivictpp::imgui::ActionType::OpenQualityFileLeft);
+        });
   }
   if (vivictPPConfig.sourceConfigs.size() > 1) {
-    rightQualityMetricsLoader.autoloadMetrics(vivictPPConfig.sourceConfigs[1].path, [this](std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error) {
-      this->loadMetricsCallback(metrics, error, vivictpp::imgui::ActionType::OpenQualityFileRight);
-    });
+    rightQualityMetricsLoader.autoloadMetrics(
+        vivictPPConfig.sourceConfigs[1].path,
+        [this](
+            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+            std::shared_ptr<std::exception> error) {
+          this->loadMetricsCallback(
+              metrics, error,
+              vivictpp::imgui::ActionType::OpenQualityFileRight);
+        });
   }
 }
 
@@ -83,11 +95,16 @@ void drawSplash() {
 void vivictpp::imgui::VivictPPImGui::run() {
 
   while (!done) {
-    std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> newValue = std::atomic_exchange(&newLeftQualityMetrics,  std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>(nullptr));
+    std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> newValue =
+        std::atomic_exchange(
+            &newLeftQualityMetrics,
+            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>(nullptr));
     if (newValue) {
       displayState.leftQualityMetrics = newValue;
     }
-    newValue = std::atomic_exchange(&newRightQualityMetrics,  std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>(nullptr));
+    newValue = std::atomic_exchange(
+        &newRightQualityMetrics,
+        std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>(nullptr));
     if (newValue) {
       displayState.rightQualityMetrics = newValue;
     }
@@ -179,11 +196,11 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(
     case '0':
       return {vivictpp::imgui::ZoomReset};
     case 'F':
-    if (keyEvent.alt) {
-      return {vivictpp::imgui::ToggleFitToScreen};
-    } else {
-      return {vivictpp::imgui::ToggleFullscreen};
-    }
+      if (keyEvent.alt) {
+        return {vivictpp::imgui::ToggleFitToScreen};
+      } else {
+        return {vivictpp::imgui::ToggleFullscreen};
+      }
     case 'T':
       return {vivictpp::imgui::ToggleDisplayTime};
       break;
@@ -404,23 +421,22 @@ void vivictpp::imgui::VivictPPImGui::openFile(
 
 void vivictpp::imgui::VivictPPImGui::openQualityFile(
     const vivictpp::imgui::Action &action) {
-  auto callback = [this, action](
+  auto callback =
+      [this, action](
           std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
           std::shared_ptr<std::exception> error) {
         this->loadMetricsCallback(metrics, error, action);
       };
   if (action.type == ActionType::OpenQualityFileLeft) {
-    leftQualityMetricsLoader.loadMetrics(
-        action.file,
-        callback);
+    leftQualityMetricsLoader.loadMetrics(action.file, callback);
   } else if (action.type == ActionType::OpenQualityFileRight) {
-    rightQualityMetricsLoader.loadMetrics(
-        action.file,
-        callback);
+    rightQualityMetricsLoader.loadMetrics(action.file, callback);
   }
 }
 
-void vivictpp::imgui::VivictPPImGui::loadMetricsCallback(std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error, vivictpp::imgui::Action action) {
+void vivictpp::imgui::VivictPPImGui::loadMetricsCallback(
+    std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+    std::shared_ptr<std::exception> error, vivictpp::imgui::Action action) {
   if (error) {
     this->logger->error("Error loading quality file: {}", error->what());
     return;

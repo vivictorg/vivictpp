@@ -108,20 +108,22 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::Controls::draw(
       ImGui::SetTooltip(
           "%s",
           vivictpp::time::formatTime(durationSeconds * posFrac, false).c_str());
-      ImVec2 thumbnailPos = ImGui::GetMousePos();
-      thumbnailPos.x = std::min(thumbnailPos.x,
-                                work_size.x - thumbnailTexture.getWidth() - 8);
-      thumbnailPos.y =
-          ImGui::GetCursorPosY() - thumbnailTexture.getHeight() - 8;
-      ImVec2 p2(thumbnailPos.x + thumbnailTexture.getWidth(),
-                thumbnailPos.y + thumbnailTexture.getHeight());
-      auto thumbnail = thumbnailTexture.updateAndGetTexture(
-          (uint64_t)(1e6 * durationSeconds * posFrac));
-      ImGui::GetWindowDrawList()->AddRect(
-          {thumbnailPos.x - 1, thumbnailPos.y - 1}, {p2.x + 1, p2.y + 1},
-          border);
-      ImGui::GetWindowDrawList()->AddImage((ImTextureID)(intptr_t)thumbnail.get(),
-                                           thumbnailPos, p2);
+      /* TODO: Use opengl texture for thumbnail
+  ImVec2 thumbnailPos = ImGui::GetMousePos();
+  thumbnailPos.x = std::min(thumbnailPos.x,
+                            work_size.x - thumbnailTexture.getWidth() - 8);
+  thumbnailPos.y =
+      ImGui::GetCursorPosY() - thumbnailTexture.getHeight() - 8;
+  ImVec2 p2(thumbnailPos.x + thumbnailTexture.getWidth(),
+            thumbnailPos.y + thumbnailTexture.getHeight());
+  auto thumbnail = thumbnailTexture.updateAndGetTexture(
+      (uint64_t)(1e6 * durationSeconds * posFrac));
+  ImGui::GetWindowDrawList()->AddRect(
+      {thumbnailPos.x - 1, thumbnailPos.y - 1}, {p2.x + 1, p2.y + 1},
+      border);
+  ImGui::GetWindowDrawList()->AddImage((ImTextureID)(intptr_t)thumbnail.get(),
+                                       thumbnailPos, p2);
+  */
     }
     if (ImGui::IsItemActive()) {
       showControls = 70;

@@ -21,6 +21,7 @@ cli11_proj = subproject('cli11', default_options: 'warning_level=0')
 catch2_proj = subproject('catch2', default_options: 'warning_level=0')
 freetype2_proj = subproject('freetype2', default_options: 'warning_level=0')
 platformfolders_proj = subproject('platformfolders', default_options: 'warning_level=0')
+
 #sdl3_proj = subproject('sdl3', default_options: ['warning_level=0', 'default_library=static','b_staticpic=true'])
 
 if get_option('use_zlib_subproject')
@@ -29,6 +30,9 @@ if get_option('use_zlib_subproject')
 else
   zlib_dep = dependency('zlib')
 endif
+
+glm_proj = subproject('glm', default_options: 'warning_level=0')
+
 
 if build_machine.system() == 'windows'
 
@@ -98,6 +102,8 @@ deps = [
   #  dependency('freetype2', version: '>=2.8.1'),
   #  freetype2_proj.get_variable('freetype2_dep'),
   dependency('threads'),
+  dependency('gl'),
+  dependency('glew'),
   libavformat_dep,
   libavcodec_dep,
   libavutil_dep,
@@ -107,7 +113,8 @@ deps = [
   spdlog_proj.get_variable('spdlog_dep'),
   cli11_proj.get_variable('CLI11_dep'),
   fmt_proj.get_variable('fmt_dep'),
-  platformfolders_proj.get_variable('platformfolders_dep')
+  platformfolders_proj.get_variable('platformfolders_dep'),
+  glm_proj.get_variable('glm_dep'),
 #  sdl2_image_proj.get_variable('sdl2_image_dep')        
 ]
 
@@ -135,6 +142,7 @@ imgui_sources=[
   'libs/imgui/imgui_tables.cpp',
   'libs/imgui/backends/imgui_impl_sdl3.cpp',
   'libs/imgui/backends/imgui_impl_sdlrenderer3.cpp',
+  'libs/imgui/backends/imgui_impl_opengl3.cpp',
   'src/imgui/VivictPPImGui.cc',
   'src/imgui/Controls.cc',
   'src/imgui/VideoMetadataDisplay.cc',
@@ -176,9 +184,13 @@ sources = [
   'src/time/TimeUtils.cc',
   'src/qualitymetrics/QualityMetrics.cc',
   'src/ui/FontSize.cc',
+  'src/ui/OpenGLVideoTextures.cc',
+  'src/ui/SDLVideoTextures.cc',
   'src/ui/VideoTextures.cc',
   'src/ui/ThumbnailTexture.cc',
   'src/video/VideoIndexer.cc',
+  'src/ui/opengl/OpenGLUtils.cc',
+  'src/ui/opengl/TextureRenderer.cc',
   'src/vmaf/VmafLog.cc',
   'src/workers/DecoderWorker.cc',
   'src/workers/FrameBuffer.cc',

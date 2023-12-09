@@ -14,7 +14,7 @@ class ThumbnailTexture {
 public:
   ThumbnailTexture(SDL_Renderer *renderer)
       : renderer(renderer), width(128), height(72),
-        texture(renderer, width, height, SDL_PIXELFORMAT_YV12){};
+        texture(/*renderer, width, height, SDL_PIXELFORMAT_YV12*/){};
   vivictpp::sdl::SDLTexture &
   updateAndGetTexture(const vivictpp::time::Time &pts);
   void setVideoIndex(std::shared_ptr<vivictpp::video::VideoIndex> videoIndex) {

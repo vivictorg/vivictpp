@@ -15,10 +15,11 @@
 #include "imgui/FileDialog.hh"
 #include "imgui/ImGuiSDL.hh"
 #include "imgui/MainMenu.hh"
-#include "imgui/SettingsDialog.hh"
-#include "imgui/VideoMetadataDisplay.hh"
 #include "imgui/PlotWindow.hh"
 #include "imgui/QualityFileDialog.hh"
+#include "imgui/SettingsDialog.hh"
+#include "imgui/VideoMetadataDisplay.hh"
+#include "qualitymetrics/QualityMetrics.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/DisplayState.hh"
 #include "ui/VideoTextures.hh"
@@ -54,6 +55,7 @@ private:
       newLeftQualityMetrics;
   std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>
       newRightQualityMetrics;
+
 private:
   Action handleKeyEvent(const KeyEvent &keyEvent);
   std::vector<Action>
@@ -61,8 +63,11 @@ private:
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
   void openFile(const vivictpp::imgui::Action &action);
   void openQualityFile(const vivictpp::imgui::Action &action);
-  void loadMetricsCallback(std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error, vivictpp::imgui::Action action);
+  void loadMetricsCallback(
+      std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+      std::shared_ptr<std::exception> error, vivictpp::imgui::Action action);
   vivictpp::logging::Logger logger;
+
 public:
   VivictPPImGui(const VivictPPConfig &vivictPPConfig);
   void run();

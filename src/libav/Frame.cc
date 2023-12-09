@@ -18,6 +18,7 @@ vivictpp::libav::Frame::Frame() : frame(av_frame_alloc(), &freeFrame) {}
 vivictpp::libav::Frame::Frame(AVFrame *frame) : frame(frame, &freeFrame) {}
 
 vivictpp::libav::Frame::Frame(const Frame &otherFrame) {
+  updatedFilteredMetadata = otherFrame.updatedFilteredMetadata;
   if (otherFrame.frame) {
     frame.reset(av_frame_clone(otherFrame.frame.get()), &freeFrame);
   } else {
@@ -27,6 +28,7 @@ vivictpp::libav::Frame::Frame(const Frame &otherFrame) {
 
 vivictpp::libav::Frame &
 vivictpp::libav::Frame::operator=(const Frame &otherFrame) {
+  updatedFilteredMetadata = otherFrame.updatedFilteredMetadata;
   if (otherFrame.frame) {
     frame.reset(av_frame_clone(otherFrame.frame.get()), &freeFrame);
   } else {
@@ -59,5 +61,6 @@ vivictpp::libav::Frame::transferHwData(AVPixelFormat swPixelFormat) {
  */
 
 void vivictpp::libav::Frame::reset() {
+  updatedFilteredMetadata.reset();
   frame.reset(av_frame_alloc(), &freeFrame);
 }

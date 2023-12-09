@@ -53,7 +53,13 @@ VideoMetadata::VideoMetadata(const std::string &source,
       filteredSampleAspectRatio(filteredVideoMetadata.empty()
                                     ? sampleAspectRatio
                                     : filteredVideoMetadata.sampleAspectRatio),
-      displayResolution(filteredResolution.toDisplayResolution(filteredSampleAspectRatio)),
+      filteredPixelFormat(filteredVideoMetadata.empty()
+                              ? (AVPixelFormat)videoStream->codecpar->format
+                              : filteredVideoMetadata.pixelFormat),
+      filteredPixelFormatStr(
+          std::string(av_get_pix_fmt_name(filteredPixelFormat))),
+      displayResolution(
+          filteredResolution.toDisplayResolution(filteredSampleAspectRatio)),
       filteredVideoMetadata(filteredVideoMetadata),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
@@ -66,6 +72,27 @@ VideoMetadata::VideoMetadata(const std::string &source,
       endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)), _empty(false) {}
 
+VideoMetadata::VideoMetadata(const VideoMetadata &other,
+                             const FilteredVideoMetadata &filteredVideoMetadata)
+    : source(other.source), pixelFormat(other.pixelFormat),
+      streamIndex(other.streamIndex), resolution(other.resolution),
+      sampleAspectRatio(other.sampleAspectRatio),
+      filteredResolution(filteredVideoMetadata.empty()
+                             ? resolution
+                             : filteredVideoMetadata.resolution),
+      filteredSampleAspectRatio(filteredVideoMetadata.empty()
+                                    ? sampleAspectRatio
+                                    : filteredVideoMetadata.sampleAspectRatio),
+      filteredPixelFormat(filteredVideoMetadata.empty()
+                              ? av_get_pix_fmt(other.pixelFormat.c_str())
+                              : filteredVideoMetadata.pixelFormat),
+      filteredPixelFormatStr(other.filteredPixelFormatStr),
+      filteredVideoMetadata(filteredVideoMetadata), bitrate(other.bitrate),
+      frameRate(other.frameRate), frameDuration(other.frameDuration),
+      startTime(other.startTime),
+      duration(other.duration), // allready in av_time_base
+      endTime(other.endTime), codec(other.codec), _empty(false) {}
+
 std::string VideoMetadata::resolutionAsString() const {
   std::ostringstream oss;
   oss << std::left << this->filteredResolution.w << "x"
@@ -76,7 +103,6 @@ std::string VideoMetadata::resolutionAsString() const {
   }
   return oss.str();
 }
-
 
 std::string VideoMetadata::toString() const {
   std::string separator = "\t";
@@ -116,7 +142,8 @@ std::string VideoMetadata::toString() const {
 FilteredVideoMetadata::FilteredVideoMetadata(std::string filterDefinition,
                                              Resolution resolution,
                                              AVRational sampleAspectRatio,
+                                             AVPixelFormat pixelFormat,
                                              double frameRate)
     : filteredDefinition(filterDefinition), resolution(resolution),
       sampleAspectRatio(zeroSafeRational(sampleAspectRatio)),
-      frameRate(frameRate) {}
+      pixelFormat(pixelFormat), frameRate(frameRate) {}

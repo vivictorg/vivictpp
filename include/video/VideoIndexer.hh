@@ -67,7 +67,7 @@ private:
 private:
   void addFrameData(const IndexFrameData &frameData);
 
-  void addGop(const vivictpp::time::Time gopEndPts) ;
+  void addGop(const vivictpp::time::Time gopEndPts);
 
   void addThumbnail(const vivictpp::video::Thumbnail &thumbnail);
   void finalizeIndex();

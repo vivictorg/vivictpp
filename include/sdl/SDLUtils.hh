@@ -34,7 +34,7 @@ private:
   static std::atomic<int> instanceCount;
 
 public:
-  SDLInitializer(bool enableAudio = true);
+  SDLInitializer(bool enableAudio = true, bool enableOpenGl = false);
   ~SDLInitializer();
 };
 
@@ -45,8 +45,7 @@ typedef std::shared_ptr<SDL_Texture> TexturePtr;
 class SDLTexture {
 public:
   SDLTexture() {}
-  SDLTexture(SDL_Renderer *renderer, int w, int h,
-             SDL_PixelFormat pixelFormat);
+  SDLTexture(SDL_Renderer *renderer, int w, int h, SDL_PixelFormat pixelFormat);
   void update(const vivictpp::libav::Frame &frame);
   bool operator!() const { return !texturePtr; }
   TexturePtr &operator->() { return texturePtr; }
@@ -66,9 +65,8 @@ SDLWindow createWindow(int width, int height, int flags = SDL_WINDOW_RESIZABLE);
 
 SDLRenderer createRenderer(SDL_Window *window);
 
-TexturePtr
-createTexture(SDL_Renderer *renderer, int w, int h,
-              SDL_PixelFormat pixelFormat = SDL_PIXELFORMAT_NV12);
+TexturePtr createTexture(SDL_Renderer *renderer, int w, int h,
+                         SDL_PixelFormat pixelFormat = SDL_PIXELFORMAT_NV12);
 
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
 createHandCursor();

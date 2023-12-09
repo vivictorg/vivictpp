@@ -3,16 +3,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "sdl/SDLUtils.hh"
-#include <SDL3/SDL_pixels.h>
 #include "logging/Logging.hh"
+#include <SDL3/SDL_pixels.h>
 
 std::atomic<int> vivictpp::sdl::SDLInitializer::instanceCount(0);
 
-vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio) {
+vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio,
+                                              bool enableOpenGl) {
   if (instanceCount++ == 0) {
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
-    uint32_t flags =
-        SDL_INIT_VIDEO | (enableAudio ? SDL_INIT_AUDIO : 0);
+    uint32_t flags = SDL_INIT_VIDEO | (enableAudio ? SDL_INIT_AUDIO : 0) |
+                     (enableOpenGl ? SDL_WINDOW_OPENGL : 0);
     if (!SDL_Init(flags)) {
       throw SDLException("Failed to initialize SDL");
     }
@@ -46,8 +47,7 @@ void vivictpp::sdl::SDLTexture::update(const vivictpp::libav::Frame &frame) {
 vivictpp::sdl::SDLWindow vivictpp::sdl::createWindow(int width, int height,
                                                      int flags) {
   auto window = std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>(
-      SDL_CreateWindow("Vivict++", width, height, flags),
-      SDL_DestroyWindow);
+      SDL_CreateWindow("Vivict++", width, height, flags), SDL_DestroyWindow);
   if (!window) {
     throw SDLException("Failed to create window");
   }
@@ -63,12 +63,12 @@ vivictpp::sdl::SDLRenderer vivictpp::sdl::createRenderer(SDL_Window *window) {
   }
   SDL_SetRenderVSync(renderer.get(), 1);
 
-  
   SDL_PropertiesID props = SDL_GetRendererProperties(renderer.get());
-  SDL_PixelFormat *format = (SDL_PixelFormat *)SDL_GetPointerProperty(props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr);
+  SDL_PixelFormat *format = (SDL_PixelFormat *)SDL_GetPointerProperty(
+      props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr);
   while (format && *format != SDL_PIXELFORMAT_UNKNOWN) {
     spdlog::info("Texture format: {}", SDL_GetPixelFormatName(*format));
-     format++;
+    format++;
   }
 
   return renderer;

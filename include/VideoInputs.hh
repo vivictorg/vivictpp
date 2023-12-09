@@ -64,7 +64,7 @@ private:
     logger->debug("leftPtsOffset: {}", leftPtsOffset);
   }
   SeekState seekState;
-  //vivictpp::video::VideoIndexer videoIndexer;
+  // vivictpp::video::VideoIndexer videoIndexer;
   vivictpp::logging::Logger logger;
 
 public:

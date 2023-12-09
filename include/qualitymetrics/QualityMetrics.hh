@@ -5,12 +5,12 @@
 #ifndef QUALITYMETRICS_QUALITYMETRICS_HH
 #define QUALITYMETRICS_QUALITYMETRICS_HH
 
+#include "logging/Logging.hh"
+#include <functional>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <functional>
-#include <memory>
-#include "logging/Logging.hh"
 
 namespace vivictpp {
 namespace qualitymetrics {
@@ -24,7 +24,8 @@ struct PooledMetrics {
 
 class QualityMetrics;
 
-typedef std::function<void(std::shared_ptr<QualityMetrics>, std::shared_ptr<std::exception>)>
+typedef std::function<void(std::shared_ptr<QualityMetrics>,
+                           std::shared_ptr<std::exception>)>
     QualityMetricsLoaderCallback;
 
 class QualityMetricsLoader {
@@ -36,8 +37,7 @@ public:
   void loadMetrics(std::string metricsFile,
                    QualityMetricsLoaderCallback callback);
   void autoloadMetrics(std::string sourceFile,
-                   QualityMetricsLoaderCallback callback);
-
+                       QualityMetricsLoaderCallback callback);
 
 private:
   void loadMetricsInternal(std::string metricsFile,
@@ -53,11 +53,10 @@ private:
 
 class QualityMetrics {
 public:
-  
   QualityMetrics() = default;
   QualityMetrics(std::string metricsFile);
-  QualityMetrics(const QualityMetrics& other) = default;
-  QualityMetrics& operator=(const QualityMetrics& other) = default;
+  QualityMetrics(const QualityMetrics &other) = default;
+  QualityMetrics &operator=(const QualityMetrics &other) = default;
   ~QualityMetrics() = default;
 
   std::vector<std::string> getMetrics() const {

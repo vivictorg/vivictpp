@@ -26,10 +26,14 @@ public:
   FilteredVideoMetadata(std::string filterDefinition = "",
                         Resolution resolution = Resolution(0, 0),
                         AVRational sampleAspectRatio = {1, 1},
+                        AVPixelFormat pixelFormat = AV_PIX_FMT_NONE,
                         double frameRate = 0);
+  FilteredVideoMetadata(const FilteredVideoMetadata &other) = default;
+  ~FilteredVideoMetadata() = default;
   std::string filteredDefinition;
   Resolution resolution;
   AVRational sampleAspectRatio;
+  AVPixelFormat pixelFormat;
   double frameRate;
 
 public:
@@ -42,6 +46,12 @@ public:
   VideoMetadata(const std::string &source, const AVFormatContext *formatContext,
                 const AVStream *videoStream,
                 const FilteredVideoMetadata &filteredVideoMetadata);
+  VideoMetadata(const VideoMetadata &other) = default;
+  VideoMetadata(const VideoMetadata &other,
+                const FilteredVideoMetadata &filteredVideoMetadata);
+  ~VideoMetadata() = default;
+
+  VideoMetadata &operator=(const VideoMetadata &other) = default;
 
   std::string source;
   std::string pixelFormat;
@@ -51,6 +61,8 @@ public:
   Resolution filteredResolution;
   AVRational filteredSampleAspectRatio;
   Resolution displayResolution;
+  AVPixelFormat filteredPixelFormat;
+  std::string filteredPixelFormatStr;
   FilteredVideoMetadata filteredVideoMetadata;
   int bitrate;
   double frameRate;

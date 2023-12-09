@@ -123,8 +123,12 @@ vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(
     formatParameters.pixelFormat = newFormat;
     formatParameters.hwFramesContext = inFrame.avFrame()->hw_frames_ctx;
     configure();
+    Frame frame = Filter::filterFrame(inFrame);
+    frame.setUpdatedFilteredMetadata(getFilteredVideoMetadata());
+    return frame;
+  } else {
+    return Filter::filterFrame(inFrame);
   }
-  return Filter::filterFrame(inFrame);
 }
 
 void vivictpp::libav::VideoFilter::configure() {
@@ -134,7 +138,8 @@ void vivictpp::libav::VideoFilter::configure() {
   graph.reset(avfilter_graph_alloc(), &freeFilterGraph);
 
   AVPixelFormat hwDownloadFormat = AV_PIX_FMT_NONE;
-  AVPixelFormat outputFormat = AV_PIX_FMT_YUV420P;
+  // AVPixelFormat outputFormat = AV_PIX_FMT_YUV420P; //AV_PIX_FMT_YUV420P10LE;
+  AVPixelFormat outputFormat = AV_PIX_FMT_YUV420P10LE;
   std::string hwFilter = "";
 
   std::string filterStr;
@@ -196,7 +201,7 @@ void vivictpp::libav::VideoFilter::configure() {
     }
   }
   ret = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
-                            AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);          
+                            AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
   if (ret < 0) {
     throw std::runtime_error("cannot set output pixel format");
   }
@@ -209,7 +214,8 @@ void vivictpp::libav::VideoFilter::configure() {
                  av_get_pix_fmt_name(hwDownloadFormat) + ",";
   }
 
-  filterStr += std::string("scale=sws_dither=none:dst_format=") + av_get_pix_fmt_name(outputFormat);
+  filterStr += std::string("scale=sws_dither=none:dst_format=") +
+               av_get_pix_fmt_name(outputFormat);
 
   if (!definition.empty()) {
     filterStr += std::string(",") + definition;
@@ -221,11 +227,13 @@ void vivictpp::libav::VideoFilter::configure() {
 FilteredVideoMetadata vivictpp::libav::VideoFilter::getFilteredVideoMetadata() {
   int w = av_buffersink_get_w(bufferSinkCtx);
   int h = av_buffersink_get_h(bufferSinkCtx);
+  AVPixelFormat pixelFormat =
+      static_cast<AVPixelFormat>(av_buffersink_get_format(bufferSinkCtx));
   double frameRate = av_q2d(av_buffersink_get_frame_rate(bufferSinkCtx));
   AVRational sampleAspectRatio =
       av_buffersink_get_sample_aspect_ratio(bufferSinkCtx);
   return FilteredVideoMetadata(definition, Resolution(w, h), sampleAspectRatio,
-                               frameRate);
+                               pixelFormat, frameRate);
 }
 
 vivictpp::libav::AudioFilter::AudioFilter(AVCodecContext *codecContext,
