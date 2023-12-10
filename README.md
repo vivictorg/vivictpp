@@ -40,6 +40,8 @@ sudo snap connect vivictpp:removable-media :removable-media
 ```
 
 ### Homebrew
+_Note: In some cases it may be necessary to install `python@3.12` manually before installing vivictpp. This can be 
+done with `brew install --overwrite python@3.12`_.
 ```
 brew tap vivictorg/vivictpp
 brew install vivictpp
