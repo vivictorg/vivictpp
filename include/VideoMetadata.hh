@@ -25,27 +25,31 @@ class FilteredVideoMetadata {
 public:
     FilteredVideoMetadata(std::string filterDefinition = "",
                           Resolution resolution = Resolution(0,0),
+                          AVRational sampleAspectRatio = {1,1},
                           double frameRate = 0);
     std::string filteredDefinition;
     Resolution resolution;
+    AVRational sampleAspectRatio;
     double frameRate;
 public:
-    bool empty() { return filteredDefinition.empty(); }
+    bool empty() const { return filteredDefinition.empty(); }
 };
 
 class VideoMetadata {
 public:
   VideoMetadata();
-  VideoMetadata(std::string source,
-                AVFormatContext *formatContext,
-                AVStream *videoStream,
-                FilteredVideoMetadata filteredVideoMetadata);
+  VideoMetadata(const std::string &source,
+                const AVFormatContext *formatContext,
+                const AVStream *videoStream,
+                const FilteredVideoMetadata &filteredVideoMetadata);
 
   std::string source;
-  int streamIndex;
   std::string pixelFormat;
+  int streamIndex;
   Resolution resolution;
+  AVRational sampleAspectRatio;
   Resolution filteredResolution;
+  AVRational filteredSampleAspectRatio;
   FilteredVideoMetadata filteredVideoMetadata;
   int bitrate;
   double frameRate;

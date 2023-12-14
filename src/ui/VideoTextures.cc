@@ -14,11 +14,15 @@ SDL_PixelFormatEnum getTexturePixelFormat(const vivictpp::libav::Frame &frame) {
 bool vivictpp::ui::VideoTextures::initTextures(SDL_Renderer *renderer, const DisplayState &displayState) {
   if (videoMetadataVersion == displayState.videoMetadataVersion)
     return false;
-  if (displayState.rightVideoMetadata.empty() ||
-      displayState.leftVideoMetadata.filteredResolution.w > displayState.rightVideoMetadata.filteredResolution.w) {
-    nativeResolution = displayState.leftVideoMetadata.filteredResolution;
+  Resolution leftDisplayResolution = displayState.leftVideoMetadata.filteredResolution.toDisplayResolution(
+          displayState.leftVideoMetadata.filteredSampleAspectRatio);
+  if (!displayState.rightVideoMetadata.empty()) {
+      Resolution rightDisplayResolution = displayState.rightVideoMetadata.filteredResolution.toDisplayResolution(
+              displayState.rightVideoMetadata.filteredSampleAspectRatio);
+      nativeResolution = leftDisplayResolution.w > rightDisplayResolution.w ?
+              leftDisplayResolution : rightDisplayResolution;
   } else {
-    nativeResolution = displayState.rightVideoMetadata.filteredResolution;
+    nativeResolution = leftDisplayResolution;
   }
   leftTexture = vivictpp::sdl::SDLTexture(renderer,
                                           displayState.leftVideoMetadata.filteredResolution.w,

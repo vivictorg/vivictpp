@@ -8,6 +8,7 @@
 
 #include <string>
 #include <sstream>
+#include <libavutil/rational.h>
 
 struct Resolution {
   Resolution():
@@ -23,6 +24,9 @@ struct Resolution {
   Resolution scale(float scaleFactor) const {
     return Resolution(static_cast<int>(w * scaleFactor),
                       static_cast<int>(h * scaleFactor));
+  }
+  Resolution toDisplayResolution(const AVRational sampleAspectRatio) const {
+      return Resolution(w * sampleAspectRatio.num / sampleAspectRatio.den, h);
   }
   Resolution scaleToWidth(const int width) const {
     return Resolution(width, h * width / w);

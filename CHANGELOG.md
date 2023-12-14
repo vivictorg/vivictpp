@@ -1,6 +1,12 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## Unreleased
+### Fixed
+- Sample aspect ratio metadata is now handled correctly
+
+## 1.0.0 - 2023-12-09
+
 ## 1.0.0-pre2
 ### Fixed
 - On windows, no longer opens terminal window when started

@@ -49,9 +49,14 @@ void vivictpp::imgui::VideoMetadataDisplay::draw(const ui::DisplayState &display
   vivictpp::imgui::tableRow2(cw, "codec", "%s", metadata.codec);
   vivictpp::imgui::tableRow2(cw, "pixel format", "%s", metadata.pixelFormat);
   vivictpp::imgui::tableRow2(cw, "resolution", "%s", metadata.filteredResolution.toString());
-
+  vivictpp::imgui::tableRow2(cw, "sample ar", "%d:%d",
+                             metadata.filteredSampleAspectRatio.num, metadata.filteredSampleAspectRatio.den);
   if (metadata.filteredResolution != metadata.resolution) {
     vivictpp::imgui::tableRow2(cw, "orig resolution", "%s", metadata.resolution.toString());
+  }
+  if (av_cmp_q(metadata.sampleAspectRatio, metadata.filteredSampleAspectRatio) != 0) {
+      vivictpp::imgui::tableRow2(cw, "orig sample ar", "%d:%d",
+                                 metadata.sampleAspectRatio.num, metadata.sampleAspectRatio.den);
   }
   vivictpp::imgui::tableRow2(cw, "bitrate", "%dkb/s", metadata.bitrate / 1000);
   vivictpp::imgui::tableRow2(cw, "framerate", "%.3ffps", metadata.frameRate);

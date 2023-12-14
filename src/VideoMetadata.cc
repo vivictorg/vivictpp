@@ -7,7 +7,7 @@
 #include <libavformat/avformat.h>
 #include <libavutil/pixfmt.h>
 
-int getBitrate(AVStream *videoStream) {
+int getBitrate(const AVStream *videoStream) {
   int bitrate = videoStream->codecpar->bit_rate;
   if (bitrate == 0) {
     if (auto entry =
@@ -23,9 +23,13 @@ int getBitrate(AVStream *videoStream) {
   return bitrate;
 }
 
-vivictpp::time::Time getStartTime(AVStream *stream) {
+vivictpp::time::Time getStartTime(const AVStream *stream) {
   return stream->start_time == AV_NOPTS_VALUE ? 0 :
     av_rescale_q(stream->start_time, stream->time_base, vivictpp::time::TIME_BASE_Q);
+}
+
+const AVRational zeroSafeRational(const AVRational r) {
+    return r.num == 0 || r.den == 0 ? AVRational{1,1} : r;
 }
 
 VideoMetadata::VideoMetadata():
@@ -34,15 +38,18 @@ VideoMetadata::VideoMetadata():
   _empty(true) {}
 
 VideoMetadata::VideoMetadata(
-    std::string source,
-    AVFormatContext *formatContext,
-    AVStream *videoStream,
-    FilteredVideoMetadata filteredVideoMetadata)
+    const std::string &source,
+    const AVFormatContext *formatContext,
+    const AVStream *videoStream,
+    const FilteredVideoMetadata &filteredVideoMetadata)
     : source(source),
       pixelFormat(std::string(av_get_pix_fmt_name((AVPixelFormat) videoStream->codecpar->format))),
       streamIndex(videoStream->index),
       resolution(videoStream->codecpar->width, videoStream->codecpar->height),
+      sampleAspectRatio(zeroSafeRational(videoStream->codecpar->sample_aspect_ratio)),
       filteredResolution(filteredVideoMetadata.empty() ? resolution : filteredVideoMetadata.resolution),
+      filteredSampleAspectRatio(
+              filteredVideoMetadata.empty() ? sampleAspectRatio : filteredVideoMetadata.sampleAspectRatio),
       filteredVideoMetadata(filteredVideoMetadata),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
@@ -52,7 +59,7 @@ VideoMetadata::VideoMetadata(
       duration(formatContext->duration), // allready in av_time_base
       endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)),
-      _empty(false) {}
+      _empty(false) { }
 
 std::string VideoMetadata::resolutionAsString() const {
   std::ostringstream oss;
@@ -97,7 +104,9 @@ std::string VideoMetadata::toString() const {
 
 FilteredVideoMetadata::FilteredVideoMetadata(std::string filterDefinition ,
                                              Resolution resolution,
+                                             AVRational sampleAspectRatio,
                                              double frameRate):
   filteredDefinition(filterDefinition),
   resolution(resolution),
+  sampleAspectRatio(zeroSafeRational(sampleAspectRatio)),
   frameRate(frameRate) {}

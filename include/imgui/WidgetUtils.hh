@@ -91,6 +91,13 @@ void tableRow2(float firstColumnWidth, const char* label, const char* format, T 
     ImGui::Text(format, value);
 }
 
+template <typename T>
+void tableRow2(float firstColumnWidth, const char* label, const char* format, T value1, T value2) {
+    ImGui::Text("%s", label);
+    ImGui::SameLine(firstColumnWidth);
+    ImGui::Text(format, value1, value2);
+}
+
 template <>
 void tableRow2<std::string>(float firstColumnWidth, const char* label, const char* format, std::string value);
 
