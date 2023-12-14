@@ -1,7 +1,7 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
-## Unreleased
+## 1.1.0-pre1
 ### Fixed
 - Sample aspect ratio metadata is now handled correctly
 
