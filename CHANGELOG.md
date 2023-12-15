@@ -1,6 +1,10 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## 1.1.0-pre2 2023-12-15
+### Fixed
+- Incorrect settings file is now handled correctly
+
 ## 1.1.0-pre1
 ### Fixed
 - Sample aspect ratio metadata is now handled correctly
