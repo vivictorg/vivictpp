@@ -6,7 +6,6 @@
 #include "toml.hpp"
 #include "platform_folders.h"
 #include "fmt/core.h"
-#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -31,7 +30,7 @@ toml::array toTomlArray(std::map<std::string, std::string> m) {
   return arr;
 }
 
-std::vector<std::string> toVector(toml::array *arr) {
+std::vector<std::string> toVector(const toml::array *arr) {
   std::vector<std::string> result;
   if (!arr) return result;
   for (size_t i = 0; i < arr->size(); i++) {
@@ -40,7 +39,7 @@ std::vector<std::string> toVector(toml::array *arr) {
   return result;
 }
 
-std::map<std::string, std::string> toMap(toml::table *tbl) {
+std::map<std::string, std::string> toMap(const toml::table *tbl) {
   std::map<std::string, std::string> result;
   if (!tbl) return result;
   for (auto it = tbl->begin(); it != tbl->end(); it++) {
@@ -50,7 +49,41 @@ std::map<std::string, std::string> toMap(toml::table *tbl) {
 }
 
 vivictpp::Settings vivictpp::loadSettings() {
-  auto filePath = getSettingsFilePath();
+    auto filePath = getSettingsFilePath();
+    return loadSettings(filePath);
+}
+
+void loadInt(int &target, const toml::table &table, const std::string &path) {
+  if (table.at_path(path).is_integer()) {
+    target = table.at_path(path).as_integer()->get();
+  }
+}
+
+void loadBool(bool &target, const toml::table &table, const std::string &path) {
+  if (table.at_path(path).is_boolean()) {
+    target = table.at_path(path).as_boolean()->get();
+  }
+}
+
+void loadVector(std::vector<std::string> &target, const toml::table &table, const std::string &path) {
+  if (table.at_path(path).is_array()) {
+    target = toVector(table.at_path(path).as_array());
+  }
+}
+
+void loadString(std::string &target, const toml::table &table, const std::string &path) {
+  if (table.at_path(path).is_string()) {
+    target = table.at_path(path).as_string()->get();
+  }
+}
+
+void loadMap(std::map<std::string, std::string> &target, const toml::table &table, const std::string &path) {
+  if (table.at_path(path).is_table()) {
+    target = toMap(table.at_path(path).as_table());
+  }
+}
+
+vivictpp::Settings vivictpp::loadSettings(std::filesystem::path filePath) {
   if (!std::filesystem::exists(filePath)) {
     return {};
   }
@@ -58,14 +91,14 @@ vivictpp::Settings vivictpp::loadSettings() {
   try {
     toml::table toml = toml::parse_file(filePath.string());
     Settings settings;
-    settings.baseFontSize = toml["fontsettings"]["basefontsize"].as_integer()->get();
-    settings.disableFontAutoScaling = toml["fontsettings"]["disableautoscaling"].as_boolean()->get();
-    settings.hwAccels = toVector(toml["decoding"]["enabledHwAccels"].as_array());
-    settings.preferredDecoders = toVector(toml["decoding"]["preferredDecoders"].as_array());
-    settings.logBufferSize = toml["logsettings"]["logbuffersize"].as_integer()->get();
-    settings.logToFile = toml["logsettings"]["logtofile"].as_boolean()->get();
-    settings.logFile = toml["logsettings"]["logfile"].as_string()->get();
-    settings.logLevels = toMap(toml["loglevels"].as_table());
+    loadInt(settings.baseFontSize, toml, "fontsettings.basefontsize");
+    loadBool(settings.disableFontAutoScaling, toml, "fontsettings.disableautoscaling");
+    loadVector(settings.hwAccels, toml, "decoding.enabledHwAccels");
+    loadVector(settings.preferredDecoders, toml, "decoding.preferredDecoders");
+    loadInt(settings.logBufferSize, toml, "logsettings.logbuffersize");
+    loadBool(settings.logToFile, toml, "logsettings.logtofile");
+    loadString(settings.logFile, toml, "logsettings.logfile");
+    loadMap(settings.logLevels, toml, "loglevels");
     return settings;
 
   } catch (const toml::parse_error& err) {
@@ -105,4 +138,15 @@ void vivictpp::saveSettings(const vivictpp::Settings &settings) {
   settingsFile.open(getSettingsFilePath());
   settingsFile << settingsToToml(settings) << std::endl;
   settingsFile.close();
+}
+
+bool vivictpp::operator==(const vivictpp::Settings &lhs, const vivictpp::Settings &rhs) {
+    return lhs.baseFontSize == rhs.baseFontSize &&
+             lhs.disableFontAutoScaling == rhs.disableFontAutoScaling &&
+             lhs.hwAccels == rhs.hwAccels &&
+             lhs.preferredDecoders == rhs.preferredDecoders &&
+             lhs.logBufferSize == rhs.logBufferSize &&
+             lhs.logToFile == rhs.logToFile &&
+             lhs.logFile == rhs.logFile &&
+             lhs.logLevels == rhs.logLevels;
 }

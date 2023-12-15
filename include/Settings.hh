@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <filesystem>
 
 namespace vivictpp {
 
@@ -22,9 +23,13 @@ struct Settings {
   std::map<std::string, std::string> logLevels{{"default", "info"}};
 };
 
+Settings loadSettings(std::filesystem::path filePath);
+
 Settings loadSettings();
 
 void saveSettings(const Settings &settings);
+
+bool operator==(const Settings &lhs, const Settings &rhs);
 
 }
 

@@ -1,0 +1,16 @@
+[decoding]
+enabledHwAccels = [ 'vaapi' ]
+preferredDecoders = []
+
+[fontsettings]
+basefontsize = 14
+disableautoscaling = false
+
+[loglevels]
+SeekState = 'warn'
+RandomLog = 'error'
+
+[logsettings]
+#logbuffersize = 128
+#logfile = '/tmp/vivictpp.log
+#logtofile = false

@@ -173,3 +173,5 @@ executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps
 # test('FormatHandler.seek', seekTest)
 #playbackTest= executable('playbackTest', 'test/PlaybackTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
 #test('Playback', playbackTest)
+settingsTest = executable('settingsTest', 'test/SettingsTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
+test('Settings', settingsTest)
