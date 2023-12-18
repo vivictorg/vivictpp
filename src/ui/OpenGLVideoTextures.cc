@@ -34,22 +34,15 @@ void vivictpp::ui::YuvRenderer::initFrameBuffer() {
     // The texture we're going to render to
     glGenTextures(1, &renderedTexture);
     glActiveTexture(renderedTextureUnit);
-    // "Bind" the newly created texture : all future texture functions will modify this texture
     glBindTexture(GL_TEXTURE_2D, renderedTexture);
-
-    spdlog::warn("renderedTextureId: {}", renderedTexture);
-
-    // Give an empty image to OpenGL ( the last "0" means "empty" )
-    //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, windowWidth, windowHeight, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
     if (render10bit) {
+        // Give an empty image to OpenGL ( the last "0" means "empty" )
         glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB10_A2, renderedResolution.w,renderedResolution.h,
                      0,GL_RGBA, GL_UNSIGNED_INT_2_10_10_10_REV, 0);
     } else {
         glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, renderedResolution.w,renderedResolution.h,
                      0,GL_RGB, GL_UNSIGNED_BYTE, 0);
     }
-    //glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB10_A2, renderedWidth, renderedHeight,
-//                     0,GL_RGBA, GL_UNSIGNED_INT_2_10_10_10_REV, 0);
 
     // Poor filtering
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -57,14 +50,11 @@ void vivictpp::ui::YuvRenderer::initFrameBuffer() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    // Set "renderedTexture" as our colour attachement #0
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
 
-    // Set the list of draw buffers.
     GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
 
-    // Always check that our framebuffer is ok
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         throw std::runtime_error("Failed to create framebuffer");
     }
@@ -78,7 +68,7 @@ vivictpp::ui::YuvRenderer::YuvRenderer(const VideoMetadata &videoMetadata, GLenu
     renderedTextureUnit = startTextureUnit + 3;
     initFrameBuffer();
     programId = vivictpp::ui::opengl::loadShaders( vivictpp::ui::opengl::VERTEX_SHADER_PASTHROUGH,
-                                                   vivictpp::ui::opengl::FRAGMENT_SHADER_YUV);
+                                                   vivictpp::ui::opengl::FRAGMENT_SHADER_YUV420);
 
     //LoadShaders( "TransformVertexShader.vertexshader", "yuvShader.fragmentshader" );
     matrixId = glGetUniformLocation(programId, "MVP");
@@ -108,10 +98,7 @@ void vivictpp::ui::YuvRenderer::render(glm::mat4 &MVP, GLuint vertexbuffer, GLui
     int width = inputResolution.w;
     int height = inputResolution.h;
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferName);
-    glViewport(0,0,renderedResolution.w,renderedResolution.h); // Render on the whole framebuffer, complete from the
-    // lower
-    // left corner to
-    // the upper right
+    glViewport(0,0,renderedResolution.w,renderedResolution.h);
 
     // Clear the screen
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -198,6 +185,7 @@ vivictpp::ui::OpenGLVideoTextures::~OpenGLVideoTextures() {
 
 bool vivictpp::ui::OpenGLVideoTextures::update(const vivictpp::ui::DisplayState &displayState) {
     if (displayState.videoMetadataVersion != videoMetadataVersion) {
+        /*
         if (vertexbuffer == 0) {
             //GLuint vertexbuffer;
             glGenBuffers(1, &vertexbuffer);
@@ -209,15 +197,16 @@ bool vivictpp::ui::OpenGLVideoTextures::update(const vivictpp::ui::DisplayState 
             glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
             glBufferData(GL_ARRAY_BUFFER, sizeof(uvBufferData), uvBufferData, GL_STATIC_DRAW);
         }
+         */
         initTextures(displayState);
         videoMetadataVersion = displayState.videoMetadataVersion;
     }
 
     if (leftTextureRenderer && !displayState.leftFrame.empty()) {
-        leftTextureRenderer->render(MVP, vertexbuffer, uvbuffer, displayState.leftFrame.avFrame()->data);
+        leftTextureRenderer->render(displayState.leftFrame);
     }
     if (rightTextureRenderer && !displayState.rightFrame.empty()) {
-        rightTextureRenderer->render(MVP, vertexbuffer, uvbuffer, displayState.rightFrame.avFrame()->data);
+        rightTextureRenderer->render(displayState.rightFrame);
     }
 
     return true;
@@ -227,11 +216,15 @@ bool vivictpp::ui::OpenGLVideoTextures::initTextures(const vivictpp::ui::Display
     if (videoMetadataVersion == displayState.videoMetadataVersion)
         return false;
     videoTextures.nativeResolution = getNativeResolution(displayState);
-    leftTextureRenderer = std::make_unique<YuvRenderer>(displayState.leftVideoMetadata, GL_TEXTURE0);
-    videoTextures.leftTexture = static_cast<ImTextureID>((void*) leftTextureRenderer->renderedTexture);
+    leftTextureRenderer =
+            vivictpp::ui::opengl::createTextureRenderer(displayState.leftVideoMetadata, GL_TEXTURE0, false);
+    videoTextures.leftTexture = static_cast<ImTextureID>((void*) leftTextureRenderer->getRenderedTextureId());
     if (!displayState.rightVideoMetadata.empty()) {
-        rightTextureRenderer = std::make_unique<YuvRenderer>(displayState.rightVideoMetadata, GL_TEXTURE4);
-        videoTextures.rightTexture = static_cast<ImTextureID>((void*) rightTextureRenderer->renderedTexture);
+        rightTextureRenderer =
+                vivictpp::ui::opengl::createTextureRenderer(displayState.rightVideoMetadata,
+                                                            GL_TEXTURE0 + leftTextureRenderer->getTextureUnitCount(),
+                                                                                                                false);
+        videoTextures.rightTexture = static_cast<ImTextureID>((void*) rightTextureRenderer->getRenderedTextureId());
     }
     return true;
 }

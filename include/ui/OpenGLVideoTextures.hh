@@ -11,6 +11,7 @@
 
 #include "DisplayState.hh"
 #include "VideoTextures.hh"
+#include "ui/opengl/TextureRenderer.hh"
 
 namespace vivictpp::ui {
 
@@ -55,8 +56,8 @@ namespace vivictpp::ui {
     private:
         bool initTextures(const DisplayState &displayState);
     private:
-        std::unique_ptr<YuvRenderer> leftTextureRenderer;
-        std::unique_ptr<YuvRenderer> rightTextureRenderer;
+        std::unique_ptr<vivictpp::ui::opengl::TextureRenderer> leftTextureRenderer;
+        std::unique_ptr<vivictpp::ui::opengl::TextureRenderer> rightTextureRenderer;
         vivictpp::ui::VideoTextures videoTextures;
         int videoMetadataVersion{-1};
         glm::mat4 MVP;

@@ -26,10 +26,12 @@ public:
     FilteredVideoMetadata(std::string filterDefinition = "",
                           Resolution resolution = Resolution(0,0),
                           AVRational sampleAspectRatio = {1,1},
+                          AVPixelFormat pixelFormat = AV_PIX_FMT_NONE,
                           double frameRate = 0);
     std::string filteredDefinition;
     Resolution resolution;
     AVRational sampleAspectRatio;
+    AVPixelFormat pixelFormat;
     double frameRate;
 public:
     bool empty() const { return filteredDefinition.empty(); }
@@ -50,6 +52,8 @@ public:
   AVRational sampleAspectRatio;
   Resolution filteredResolution;
   AVRational filteredSampleAspectRatio;
+  AVPixelFormat filteredPixelFormat;
+  std::string filteredPixelFormatStr;
   FilteredVideoMetadata filteredVideoMetadata;
   int bitrate;
   double frameRate;

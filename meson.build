@@ -146,6 +146,7 @@ sources = [
   'src/ui/SDLVideoTextures.cc',
   'src/ui/VideoTextures.cc',
   'src/ui/opengl/OpenGLUtils.cc',
+  'src/ui/opengl/TextureRenderer.cc',
   'src/vmaf/VmafLog.cc',
   'src/workers/DecoderWorker.cc',
   'src/workers/FrameBuffer.cc',

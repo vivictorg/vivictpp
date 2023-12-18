@@ -50,6 +50,9 @@ VideoMetadata::VideoMetadata(
       filteredResolution(filteredVideoMetadata.empty() ? resolution : filteredVideoMetadata.resolution),
       filteredSampleAspectRatio(
               filteredVideoMetadata.empty() ? sampleAspectRatio : filteredVideoMetadata.sampleAspectRatio),
+      filteredPixelFormat(filteredVideoMetadata.empty() ? (AVPixelFormat) videoStream->codecpar->format :
+                            filteredVideoMetadata.pixelFormat),
+      filteredPixelFormatStr(std::string(av_get_pix_fmt_name(filteredPixelFormat))),
       filteredVideoMetadata(filteredVideoMetadata),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
@@ -105,8 +108,10 @@ std::string VideoMetadata::toString() const {
 FilteredVideoMetadata::FilteredVideoMetadata(std::string filterDefinition ,
                                              Resolution resolution,
                                              AVRational sampleAspectRatio,
+                                             AVPixelFormat pixelFormat,
                                              double frameRate):
   filteredDefinition(filterDefinition),
   resolution(resolution),
   sampleAspectRatio(zeroSafeRational(sampleAspectRatio)),
+  pixelFormat(pixelFormat),
   frameRate(frameRate) {}

@@ -201,9 +201,10 @@ void vivictpp::libav::VideoFilter::configure() {
 FilteredVideoMetadata vivictpp::libav::VideoFilter::getFilteredVideoMetadata() {
     int w = av_buffersink_get_w(bufferSinkCtx);
     int h = av_buffersink_get_h(bufferSinkCtx);
+    AVPixelFormat pixelFormat = static_cast<AVPixelFormat>(av_buffersink_get_format(bufferSinkCtx));
     double frameRate = av_q2d(av_buffersink_get_frame_rate(bufferSinkCtx));
     AVRational sampleAspectRatio = av_buffersink_get_sample_aspect_ratio(bufferSinkCtx);
-    return FilteredVideoMetadata(definition, Resolution(w,h), sampleAspectRatio, frameRate);
+    return FilteredVideoMetadata(definition, Resolution(w,h), sampleAspectRatio, pixelFormat, frameRate);
 }
 
 vivictpp::libav::AudioFilter::AudioFilter(AVCodecContext *codecContext, std::string definition) :
