@@ -231,14 +231,14 @@ void vivictpp::imgui::VivictPPImGui::run() {
     handleActions(fileDialog.draw());
     if (videoPlayback.getPlaybackState().ready) {
       handleActions(controls.draw(videoPlayback.getPlaybackState(), displayState));
-      int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
-      if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
-        displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
-        imGuiSDL.updateTextures(displayState);
-      }
-      displayState.pts = videoPlayback.getPlaybackState().pts;
-      displayState.isPlaying = videoPlayback.isPlaying();
-      videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
+        int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
+        if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
+            displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+            imGuiSDL.updateTextures(displayState);
+        }
+        displayState.pts = videoPlayback.getPlaybackState().pts;
+        displayState.isPlaying = videoPlayback.isPlaying();
+        videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
     } else {
       drawSplash();
     }

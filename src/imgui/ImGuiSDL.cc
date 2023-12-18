@@ -169,6 +169,7 @@ void vivictpp::imgui::ImGuiSDL::render() {
  ImGui::EndFrame();
  */
     ImGuiIO& io = ImGui::GetIO();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
     glClearColor(CLEAR_COLOR.x * CLEAR_COLOR.w, CLEAR_COLOR.y * CLEAR_COLOR.w, CLEAR_COLOR.z * CLEAR_COLOR.w, CLEAR_COLOR.w);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -183,9 +184,11 @@ void vivictpp::imgui::ImGuiSDL::updateTextures(const ui::DisplayState &displaySt
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
     auto videoTextures = openGLVideoTextures.getVideoTextures();
+    /*
   SDL_DisplayMode DM;
   SDL_GetCurrentDisplayMode(0, &DM);
   SDL_SetWindowSize(window, std::min(DM.w, videoTextures.nativeResolution.w), std::min(DM.h, 20 + videoTextures.nativeResolution.h));
+     */
 
 }
 

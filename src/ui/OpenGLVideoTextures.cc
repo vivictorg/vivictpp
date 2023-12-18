@@ -93,9 +93,7 @@ vivictpp::ui::YuvRenderer::YuvRenderer(const VideoMetadata &videoMetadata, GLenu
     idY = glGetUniformLocation(programId, "s_texture_y");
     idU = glGetUniformLocation(programId, "s_texture_u");
     idV = glGetUniformLocation(programId, "s_texture_v");
-    idYScaleFactor = glGetUniformLocation(programId, "yScaleFactor");
-    idUScaleFactor = glGetUniformLocation(programId, "uScaleFactor");
-    idVScaleFactor = glGetUniformLocation(programId, "vScaleFactor");
+    idYScaleFactor = glGetUniformLocation(programId, "scaleFactor");
 }
 
 vivictpp::ui::YuvRenderer::~YuvRenderer() {
@@ -125,9 +123,6 @@ void vivictpp::ui::YuvRenderer::render(glm::mat4 &MVP, GLuint vertexbuffer, GLui
     glUniform1i(idU, 1);
     glUniform1i(idV, 2);
     glUniform1f(idYScaleFactor, scaleFactor);
-    glUniform1f(idUScaleFactor, scaleFactor);
-    glUniform1f(idVScaleFactor, scaleFactor);
-
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform
