@@ -91,6 +91,13 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
 
+    // Initialize GLEW
+    glewExperimental = true; // Needed for core profile
+    if (glewInit() != GLEW_OK) {
+        //fprintf(stderr, "Failed to initialize GLEW\n");
+        //return -1;
+        //TODO: Handle error
+    }
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -171,14 +178,15 @@ void vivictpp::imgui::ImGuiSDL::render() {
 
 void vivictpp::imgui::ImGuiSDL::updateTextures(const ui::DisplayState &displayState) {
     //videoTextures.update(renderer, displayState);
+    openGLVideoTextures.update(displayState);
 }
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
-    /*
+    auto videoTextures = openGLVideoTextures.getVideoTextures();
   SDL_DisplayMode DM;
   SDL_GetCurrentDisplayMode(0, &DM);
   SDL_SetWindowSize(window, std::min(DM.w, videoTextures.nativeResolution.w), std::min(DM.h, 20 + videoTextures.nativeResolution.h));
-    */
+
 }
 
 bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {

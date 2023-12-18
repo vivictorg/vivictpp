@@ -6,22 +6,21 @@
 #define VIVICTPP_UI_VIDEOTEXTURES_HH_
 
 #include "Resolution.hh"
-#include "sdl/SDLUtils.hh"
-#include "ui/DisplayState.hh"
+#include "imgui.h"
+
+
 
 namespace vivictpp::ui {
+    class DisplayState;
 
-  class VideoTextures {
-  public:
-    vivictpp::sdl::SDLTexture leftTexture;
-    vivictpp::sdl::SDLTexture rightTexture;
-    Resolution nativeResolution;
-  public:
-    bool update(SDL_Renderer *renderer, const DisplayState &displayState);
-  private:
-    bool initTextures(SDL_Renderer *renderer, const DisplayState &displayState);
-    int videoMetadataVersion{-1};
-  };
+    struct VideoTextures {
+        ImTextureID leftTexture;
+        ImTextureID rightTexture;
+        Resolution nativeResolution;
+    };
+
+    Resolution getNativeResolution(const DisplayState &displayState);
+
 }  // namespace vivictpp::ui
 
 

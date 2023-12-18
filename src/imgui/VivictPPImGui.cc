@@ -154,7 +154,8 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
 
     ImVec2 uvMax((scrollX + splitX - pad.x) / scaledVideoSize.x ,1);
     ImVec2 p2(pad.x + scaledVideoSize.x - scrollX, pad.y + scaledVideoSize.y - scrollY);
-    ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t) videoTextures.leftTexture.get(),
+    //spdlog::warn("textureId: {}", videoTextures.leftTexture);
+    ImGui::GetWindowDrawList()->AddImage(videoTextures.leftTexture,
                                          drawPos, p2 /*, uvMin, uvMax*/);
 
     if (!displayState.splitScreenDisabled) {
@@ -162,7 +163,7 @@ void vivictpp::imgui::VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextur
       drawPos.x = splitX;
       uvMin.x = uvMax.x;
       uvMax.x = 1.0; //(scrollX + viewSize.x) / scaledVideoSize.x;
-      ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t) videoTextures.rightTexture.get(),
+      ImGui::GetWindowDrawList()->AddImage(videoTextures.rightTexture,
                                            drawPos, p2, uvMin, uvMax);
       ImGui::GetWindowDrawList()->AddLine({splitX, pad.y}, {splitX, pad.y + scaledVideoSize.y}, 0x80FFFFFF, 0.5);
     }

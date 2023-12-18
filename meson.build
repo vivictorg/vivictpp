@@ -13,6 +13,7 @@ catch2_proj = subproject('catch2', default_options: 'warning_level=0')
 zlib_proj = subproject('zlib', default_options: 'warning_level=0')
 freetype2_proj = subproject('freetype2', default_options: 'warning_level=0')
 platformfolders_proj = subproject('platformfolders', default_options: 'warning_level=0')
+glm_proj = subproject('glm', default_options: 'warning_level=0')
 
 if build_machine.system() == 'windows'
 
@@ -67,6 +68,7 @@ deps = [
   #  freetype2_proj.get_variable('freetype2_dep'),
   dependency('threads'),
   dependency('gl'),
+  dependency('glew'),
   libavformat_dep,
   libavcodec_dep,
   libavutil_dep,
@@ -76,7 +78,8 @@ deps = [
   spdlog_proj.get_variable('spdlog_dep'),
   cli11_proj.get_variable('CLI11_dep'),
   fmt_proj.get_variable('fmt_dep'),
-  platformfolders_proj.get_variable('platformfolders_dep')
+  platformfolders_proj.get_variable('platformfolders_dep'),
+  glm_proj.get_variable('glm_dep'),
 #  sdl2_image_proj.get_variable('sdl2_image_dep')        
 ]
 
@@ -139,7 +142,10 @@ sources = [
   'src/sdl/SDLUtils.cc',
   'src/time/TimeUtils.cc',
   'src/ui/FontSize.cc',
+  'src/ui/OpenGLVideoTextures.cc',
+  'src/ui/SDLVideoTextures.cc',
   'src/ui/VideoTextures.cc',
+  'src/ui/opengl/OpenGLUtils.cc',
   'src/vmaf/VmafLog.cc',
   'src/workers/DecoderWorker.cc',
   'src/workers/FrameBuffer.cc',

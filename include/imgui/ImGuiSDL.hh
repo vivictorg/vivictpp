@@ -9,6 +9,8 @@
 #include "Settings.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/VideoTextures.hh"
+#include "ui/SDLVideoTextures.hh"
+#include "ui/OpenGLVideoTextures.hh"
 #include "VivictPPConfig.hh"
 #include <vector>
 #include <memory>
@@ -26,7 +28,8 @@ private:
   SDL_Window *window;
   sdl::SDLRenderer rendererPtr;
   SDL_Renderer *renderer;
-  vivictpp::ui::VideoTextures videoTextures;
+  vivictpp::ui::SDLVideoTextures sdlVideoTextures;
+  vivictpp::ui::OpenGLVideoTextures openGLVideoTextures;
   bool fullscreen{false};
   std::filesystem::path iniFilename;
   std::string iniFilenameStr;
@@ -37,7 +40,7 @@ public:
   ~ImGuiSDL();
   void newFrame();
   void updateTextures(const ui::DisplayState &displayState);
-  vivictpp::ui::VideoTextures &getVideoTextures() { return videoTextures; }
+  vivictpp::ui::VideoTextures &getVideoTextures() { return openGLVideoTextures.getVideoTextures(); }
   void fitWindowToTextures();
   bool isWindowClose(SDL_Event &event);
   std::vector<std::shared_ptr<Event>> handleEvents();
