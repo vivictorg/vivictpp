@@ -156,12 +156,13 @@ void VideoInputs::stepBackward(vivictpp::time::Time pts) {
 }
 
 void VideoInputs::dropIfFullAndNextOutOfRange(vivictpp::time::Time currentPts, int framesToDrop) {
-  if (currentPts >= leftInput.decoder->frames().maxPts() - leftPtsOffset) {
+  if (currentPts == vivictpp::time::NO_TIME || currentPts >= leftInput.decoder->frames().maxPts() - leftPtsOffset) {
     leftInput.decoder->frames().dropIfFull(framesToDrop);
   }
-  if (rightInput.decoder &&
-      ( currentPts >= rightInput.decoder->frames().maxPts())) {
-    rightInput.decoder->frames().dropIfFull(framesToDrop);
+    if (rightInput.decoder &&
+        (currentPts == vivictpp::time::NO_TIME ||
+         currentPts >= rightInput.decoder->frames().maxPts())) {
+        rightInput.decoder->frames().dropIfFull(framesToDrop);
   }
 }
 

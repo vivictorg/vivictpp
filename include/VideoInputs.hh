@@ -82,7 +82,7 @@ public:
     vivictpp::time::Time duration();
     vivictpp::time::Time startTime();
     vivictpp::time::Time frameDuration() {
-      if (hasLeftSource()) {
+      if (!hasLeftSource()) {
         return vivictpp::time::NO_TIME;
       }
       vivictpp::time::Time frameDuration = metadata()[0][0].frameDuration;

@@ -57,6 +57,7 @@ VideoMetadata::VideoMetadata(
                                videoStream->r_frame_rate.num)),
       startTime(getStartTime(videoStream)),
       duration(formatContext->duration), // allready in av_time_base
+      // endTime is aproximate pts of last frame
       endTime(startTime - frameDuration + duration),
       codec(avcodec_get_name(videoStream->codecpar->codec_id)),
       _empty(false) { }

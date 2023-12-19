@@ -72,6 +72,8 @@ public:
     maxDataQueueSize(maxDataQueueSize) {}
   bool empty();
   bool offerData(const Data<T> &data, const std::chrono::milliseconds& timeout);
+  // pushData will ignore queue capacity
+  void pushData(const Data<T> &data);
   bool waitForCommand(const std::chrono::milliseconds& timeout);
   void clearDataOlderThan(uint64_t serialNo);
   void pushCommand(Command* command);
@@ -95,6 +97,12 @@ bool Queue<T>::offerData(const Data<T> &data,
     return true;
   }
   return false;
+}
+
+template <class T>
+void Queue<T>::pushData(const Data<T> &data) {
+  std::lock_guard<std::mutex> lock(mutex);
+  dataQueue.push(std::shared_ptr<Data<T>>(new Data<T>(data)));
 }
 
 template <class T>

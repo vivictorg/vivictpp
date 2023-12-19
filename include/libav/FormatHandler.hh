@@ -42,6 +42,7 @@ public:
   void setStreamActive(int streamIndex);
   void setStreamInactive(int streamIndex);
   void setActiveStreams(const std::set<int> &activeStreams);
+  bool eof() { return _eof; }
 
 public:
   AVFormatContext *formatContext;
@@ -55,6 +56,7 @@ private:
   std::vector<AVStream *> audioStreams;
   std::vector<AVStream *> streams;
   std::set<int> activeStreams;
+  bool _eof{false};
 };
 
 }  // namespace libav

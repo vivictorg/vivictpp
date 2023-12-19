@@ -133,6 +133,7 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
   if (stream == nullptr) {
     return;
   }
+  _eof = false;
   vivictpp::time::Time seek_t = t;
   int flags = 0;
   /*
@@ -166,14 +167,16 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
 AVPacket *vivictpp::libav::FormatHandler::nextPacket() {
   vivictpp::libav::AVResult ret;
   while ((ret = av_read_frame(this->formatContext, this->packet)).success()) {
-      logger->debug("FormatHandler::nextPacket  Got packet: dts={} stream_index={} keyframe={}",
-                    this->packet->dts, this->packet->stream_index, this->packet->flags & AV_PKT_FLAG_KEY);
+      logger->debug("FormatHandler::nextPacket  Got packet: pts={} dts={} stream_index={} keyframe={}",
+                    this->packet->pts, this->packet->dts, this->packet->stream_index, this->packet->flags &
+                    AV_PKT_FLAG_KEY);
     if (activeStreams.find(packet->stream_index) != activeStreams.end()) {
       return this->packet;
     }
   }
   if (ret.eof()) {
-    return nullptr;
+      this->_eof = true;
+      return nullptr;
   } else {
     throw std::runtime_error("av_read_frame returned error: " + ret.getMessage());
   }

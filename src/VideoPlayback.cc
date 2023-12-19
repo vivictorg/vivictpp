@@ -146,7 +146,7 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
       return false;
     }
 //    logger->debug("checkAdvanceFrame playbackState.seeking=true, seekEndPos={}", seekState.seekEndPos);
-    if (seekState.seekEndPos - seekState.seekTarget > 1000) {
+    if (!videoInputs.ptsInRange(seekState.seekTarget) && seekState.seekEndPos - seekState.seekTarget > 1000) {
       logger->debug("seekEndPos={} seekTarget={}", seekState.seekEndPos, seekState.seekTarget);
       // In some circumstances, for instance if steeping back one frame from an iframe
       // Seeking may not work due to av_seek_frame apperantly seeking on packet dts
@@ -196,10 +196,16 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
   vivictpp::time::Time nextPts = videoInputs.nextPts();
   vivictpp::time::Time nextDisplayPts = playbackStartPts + speedFactorDen *
                                         (nextPresent - t0) / speedFactorNum;
+  if (nextDisplayPts > videoInputs.maxPts()) {
+      nextDisplayPts = videoInputs.maxPts();
+  }
   if (videoInputs.ptsInRange(nextPts)) {
     if (nextDisplayPts >= nextPts) {
-      while( nextDisplayPts >= nextPts) {
+      while( nextDisplayPts >= nextPts && videoInputs.ptsInRange(nextPts)) {
         advanceFrame(nextPts);
+        if (std::abs(nextPts - videoInputs.maxPts()) < 1000) {
+            pause();
+        }
         nextPts = videoInputs.nextPts();
       }
       return true;

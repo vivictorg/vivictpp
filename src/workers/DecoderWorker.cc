@@ -59,6 +59,9 @@ void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos, vivictpp::
           dw->filter->reconfigureOnNextFrame();
         }
         dw->frameBuffer.clear();
+        while (!dw->frameQueue.empty()) {
+            dw->frameQueue.pop();
+        }
         dw->seekPos = pos;
         dw->seekCallback = callback;
         return true;
@@ -68,16 +71,24 @@ void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos, vivictpp::
 void logPacket(vivictpp::libav::Packet pkt, const std::shared_ptr<spdlog::logger> &logger) {
   AVPacket *packet = pkt.avPacket();
   if (packet) {
-    logger->trace("Packet: size={} pts={}", packet->size, packet->pts);
+    logger->debug("Packet: size={} pts={} dts={}", packet->size, packet->pts, packet->dts);
+  } else if (pkt.eof()){
+      logger->debug("Packet: eof");
   } else {
-    logger->trace("Packet: nullptr");
+    logger->debug("Packet: nullptr");
   }
 }
 
 void vivictpp::workers::DecoderWorker::doWork() {
-    logger->trace("vivictpp::workers::DecoderWorker::doWork");
-    while (!frameQueue.empty() && frameBuffer.waitForNotFull(std::chrono::milliseconds(2))) {
-      dropFrameIfSeekingAndBufferFull();
+    logger->trace("vivictpp::workers::DecoderWorker::doWork frameQueue.size={}, frameBuffer.size={},"
+                  " frameBuffer.minPts={}, frameBuffer.maxPts={}", frameQueue.size(), frameBuffer.size(),
+                  frameBuffer.minPts(), frameBuffer.maxPts());
+    while (!frameQueue.empty()) {
+        dropFrameIfSeekingAndBufferFull();
+        if ( !frameBuffer.waitForNotFull(std::chrono::milliseconds(2))) {
+            break;
+        }
+
       addFrameToBuffer(frameQueue.front());
       frameQueue.pop();
     }
@@ -95,21 +106,34 @@ bool vivictpp::workers::DecoderWorker::onData(const vivictpp::workers::Data<vivi
 
   vivictpp::libav::Packet packet = *(data.data);
   logPacket(packet, logger);
-  std::vector<vivictpp::libav::Frame> frames = decoder->handlePacket(packet.avPacket());
-  for (auto frame : frames) {
-    logger->debug("Got frame with pts={}, pkt_dts={}, keyframe={}",
-                  frame->pts, frame->pkt_dts, frame->key_frame);
-    dropFrameIfSeekingAndBufferFull();
-    vivictpp::libav::Frame filtered = filter ? filter->filterFrame(frame) : frame;
-    if (!filtered.empty()) {
-      if (frameBuffer.isFull()) {
-        frameQueue.push(filtered);
-      } else {
-        addFrameToBuffer(filtered);
-      }
-    }
-  }
+  readFrames(packet.eof() ? nullptr : packet.avPacket());
   return true;
+}
+
+void vivictpp::workers::DecoderWorker::readFrames(AVPacket *avPacket) {
+    std::vector<vivictpp::libav::Frame> frames = decoder->handlePacket(avPacket);
+    bool addFramesToQueue = false;
+    for (auto frame : frames) {
+        logger->debug("Got frame with pts={}, pkt_dts={}, keyframe={}",
+                      frame->pts, frame->pkt_dts, frame->key_frame);
+        dropFrameIfSeekingAndBufferFull();
+        vivictpp::libav::Frame filtered = filter ? filter->filterFrame(frame) : frame;
+        if (!filtered.empty()) {
+            // If we start adding frames to queue, we ensure that all following frames are also put in queue
+            // so they are not added to buffer out of order
+            addFramesToQueue = addFramesToQueue || frameBuffer.isFull();
+            if (addFramesToQueue) {
+                frameQueue.push(filtered);
+            } else {
+                addFrameToBuffer(filtered);
+            }
+        }
+    }
+}
+
+void vivictpp::workers::DecoderWorker::onEndOfFile() {
+    messageQueue.pushData(
+            vivictpp::workers::Data<vivictpp::libav::Packet>(new vivictpp::libav::Packet(true)));
 }
 
 void inline vivictpp::workers::DecoderWorker::dropFrameIfSeekingAndBufferFull() {
@@ -120,7 +144,7 @@ void inline vivictpp::workers::DecoderWorker::dropFrameIfSeekingAndBufferFull() 
 }
 
 void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::Frame &frame) {
-    logger->debug("pts={} AV_NOPTS_VALUE={}", frame.pts(), AV_NOPTS_VALUE);
+    logger->trace("pts={} AV_NOPTS_VALUE={}", frame.pts(), AV_NOPTS_VALUE);
     vivictpp::time::Time pts = frame.pts();
     if (pts == AV_NOPTS_VALUE) {
       if (lastSeenPts == AV_NOPTS_VALUE) {
@@ -128,12 +152,12 @@ void vivictpp::workers::DecoderWorker::addFrameToBuffer(const vivictpp::libav::F
       } else {
         pts = lastSeenPts + av_rescale(vivictpp::time::TIME_BASE, stream->r_frame_rate.den, stream->r_frame_rate.num);
       }
-      logger->warn("DecoderWorker::doWork Frame has no pts, estimating pts {}", pts);
+      logger->warn("DecoderWorker::addFrameToBuffer Frame has no pts, estimating pts {}", pts);
     } else {
       pts = av_rescale_q(pts, stream->time_base, vivictpp::time::TIME_BASE_Q);
     }
     lastSeenPts = pts;
-    logger->debug("DecoderWorker::doWork Buffering frame with pts={}s ({})",
+    logger->debug("DecoderWorker::addFrameToBuffer Buffering frame with pts={}s ({})",
                   pts, frame.pts());
     frameBuffer.write(frame, pts);
     if(seeking()) {

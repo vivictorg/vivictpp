@@ -50,30 +50,40 @@ void  vivictpp::workers::PacketWorker::initVideoMetadata() {
 }
 
 void vivictpp::workers::PacketWorker::doWork() {
-  if (decoderWorkers.empty()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-     return;
-  }
-  logger->trace("vivictpp::workers::PacketWorker::doWork  enter");
-  if (currentPacket == nullptr) {
-    currentPacket = formatHandler.nextPacket();
-  }
-  if (currentPacket == nullptr) {
-    logger->trace("Packet is null, eof reached");
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-  } else {
-    for (auto dw : decoderWorkers) {
-      // if any decoder wanted the packet but cannot accept it at this time,
-      // we keep the packet and try again later
-        vivictpp::workers::Data<vivictpp::libav::Packet> data(
-          new vivictpp::libav::Packet(currentPacket));
-      if (!dw->offerData(data, std::chrono::milliseconds(2))) {
+    if (decoderWorkers.empty()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
         return;
-      }
     }
-    unrefCurrentPacket();
-  }
-  logger->trace("vivictpp::workers::PacketWorker::doWork  exit");
+    logger->trace("vivictpp::workers::PacketWorker::doWork  enter");
+    if (currentPacket == nullptr && formatHandler.eof()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        return;
+    }
+    if (currentPacket == nullptr) {
+        currentPacket = formatHandler.nextPacket();
+        if (currentPacket != nullptr) {
+            logger->debug("Read packet with pts={}", currentPacket->pts);
+        }
+        if (formatHandler.eof()) {
+            logger->debug("End of file reached");
+            for (auto dw : decoderWorkers) {
+                dw->onEndOfFile();
+            }
+        }
+    }
+    if (currentPacket != nullptr) {
+        for (auto dw : decoderWorkers) {
+            // if any decoder wanted the packet but cannot accept it at this time,
+            // we keep the packet and try again later
+            vivictpp::workers::Data<vivictpp::libav::Packet> data(
+                    new vivictpp::libav::Packet(currentPacket));
+            if (!dw->offerData(data, std::chrono::milliseconds(2))) {
+                return;
+            }
+        }
+        unrefCurrentPacket();
+    }
+    logger->trace("vivictpp::workers::PacketWorker::doWork  exit");
 }
 
 void vivictpp::workers::PacketWorker::setActiveStreams() {

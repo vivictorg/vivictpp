@@ -141,24 +141,24 @@ bool vivictpp::workers::FrameBuffer::previous() {
 }
 
 bool vivictpp::workers::FrameBuffer::next() {
-  int dropN = 0;
-  bool result = false;
-  {
-    const std::lock_guard<std::mutex> lock(mutex);
+    int dropN = 0;
+    bool result = false;
+    {
+        const std::lock_guard<std::mutex> lock(mutex);
 
-    if (_size > 1 && _cursor + 1 != _writePos) {
-      _cursor = _cursor + 1;
-      int distance = _cursor.distance(_writePos);
-      if (_size == _maxSize && distance < 5) {
-        dropN = 5 - distance;
-      }
-      result = true;
+        if (_size > 1 && _cursor + 1 != _writePos) {
+            _cursor = _cursor + 1;
+            int distance = _cursor.distance(_writePos);
+            if (_size == _maxSize && distance < 5) {
+                dropN = 5 - distance;
+            }
+            result = true;
+        }
     }
-  }
-  if (dropN > 0) {
-    drop(dropN);
-  }
-  return result;
+    if (dropN > 0) {
+        drop(dropN);
+    }
+    return result;
 }
 
 void vivictpp::workers::FrameBuffer::step(vivictpp::time::Time pts) {
@@ -237,7 +237,9 @@ void vivictpp::workers::FrameBuffer::_drop(int n) {
     if (_cursor == this->tail()) {
       _cursor = _cursor + 1;
     }
-    queue[this->tail().getValue()] = vivictpp::libav::Frame::emptyFrame();
+    auto clearPos = this->tail().getValue();
+    queue[clearPos] = vivictpp::libav::Frame::emptyFrame();
+    ptsBuffer[clearPos] = vivictpp::time::NO_TIME;
     _size--;
   }
 }

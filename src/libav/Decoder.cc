@@ -178,7 +178,7 @@ std::vector<vivictpp::libav::Frame> vivictpp::libav::Decoder::handlePacket(Packe
   logger->trace("handlePacket");
   vivictpp::libav::AVResult ret = avcodec_send_packet(this->codecContext.get(),
                                                       packet.avPacket());
-  if (ret.error()) {
+  if (ret.error() && !ret.eof()) {
     throw std::runtime_error(std::string("Send packet failed: ") + ret.getMessage());
   }
   std::vector<Frame> result;
@@ -186,10 +186,10 @@ std::vector<vivictpp::libav::Frame> vivictpp::libav::Decoder::handlePacket(Packe
     result.push_back(nextFrame);
     nextFrame.reset();
   }
-  if (ret.error() && !ret.eagain()) {
-    throw std::runtime_error(std::string("Receive frame failed: ") + ret.getMessage());
+  if (ret.success() || ret.eof() || ret.eagain()) {
+      return result;
   }
-  return result;
+  throw std::runtime_error(std::string("Receive frame failed: ") + ret.getMessage());
 }
 
 static const std::vector<AVPixelFormat> preferredPixelFormats = {AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUV420P10, AV_PIX_FMT_NV12, AV_PIX_FMT_P010};

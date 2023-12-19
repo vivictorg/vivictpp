@@ -16,6 +16,9 @@ vivictpp::libav::Packet::Packet():
 vivictpp::libav::Packet::Packet(AVPacket *pkt):
   packet(pkt ? av_packet_clone(pkt) : pkt, &freePacket) {}
 
+  vivictpp::libav::Packet::Packet(bool _eof):
+  _eof(_eof) {}
+
 AVPacket* vivictpp::libav::Packet::avPacket() {
   return packet.get();
 }

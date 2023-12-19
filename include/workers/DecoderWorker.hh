@@ -45,6 +45,7 @@ public:
     return FilteredVideoMetadata();
   }
   const vivictpp::libav::DecoderMetadata &getDecoderMetadata() { return decoder->getMetadata(); }
+  void onEndOfFile();
 public:
   const int streamIndex;
 private:
@@ -56,6 +57,7 @@ private:
   void dropFrameIfSeekingAndBufferFull();
   bool seeking() { return state == InputWorkerState::SEEKING; }
   void addFrameToBuffer(const vivictpp::libav::Frame &frame);
+  void readFrames(AVPacket *avPacket);
 
 private:
   AVStream *stream;
