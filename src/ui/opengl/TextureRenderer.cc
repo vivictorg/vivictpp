@@ -58,8 +58,8 @@ std::unique_ptr<vivictpp::ui::opengl::TextureRenderer> vivictpp::ui::opengl::cre
 
     switch (videoMetadata.filteredPixelFormat) {
         case AV_PIX_FMT_YUV420P:
-//            return std::make_unique<YUV420TextureRenderer>(mvp, vertexbuffer, uvbuffer, videoMetadata,
-//            startTextureUnit,                                                           render10bit);
+            return std::make_unique<YUV420TextureRenderer>(mvp, vertexbuffer, uvbuffer, videoMetadata,
+                                                           startTextureUnit, render10bit);
         case AV_PIX_FMT_NV12:
             return std::make_unique<NV12TextureRenderer>(mvp, vertexbuffer, uvbuffer, videoMetadata,startTextureUnit,
                                                          render10bit);

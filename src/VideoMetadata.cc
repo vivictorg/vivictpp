@@ -64,6 +64,28 @@ VideoMetadata::VideoMetadata(
       codec(avcodec_get_name(videoStream->codecpar->codec_id)),
       _empty(false) { }
 
+VideoMetadata::VideoMetadata(const VideoMetadata &other, const FilteredVideoMetadata &filteredVideoMetadata) :
+        source (other.source),
+      pixelFormat(other.pixelFormat),
+      streamIndex(other.streamIndex),
+      resolution(other.resolution),
+      sampleAspectRatio(other.sampleAspectRatio),
+      filteredResolution(filteredVideoMetadata.empty() ? resolution : filteredVideoMetadata.resolution),
+      filteredSampleAspectRatio(
+              filteredVideoMetadata.empty() ? sampleAspectRatio : filteredVideoMetadata.sampleAspectRatio),
+      filteredPixelFormat(filteredVideoMetadata.empty() ? av_get_pix_fmt(other.pixelFormat.c_str()) :
+                            filteredVideoMetadata.pixelFormat),
+      filteredPixelFormatStr(other.filteredPixelFormatStr),
+      filteredVideoMetadata(filteredVideoMetadata),
+      bitrate(other.bitrate),
+      frameRate(other.frameRate),
+      frameDuration(other.frameDuration),
+      startTime(other.startTime),
+      duration(other.duration), // allready in av_time_base
+      endTime(other.endTime),
+      codec(other.codec),
+      _empty(false) { }
+
 std::string VideoMetadata::resolutionAsString() const {
   std::ostringstream oss;
   oss << std::left << this->filteredResolution.w << "x"

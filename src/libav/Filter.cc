@@ -107,6 +107,7 @@ vivictpp::libav::VideoFilter::VideoFilter(AVStream *videoStream, AVCodecContext 
 }
 
 vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(const vivictpp::libav::Frame &inFrame) {
+
   if (inFrame.avFrame()->format != formatParameters.pixelFormat || reconfigure) {
     reconfigure = false;
     AVPixelFormat newFormat = (AVPixelFormat) inFrame.avFrame()->format;
@@ -114,8 +115,12 @@ vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(const vivictpp:
     formatParameters.pixelFormat = newFormat;
     formatParameters.hwFramesContext = inFrame.avFrame()->hw_frames_ctx;
     configure();
+    Frame frame = Filter::filterFrame(inFrame);
+    frame.setUpdatedFilteredMetadata(getFilteredVideoMetadata());
+    return frame;
+  } else {
+      return Filter::filterFrame(inFrame);
   }
-  return Filter::filterFrame(inFrame);
 }
 
 

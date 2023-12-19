@@ -19,6 +19,7 @@ namespace vivictpp::libav {
 class Frame {
 private:
   std::shared_ptr<AVFrame> frame;
+  std::shared_ptr<FilteredVideoMetadata> updatedFilteredMetadata;
 public:
   Frame();
   Frame(const Frame &frame);
@@ -43,6 +44,17 @@ public:
       return { '?', 0, 0 };
     }
   }
+  void setUpdatedFilteredMetadata(const FilteredVideoMetadata &filteredVideoMetadata) {
+      updatedFilteredMetadata.reset(new FilteredVideoMetadata(filteredVideoMetadata));
+  }
+
+  bool hasUpdatedFilteredMetadata() { return updatedFilteredMetadata != nullptr; }
+
+    FilteredVideoMetadata getAndResetUpdatedFilteredMetadata() {
+        auto filteredVideoMetadata = *updatedFilteredMetadata;
+        //updatedFilteredMetadata.reset();
+        return filteredVideoMetadata;
+    }
   Frame transferHwData(AVPixelFormat swPixelFormat);
 private:
   Frame(AVFrame *avFrame);

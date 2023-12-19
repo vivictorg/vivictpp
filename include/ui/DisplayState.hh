@@ -89,6 +89,14 @@ struct DisplayState {
   void updateFrames(std::array<vivictpp::libav::Frame, 2> frames) {
     leftFrame = frames[0];
     rightFrame = frames[1];
+    if (leftFrame.hasUpdatedFilteredMetadata()) {
+        leftVideoMetadata = VideoMetadata(leftVideoMetadata, leftFrame.getAndResetUpdatedFilteredMetadata());
+        videoMetadataVersion++;
+    }
+    if (rightFrame.hasUpdatedFilteredMetadata()) {
+        rightVideoMetadata = VideoMetadata(rightVideoMetadata, rightFrame.getAndResetUpdatedFilteredMetadata());
+        videoMetadataVersion++;
+    }
   };
 
   void updateMetadata(std::array<std::vector<VideoMetadata>, 2> metadata) {
