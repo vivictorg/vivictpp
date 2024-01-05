@@ -58,6 +58,7 @@ std::unique_ptr<vivictpp::ui::opengl::TextureRenderer> vivictpp::ui::opengl::cre
 
     switch (videoMetadata.filteredPixelFormat) {
         case AV_PIX_FMT_YUV420P:
+        case AV_PIX_FMT_YUV420P10LE:
             return std::make_unique<YUV420TextureRenderer>(mvp, vertexbuffer, uvbuffer, videoMetadata,
                                                            startTextureUnit, render10bit);
         case AV_PIX_FMT_NV12:
@@ -261,7 +262,7 @@ void vivictpp::ui::opengl::YUV420TextureRenderer::render(const vivictpp::libav::
     glUniform1i(idY, 0);
     glUniform1i(idU, 1);
     glUniform1i(idV, 2);
-    glUniform1f(idScaleFactor, 1.0);
+    glUniform1f(idScaleFactor, render10bit ? 32.0 : 1.0);
 
     // Send our transformation to the currently bound shader,
     // in the "MVP" uniform

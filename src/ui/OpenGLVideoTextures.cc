@@ -216,14 +216,15 @@ bool vivictpp::ui::OpenGLVideoTextures::initTextures(const vivictpp::ui::Display
     if (videoMetadataVersion == displayState.videoMetadataVersion)
         return false;
     videoTextures.nativeResolution = getNativeResolution(displayState);
+    bool render10bit = true;
     leftTextureRenderer =
-            vivictpp::ui::opengl::createTextureRenderer(displayState.leftVideoMetadata, GL_TEXTURE0, false);
+            vivictpp::ui::opengl::createTextureRenderer(displayState.leftVideoMetadata, GL_TEXTURE0, render10bit);
     videoTextures.leftTexture = static_cast<ImTextureID>((void*) leftTextureRenderer->getRenderedTextureId());
     if (!displayState.rightVideoMetadata.empty()) {
         rightTextureRenderer =
                 vivictpp::ui::opengl::createTextureRenderer(displayState.rightVideoMetadata,
                                                             GL_TEXTURE0 + leftTextureRenderer->getTextureUnitCount(),
-                                                                                                                false);
+                                                                                                                render10bit);
         videoTextures.rightTexture = static_cast<ImTextureID>((void*) rightTextureRenderer->getRenderedTextureId());
     }
     return true;

@@ -132,7 +132,7 @@ void vivictpp::libav::VideoFilter::configure() {
 
 
   AVPixelFormat hwDownloadFormat = AV_PIX_FMT_NONE;
-  AVPixelFormat outputFormat = AV_PIX_FMT_YUV420P;
+  AVPixelFormat outputFormat = AV_PIX_FMT_YUV420P10LE;
   std::string hwFilter = "";
 
   std::string filterStr;

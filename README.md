@@ -66,7 +66,7 @@ You can also download the installer from a prerelase if you want to try out the 
 
 $ apt-get --fix-missing install -y cmake python3-pip gcc python3-setuptools \
   python3-wheel libfreetype6-dev libavformat-dev libavcodec-dev \
-  libavfilter-dev libswscale-dev pkg-config
+  libavfilter-dev libswscale-dev pkg-config libglew-dev
 
 ```
 

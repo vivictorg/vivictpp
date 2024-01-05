@@ -84,7 +84,12 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    //SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 10);
+    //SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 10);
+    //SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 10);
+    glDisable(GL_DITHER);
+    // glGetIntegerv( GL_RED_BITS, &BitSize );
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI );
     window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
     windowPtr.reset(window);
     gl_context = SDL_GL_CreateContext(window);
@@ -128,6 +133,9 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
     scaleRenderer = false;
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 10);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 10);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 10);
   // Dont't scale fonts in relation to dpi if we are scaling the renderer
   vivictpp::ui::FontSize::setScaling(!scaleRenderer && !settings.disableFontAutoScaling,
                                          settings.baseFontSize / 13.0f);
