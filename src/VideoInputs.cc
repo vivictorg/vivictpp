@@ -24,7 +24,7 @@ int SeekState::reset(int nSeeks, vivictpp::SeekCallback onFinished) {
   return seekId;
 }
 
-void SeekState::handleSeekFinished(int seekId, int seekPos, bool error) {
+void SeekState::handleSeekFinished(int seekId, vivictpp::time::Time seekPos, bool error) {
   std::lock_guard<std::mutex> lg(m);
   if(seekId != this->seekId) return;
   seekEndPos.push_back(seekPos);

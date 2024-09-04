@@ -35,7 +35,7 @@ class SeekState {
 public:
     SeekState();
     int reset(int nSeeks, vivictpp::SeekCallback onFinished);
-    void handleSeekFinished(int seekId, int seekPos, bool error);
+    void handleSeekFinished(int seekId, vivictpp::time::Time seekPos, bool error);
 
 private:
     int seekId{1}; // Used to ignore obsolete callbacks from previos seek operations

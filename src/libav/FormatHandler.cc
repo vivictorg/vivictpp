@@ -67,7 +67,7 @@ vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string
   }
 
   // Dump information about file onto standard error
-  //  av_dump_format(formatContext, 0, this->inputFile.c_str(), 0);
+  //av_dump_format(formatContext, 0, this->inputFile.c_str(), 0);
 
   for (unsigned int i = 0; i < this->formatContext->nb_streams; i++) {
     this->streams.push_back(this->formatContext->streams[i]);

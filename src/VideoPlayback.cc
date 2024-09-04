@@ -15,7 +15,7 @@ int vivictpp::VideoPlayback::SeekState::seekStart(vivictpp::time::Time seekTarge
 };
 
 void vivictpp::VideoPlayback::SeekState::seekFinished(int seekId, vivictpp::time::Time pos, bool err) {
-  spdlog::debug("Seek finished");
+  spdlog::info("Seek finished, pos={}, err={}", pos, err);
   std::lock_guard<std::mutex> lg(m);
   if (seekId != currentSeekId) {
     return;
@@ -146,8 +146,8 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
       return false;
     }
 //    logger->debug("checkAdvanceFrame playbackState.seeking=true, seekEndPos={}", seekState.seekEndPos);
+    logger->debug("seekEndPos={} seekTarget={}", seekState.seekEndPos, seekState.seekTarget);
     if (!videoInputs.ptsInRange(seekState.seekTarget) && seekState.seekEndPos - seekState.seekTarget > 1000) {
-      logger->debug("seekEndPos={} seekTarget={}", seekState.seekEndPos, seekState.seekTarget);
       // In some circumstances, for instance if steeping back one frame from an iframe
       // Seeking may not work due to av_seek_frame apperantly seeking on packet dts
       // Which may be slightly lower than seek dts we calculate. Therefore, retry seek
