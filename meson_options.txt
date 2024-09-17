@@ -1,4 +1,5 @@
 option('use_sdl2_subproject', type : 'boolean', value : false, description: 'Prefer sdl2 and sdl2_ttf from subprojects instead of system libraries')
+option('use_zlib_subproject', type: 'boolean', value: false, description: 'Prefer zlib from subproject instead of system library')
 option('ffmpeg_install_dir', type : 'string', value: '', description: 'WINDOWS ONLY: ffmpeg install dir')
 option('sdl2_install_dir', type : 'string', value: '', description: 'WINDOWS ONLY: sdl2 install dir')
 option('sdl2_ttf_install_dir', type : 'string', value: '', description: 'WINDOWS ONLY: sdl2 install dir')
