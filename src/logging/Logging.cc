@@ -50,6 +50,7 @@ static const std::vector<std::string> loggers {
   "VideoInputs",
   "vivictpp::VideoPlayback",
   "vivictpp::workers::FrameBuffer",
+  "vivictpp::video::VideoIndexer"
   "libav"
 };
 

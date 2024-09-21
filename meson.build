@@ -144,6 +144,8 @@ sources = [
   'src/time/TimeUtils.cc',
   'src/ui/FontSize.cc',
   'src/ui/VideoTextures.cc',
+  'src/ui/ThumbnailTexture.cc',
+  'src/video/VideoIndexer.cc',
   'src/vmaf/VmafLog.cc',
   'src/workers/DecoderWorker.cc',
   'src/workers/FrameBuffer.cc',

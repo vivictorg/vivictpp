@@ -10,6 +10,7 @@
 #include "imgui/Events.hh"
 #include "VideoPlayback.hh"
 #include "imgui/VideoMetadataDisplay.hh"
+#include "ui/ThumbnailTexture.hh"
 
 namespace vivictpp::imgui {
 
@@ -23,7 +24,8 @@ private:
 
 public:
   std::vector<Action> draw(const PlaybackState &playbackState,
-                           const ui::DisplayState &displayState);
+                           const ui::DisplayState &displayState,
+                           vivictpp::ui::ThumbnailTexture &thumbnailTexture);
 };
 
 }

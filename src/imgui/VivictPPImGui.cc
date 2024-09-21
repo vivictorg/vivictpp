@@ -185,6 +185,7 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(const VivictPPConfig &vivictPPConf
     displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
     displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
     displayState.updateDecoderMetadata(videoPlayback.getVideoInputs().decoderMetadata());
+    imGuiSDL.updateThumbnails(videoPlayback.getVideoInputs().getVideoIndex());
     imGuiSDL.updateTextures(displayState);
     imGuiSDL.fitWindowToTextures();
   }
@@ -229,7 +230,7 @@ void vivictpp::imgui::VivictPPImGui::run() {
     }
     handleActions(fileDialog.draw());
     if (videoPlayback.getPlaybackState().ready) {
-      handleActions(controls.draw(videoPlayback.getPlaybackState(), displayState));
+      handleActions(controls.draw(videoPlayback.getPlaybackState(), displayState, imGuiSDL.getThumbnailTexture()));
       int64_t tNextPresent = tLastPresent + (int64_t) (1e6 * ImGui::GetIO().DeltaTime);
       if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
         displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
@@ -473,6 +474,7 @@ void vivictpp::imgui::VivictPPImGui::openFile(const vivictpp::imgui::Action &act
   displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
   displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
   displayState.updateDecoderMetadata(videoPlayback.getVideoInputs().decoderMetadata());
+  imGuiSDL.updateThumbnails(videoPlayback.getVideoInputs().getVideoIndex());
   imGuiSDL.updateTextures(displayState);
   imGuiSDL.fitWindowToTextures();
 }

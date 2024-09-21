@@ -25,6 +25,7 @@ extern "C" {
 #include "workers/PacketWorker.hh"
 #include "workers/DecoderWorker.hh"
 #include "Seeking.hh"
+#include "video/VideoIndexer.hh"
 
 struct MediaPipe {
     std::shared_ptr<vivictpp::workers::PacketWorker> packetWorker;
@@ -60,6 +61,7 @@ private:
         logger->debug("leftPtsOffset: {}", leftPtsOffset);
     }
     SeekState seekState;
+    vivictpp::video::VideoIndexer videoIndexer;
     vivictpp::logging::Logger logger;
 
 public:
@@ -169,7 +171,10 @@ public:
         throw new std::runtime_error("Input has no audio");
     }
         return audio1.decoder->frames();
-}
+    }
+    std::shared_ptr<vivictpp::video::VideoIndex> getVideoIndex() {
+        return videoIndexer.getIndex();
+    }
 
 private:
 void selectStream(MediaPipe &input, int streamIndex);

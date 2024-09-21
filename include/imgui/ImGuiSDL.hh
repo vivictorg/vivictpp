@@ -9,7 +9,9 @@
 #include "Settings.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/VideoTextures.hh"
+#include "ui/ThumbnailTexture.hh"
 #include "VivictPPConfig.hh"
+#include "video/VideoIndexer.hh"
 #include <vector>
 #include <memory>
 #include <filesystem>
@@ -31,12 +33,17 @@ private:
   std::filesystem::path iniFilename;
   std::string iniFilenameStr;
   bool scaleRenderer;
+  vivictpp::ui::ThumbnailTexture thumbnailTexture;
 public:
   ImGuiSDL(const Settings &settings);
   ~ImGuiSDL();
   void newFrame();
   void updateTextures(const ui::DisplayState &displayState);
   vivictpp::ui::VideoTextures &getVideoTextures() { return videoTextures; }
+  void updateThumbnails(std::shared_ptr<vivictpp::video::VideoIndex> videoIndex) {
+    thumbnailTexture.setVideoIndex(videoIndex);
+  }
+  vivictpp::ui::ThumbnailTexture &getThumbnailTexture() { return thumbnailTexture; }
   void fitWindowToTextures();
   bool isWindowClose(SDL_Event &event);
   std::vector<std::shared_ptr<Event>> handleEvents();

@@ -7,6 +7,7 @@
 #include "libav/DecoderMetadata.hh"
 #include "spdlog/spdlog.h"
 #include "time/Time.hh"
+
 extern "C" {
 #include <libavcodec/avcodec.h>
 }
@@ -51,6 +52,9 @@ void VideoInputs::openLeft(const SourceConfig &sourceConfig) {
   packetWorkers.clear();
   leftInput.packetWorker.reset();
   leftInput.decoder.reset();
+
+  videoIndexer.prepareIndex(sourceConfig.path, sourceConfig.formatOptions);
+
   auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
     new vivictpp::workers::PacketWorker(sourceConfig.path, sourceConfig.formatOptions));
   packetWorkers.push_back(packetWorker);

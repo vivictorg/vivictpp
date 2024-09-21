@@ -34,11 +34,11 @@ void freeFilterGraph(AVFilterGraph *graph) {
 }
 
 vivictpp::libav::Filter::Filter(std::string definition) :
+  eof_(false),
   bufferSrcCtx(nullptr),
   bufferSinkCtx(nullptr),
   graph(nullptr),
-  definition(definition),
-  eof_(false) {
+  definition(definition) {
 }
 
 void vivictpp::libav::Filter::configureGraph(std::string definition) {
@@ -175,6 +175,9 @@ void vivictpp::libav::VideoFilter::configure() {
     AVBufferSrcParameters* bufferSrcParameters = av_buffersrc_parameters_alloc();
     bufferSrcParameters->hw_frames_ctx = formatParameters.hwFramesContext;
     vivictpp::libav::AVResult res = av_buffersrc_parameters_set(bufferSrcCtx, bufferSrcParameters);
+    if (res.error()) {
+        throw new std::runtime_error("Failed to set buffersrc parameters " + res.getMessage());
+    }
   }
   ret = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
                             AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);

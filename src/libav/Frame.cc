@@ -5,6 +5,7 @@
 #include "libav/Frame.hh"
 
 #include "libav/AVErrorUtils.hh"
+#include "spdlog/spdlog.h"
 
 void vivictpp::libav::freeFrame(AVFrame* avFrame) {
   if (avFrame) {

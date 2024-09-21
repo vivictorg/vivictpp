@@ -19,7 +19,7 @@ class Packet {
 public:
   Packet();
   Packet(AVPacket *pkt);
-  Packet(bool eof);
+  explicit Packet(bool eof);
   ~Packet() = default;
   AVPacket* avPacket();
   bool empty() { return !packet; }

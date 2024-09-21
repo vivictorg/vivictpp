@@ -30,7 +30,8 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings):
                                             SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)),
   renderer(rendererPtr.get()),
   iniFilename(std::filesystem::path(fmt::format("{}/vivictpp/imgui.ini", sago::getConfigHome())).make_preferred()),
-  iniFilenameStr(iniFilename.string())
+  iniFilenameStr(iniFilename.string()),
+  thumbnailTexture(renderer)
 {
   IMGUI_CHECKVERSION();
 
