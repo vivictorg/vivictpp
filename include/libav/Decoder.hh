@@ -21,13 +21,12 @@ extern "C" {
 #include "libav/DecoderMetadata.hh"
 #include "logging/Logging.hh"
 
-namespace vivictpp {
-namespace libav {
+namespace vivictpp::libav {
 
 class Decoder {
 private:
   std::shared_ptr<AVCodecContext> codecContext;
-  vivictpp::libav::Frame nextFrame;
+  Frame nextFrame;
   vivictpp::logging::Logger logger;
   std::shared_ptr<AVBufferRef> hwDeviceContext;
   AVPixelFormat hwPixelFormat;
@@ -57,7 +56,7 @@ void destroyCodecContext(AVCodecContext *codecContext);
 
 void unrefBuffer(AVBufferRef *bufferRef);
 
-}  // namespace libav
-}  // namespace vivictpp
+} // namespace vivictpp::libav
+
 
 #endif // LIBAV_DECODER_HH

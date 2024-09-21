@@ -72,6 +72,7 @@ void vivictpp::workers::PacketWorker::doWork() {
         }
     }
     if (currentPacket != nullptr) {
+        vivictpp::libav::setOpaqueRef(currentPacket);
         for (auto dw : decoderWorkers) {
             // if any decoder wanted the packet but cannot accept it at this time,
             // we keep the packet and try again later

@@ -115,7 +115,7 @@ void vivictpp::workers::DecoderWorker::readFrames(AVPacket *avPacket) {
     bool addFramesToQueue = false;
     for (auto frame : frames) {
         logger->debug("Got frame with pts={}, pkt_dts={}, keyframe={}",
-                      frame->pts, frame->pkt_dts, frame->key_frame);
+                      frame->pts, frame->pkt_dts, vivictpp::libav::isKeyFrame(frame.avFrame()));
         dropFrameIfSeekingAndBufferFull();
         vivictpp::libav::Frame filtered = filter ? filter->filterFrame(frame) : frame;
         if (!filtered.empty()) {

@@ -13,6 +13,7 @@ extern "C" {
 }
 
 #include "VideoMetadata.hh"
+#include "Utils.hh"
 
 namespace vivictpp::libav {
 
@@ -38,7 +39,7 @@ public:
   }
   FrameMetadata metadata() const {
     if (frame) {
-      return { av_get_picture_type_char(frame->pict_type), frame->pts, frame->pkt_size };
+      return { av_get_picture_type_char(frame->pict_type), frame->pts, getPacketSize(frame.get()) };
     } else {
       return { '?', 0, 0 };
     }

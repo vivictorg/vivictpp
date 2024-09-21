@@ -15,6 +15,20 @@ extern "C" {
 
 namespace vivictpp::libav {
 
+
+#if LIBAVCODEC_VERSION_MAJOR >= 60
+    // Data to be passed from packet to frames through opaque_ref field
+    struct FrameData {
+        int pktSize;
+    };
+#endif
+
+int isKeyFrame(const AVFrame *frame);
+
+void setOpaqueRef(AVPacket *pkt);
+
+int getPacketSize(const AVFrame *frame);
+
 int getChannels(AVCodecContext *codecContext);
 
 int getChannels(AVFrame *frame);

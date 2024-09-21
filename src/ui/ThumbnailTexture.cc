@@ -26,7 +26,7 @@ vivictpp::sdl::SDLTexture &vivictpp::ui::ThumbnailTexture::updateAndGetTexture(c
 
 const vivictpp::video::Thumbnail &vivictpp::ui::ThumbnailTexture::getThumbnail(const vivictpp::time::Time &pts) {
     const auto &thumbnails = videoIndex->getThumbnails();
-    for (auto i = 1; i < thumbnails.size(); i++) {
+    for (size_t i = 1; i < thumbnails.size(); i++) {
         if (thumbnails[i].pts > pts) {
             return thumbnails[i-1];
         }

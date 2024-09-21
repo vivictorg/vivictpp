@@ -12,8 +12,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-namespace vivictpp {
-namespace libav {
+namespace vivictpp::libav {
 
 class Packet {
 public:
@@ -30,7 +29,5 @@ private:
   std::shared_ptr<AVPacket> packet;
 };
 
-}  // namespace libav
-}  // namespace vivictpp
-
+}  // namespace vivictpp::libav
 #endif // LIBAV_PACKET_HH

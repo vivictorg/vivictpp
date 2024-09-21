@@ -9,6 +9,37 @@ extern "C" {
 }
 #include <algorithm>
 
+int vivictpp::libav::isKeyFrame(const AVFrame *frame) {
+#if LIBAVCODEC_VERSION_MAJOR >= 60
+    return frame->flags & AV_FRAME_FLAG_KEY;
+#else
+    return frame->key_frame;
+#endif
+}
+
+void vivictpp::libav::setOpaqueRef(AVPacket *pkt) {
+#if LIBAVCODEC_VERSION_MAJOR >= 60
+    pkt->opaque_ref = av_buffer_alloc(sizeof(FrameData));
+    if (pkt->opaque_ref) {
+        FrameData *fd = (FrameData*) pkt->opaque_ref->data;
+        fd->pktSize = pkt->size;
+    }
+#else
+    (void*) pkt;
+#endif
+}
+
+int vivictpp::libav::getPacketSize(const AVFrame *frame) {
+#if LIBAVCODEC_VERSION_MAJOR >= 60
+    if (!frame->opaque_ref) {
+        return 0;
+    }
+    return ((vivictpp::libav::FrameData*) frame->opaque_ref->data)->pktSize;
+#else
+    return frame->pkt_size;
+#endif
+}
+
 int vivictpp::libav::getChannels(AVCodecContext *codecContext) {
 #if LIBAVCODEC_VERSION_MAJOR >= 59
   return codecContext->ch_layout.nb_channels;

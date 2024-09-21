@@ -155,6 +155,9 @@ void vivictpp::libav::Decoder::initHardwareContext(std::vector<std::string> hwAc
 void vivictpp::libav::Decoder::openCodec() {
   AVDictionary *decoderOptions = nullptr;
   av_dict_set(&decoderOptions, "threads", "auto", 0);
+  #if LIBAVCODEC_VERSION_MAJOR >= 60
+  av_dict_set(&decoderOptions, "flags", "+copy_opaque", AV_DICT_MULTIKEY);
+  #endif
   vivictpp::libav::AVResult ret = avcodec_open2(codecContext.get(), codecContext->codec, &decoderOptions);
   ret.throwOnError("Failed to open codec");
   logAudioCodecInfo();
