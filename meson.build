@@ -24,7 +24,7 @@ if build_machine.system() == 'windows'
 
 # https://libsdl.org/release/SDL2-devel-2.26.5-VC.zip
 # https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.20.2-VC.zip
-# https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-5.1.2-full_build-shared.7z
+# https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-7.0.2-full_build-shared.7z
 
   cc = meson.get_compiler('cpp')
 
@@ -34,7 +34,7 @@ if build_machine.system() == 'windows'
   sdl2_ttf_dir = meson.source_root() / 'winlibs' / 'SDL2_ttf-2.20.2'
   sdl2_ttf_dep = cc.find_library('sdl2_ttf', dirs: [sdl2_ttf_dir / 'lib' / 'x64'])
 
-  ffmpeg_dir = meson.source_root() / 'winlibs' / 'ffmpeg-5.1.2-full_build-shared'
+  ffmpeg_dir = meson.source_root() / 'winlibs' / 'ffmpeg-7.0.2-full_build-shared'
   # get_option('ffmpeg_install_dir')
 
   ffmpeg_inc = [ffmpeg_dir / 'include', sdl2_dir / 'include', sdl2_ttf_dir / 'include']
