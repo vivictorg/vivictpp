@@ -108,7 +108,7 @@ jobs:
           candle vivictpp.wxs
           light vivictpp.wixobj -out vivictpp-$env:VIVICTPP_FULLVERSION.msi
       - name: Save installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ format('vivictpp-{0}-wininstaller', env.VIVICTPP_FULLVERSION) }}
           path: ${{ format('vivictpp-{0}.msi', env.VIVICTPP_FULLVERSION) }}
@@ -121,7 +121,7 @@ jobs:
       INSTALLER_NAME: ${{ format('vivictpp-{0}.msi', needs.release-info.outputs.vivictpp_fullversion) }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
       - name: list files
