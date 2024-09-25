@@ -1,14 +1,15 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
-## Unreleased
+## 1.1.0 - 2024-09-25
 ### Fixed
 - End of file is now handled correctly
 ### Added
 - Thumbnails are shown when hovering on scrubber
 ### Changed
 - By default system dependency is now used of zlib instead of subproject
-- Removed used of deprecated feature so that project can be built with ffmpeg 7 without warnings
+- Removed uses of deprecated feature so that project can be built with ffmpeg 7
+  without warnings
 
 ## 1.1.0-pre2 2023-12-15
 ### Fixed
