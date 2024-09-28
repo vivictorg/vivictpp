@@ -1,9 +1,8 @@
 project('vivict++', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'])
 
+extra_args = ['-D__STDC_CONSTANT_MACROS']
 if meson.get_compiler('cpp').get_id() == 'gcc'
-  extra_args=['-Wno-shadow']
-else
-  extra_args=[]
+  extra_args += '-Wno-shadow'
 endif
 
 fmt_proj = subproject('fmt', default_options: ['warning_level=0', 'default_library=static'])  
