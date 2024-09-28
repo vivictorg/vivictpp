@@ -13,18 +13,29 @@
 
 namespace vivictpp::video {
 
+struct IndexFrameData {
+  vivictpp::time::Time pts;
+  int size;
+  bool keyFrame;
+};
+
 class VideoIndex {
 
 private:
   std::vector<vivictpp::time::Time> keyFrames;
+  std::vector<vivictpp::video::IndexFrameData> frameDatas;
   std::vector<vivictpp::video::Thumbnail> thumbnails;
   mutable std::mutex m;
 
 private:
-  void addKeyFrame(const vivictpp::time::Time t) {
+  void addFrameData(const IndexFrameData &frameData) {
     std::lock_guard<std::mutex> lg(m);
-    keyFrames.push_back(t);
+    this->frameDatas.push_back(frameData);
+    if (frameData.keyFrame) {
+      keyFrames.push_back(frameData.pts);
+    }
   }
+
   void addThumbnail(const vivictpp::video::Thumbnail &thumbnail) {
     std::lock_guard<std::mutex> lg(m);
     thumbnails.push_back(thumbnail);
@@ -48,6 +59,10 @@ public:
     std::lock_guard<std::mutex> lg(m);
     return thumbnails;
   }
+  const std::vector<vivictpp::video::IndexFrameData> &getFrameDatas() const {
+    std::lock_guard<std::mutex> lg(m);
+    return frameDatas;
+  }
 };
 
 class VideoIndexer {
@@ -59,13 +74,15 @@ public:
   }
   ~VideoIndexer() { stopIndexThread(); }
   void prepareIndex(const std::string &inputFile,
-                    const std::string &formatOptions);
+                    const std::string &formatOptions,
+                    const bool generatThumbnails = true);
 
   const std::shared_ptr<VideoIndex> getIndex() const { return index; }
 
 private:
   void prepareIndexInternal(const std::string &inputFile,
-                            const std::string &formatOptions);
+                            const std::string &formatOptions,
+                            bool generateThumbnails);
   void stopIndexThread() {
     if (indexingThread) {
       stopIndexing = true;
