@@ -5,24 +5,22 @@
 #ifndef VIVICTPPCONFIG_HH
 #define VIVICTPPCONFIG_HH
 
+#include "Settings.hh"
+#include "SourceConfig.hh"
+#include "libav/DecoderOptions.hh"
+#include "vmaf/VmafLog.hh"
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include "SourceConfig.hh"
-#include "vmaf/VmafLog.hh"
-#include "libav/DecoderOptions.hh"
-#include "Settings.hh"
 
 class VivictPPConfig {
 public:
-  VivictPPConfig(): VivictPPConfig({}, false, {}) {}
+  VivictPPConfig() : VivictPPConfig({}, false, {}) {}
 
-  VivictPPConfig(std::vector<SourceConfig> sourceConfigs,
-                 bool disableAudio,
-                 vivictpp::libav::DecoderOptions decoderOptions):
-    sourceConfigs(sourceConfigs),
-    disableAudio(disableAudio),
-    decoderOptions(decoderOptions) {}
+  VivictPPConfig(std::vector<SourceConfig> sourceConfigs, bool disableAudio,
+                 vivictpp::libav::DecoderOptions decoderOptions)
+      : sourceConfigs(sourceConfigs), disableAudio(disableAudio),
+        decoderOptions(decoderOptions) {}
 
   std::vector<SourceConfig> sourceConfigs;
 
@@ -34,7 +32,7 @@ public:
 
   void applySettings(const vivictpp::Settings &settings) {
     this->settings = settings;
-    for (auto &sourceConfig: sourceConfigs) {
+    for (auto &sourceConfig : sourceConfigs) {
       if (sourceConfig.hwAccels.empty() || sourceConfig.hwAccels[0].empty()) {
         sourceConfig.hwAccels = settings.hwAccels;
       } else if (sourceConfig.hwAccels[0] == "none") {
@@ -45,7 +43,6 @@ public:
         sourceConfig.preferredDecoders = settings.preferredDecoders;
       }
     }
-
   }
 };
 

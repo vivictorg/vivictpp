@@ -6,26 +6,26 @@
 #ifndef UI_DISPLAYSTATE_HH
 #define UI_DISPLAYSTATE_HH
 
-#include <string>
+#include <array>
 #include <cmath>
 #include <iostream>
-#include <array>
+#include <string>
 #include <vector>
 
 #include "VideoMetadata.hh"
-#include "time/Time.hh"
-#include "libav/Frame.hh"
 #include "libav/DecoderMetadata.hh"
-
+#include "libav/Frame.hh"
+#include "time/Time.hh"
 
 namespace vivictpp {
 namespace ui {
 
 class Zoom {
- private:
+private:
   int zoom_ = 0;
   float multiplier_ = 1.0;
- public:
+
+public:
   void set(int zoom) {
     zoom_ = zoom;
     setMultiplier();
@@ -42,7 +42,8 @@ class Zoom {
     return zoom_;
   }
   float multiplier() const { return multiplier_; }
- private:
+
+private:
   void setMultiplier() { multiplier_ = pow(1.2, zoom_); }
 };
 
@@ -99,13 +100,14 @@ struct DisplayState {
     videoMetadataVersion++;
   }
 
-  void updateDecoderMetadata(std::array<vivictpp::libav::DecoderMetadata, 2> metadata) {
+  void updateDecoderMetadata(
+      std::array<vivictpp::libav::DecoderMetadata, 2> metadata) {
     leftDecoderMetadata = metadata[0];
     rightDecoderMetadata = metadata[1];
   }
 };
 
-}  // ui
-}  // vivictpp
+} // namespace ui
+} // namespace vivictpp
 
 #endif // UI_DISPLAYSTATE_HH

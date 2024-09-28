@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-
 #ifndef SEEKING_HH_
 #define SEEKING_HH_
 
@@ -12,8 +11,8 @@
 
 namespace vivictpp {
 
-  typedef std::function<void(vivictpp::time::Time,bool)> SeekCallback;
+typedef std::function<void(vivictpp::time::Time, bool)> SeekCallback;
 
-}  // namespace vivictpp
+} // namespace vivictpp
 
-#endif  // SEEKING_HH_
+#endif // SEEKING_HH_

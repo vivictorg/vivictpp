@@ -5,15 +5,15 @@
 #ifndef VIVICTPP_IMGUI_FILEDIALOG_HH_
 #define VIVICTPP_IMGUI_FILEDIALOG_HH_
 
-#include "ImGuiFileDialog.h"
 #include "Events.hh"
+#include "ImGuiFileDialog.h"
 #include "libav/HwAccelUtils.hh"
-#include "platform_folders.h"
 #include "libav/Utils.hh"
+#include "platform_folders.h"
 
 namespace vivictpp::imgui {
 
-enum class LeftRight {Left, Right};
+enum class LeftRight { Left, Right };
 
 class FileDialog {
 private:
@@ -26,24 +26,23 @@ private:
   std::string currentDecoderOption;
   char filterStr[512]{'\0'};
   char formatOptionsStr[512]{'\0'};
+
 private:
   void openDialog(std::string text);
   void optionsPane();
 
 public:
-  FileDialog():
-    hwAccelOptions({"auto", "none"}),
-    preferredDecoderOptions({"auto"}),
-    currentHwAccelOption(hwAccelOptions[0]),
-    currentDecoderOption(preferredDecoderOptions[0])
-    {
-      for (auto &hwAccel : vivictpp::libav::allHwAccelFormats()) {
-        hwAccelOptions.push_back(hwAccel);
-      }
-      for (auto &decoder: vivictpp::libav::allVideoDecoders()) {
-        preferredDecoderOptions.push_back(decoder);
-      }
+  FileDialog()
+      : hwAccelOptions({"auto", "none"}), preferredDecoderOptions({"auto"}),
+        currentHwAccelOption(hwAccelOptions[0]),
+        currentDecoderOption(preferredDecoderOptions[0]) {
+    for (auto &hwAccel : vivictpp::libav::allHwAccelFormats()) {
+      hwAccelOptions.push_back(hwAccel);
     }
+    for (auto &decoder : vivictpp::libav::allVideoDecoders()) {
+      preferredDecoderOptions.push_back(decoder);
+    }
+  }
 
   void openLeft();
 
@@ -58,9 +57,8 @@ public:
   const std::string formatOptions() { return std::string(formatOptionsStr); }
 
   std::vector<Action> draw();
-
 };
 
-}  // namespace vivictpp::imgui
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_FILEDIALOG_HH_ */

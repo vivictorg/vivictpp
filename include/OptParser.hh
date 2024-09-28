@@ -6,7 +6,7 @@
 #define VIVICTPP_OPTPARSER_HH_
 
 #include "VivictPPConfig.hh"
-namespace  vivictpp {
+namespace vivictpp {
 
 class OptParser {
 public:
@@ -15,7 +15,6 @@ public:
   VivictPPConfig vivictPPConfig;
 };
 
-}  // vivictpp
-
+} // namespace vivictpp
 
 #endif /* VIVICTPP_OPTPARSER_HH_ */

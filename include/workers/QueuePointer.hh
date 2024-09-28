@@ -30,7 +30,7 @@ private:
 };
 
 std::ostream &operator<<(std::ostream &out, QueuePointer qp);
-}  // namespace workers
-}  // namespace vivictpp
+} // namespace workers
+} // namespace vivictpp
 
 #endif // WORKERS_QUEUEPOINTER_HH

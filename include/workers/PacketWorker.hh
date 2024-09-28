@@ -7,13 +7,13 @@
 
 #include <atomic>
 
+#include "Seeking.hh"
+#include "VideoMetadata.hh"
+#include "libav/FormatHandler.hh"
+#include "time/Time.hh"
+#include "workers/DecoderWorker.hh"
 #include "workers/InputWorker.hh"
 #include "workers/PacketQueue.hh"
-#include "libav/FormatHandler.hh"
-#include "workers/DecoderWorker.hh"
-#include "VideoMetadata.hh"
-#include "time/Time.hh"
-#include "Seeking.hh"
 
 namespace vivictpp {
 namespace workers {
@@ -32,9 +32,15 @@ public:
     std::lock_guard<std::mutex> guard(videoMetadataMutex);
     return this->videoMetadata;
   }
-  const std::vector<AVStream *> &getStreams() { return formatHandler.getStreams(); }
-  const std::vector<AVStream *> &getVideoStreams() { return formatHandler.getVideoStreams(); }
-  const std::vector<AVStream *> &getAudioStreams() { return formatHandler.getAudioStreams(); }
+  const std::vector<AVStream *> &getStreams() {
+    return formatHandler.getStreams();
+  }
+  const std::vector<AVStream *> &getVideoStreams() {
+    return formatHandler.getVideoStreams();
+  }
+  const std::vector<AVStream *> &getAudioStreams() {
+    return formatHandler.getAudioStreams();
+  }
 
 private:
   void doWork() override;
@@ -45,12 +51,11 @@ private:
 private:
   vivictpp::libav::FormatHandler formatHandler;
   std::vector<std::shared_ptr<DecoderWorker>> decoderWorkers;
-  AVPacket* currentPacket;
+  AVPacket *currentPacket;
   std::vector<VideoMetadata> videoMetadata;
   std::mutex videoMetadataMutex;
   int _nDecoders{0};
-
 };
-}  // namespace workers
-}  // namespace vivictpp
+} // namespace workers
+} // namespace vivictpp
 #endif // WORKERS_PACKETWORKER_HH

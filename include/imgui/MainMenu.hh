@@ -16,10 +16,8 @@ class MainMenu {
 public:
   std::vector<Action> draw(const PlaybackState &playbackState,
                            const ui::DisplayState &displayState);
-
 };
 
-}
-
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_MAINMENU_HH_ */

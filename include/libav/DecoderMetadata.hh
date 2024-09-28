@@ -14,6 +14,6 @@ struct DecoderMetadata {
   std::string hwPixelFormat;
 };
 
-}
+} // namespace vivictpp::libav
 
 #endif /* VIVICTPP_LIBAV_DECODERMETADATA_HH_ */

@@ -10,12 +10,12 @@ extern "C" {
 #include "SDL.h"
 }
 
-#include <functional>
-#include <exception>
-#include <memory>
 #include <atomic>
-#include <string>
+#include <exception>
+#include <functional>
+#include <memory>
 #include <stdexcept>
+#include <string>
 
 #include "libav/Frame.hh"
 
@@ -23,26 +23,30 @@ namespace vivictpp {
 namespace sdl {
 
 class SDLException : public std::runtime_error {
- public:
- SDLException(std::string msg): std::runtime_error(msg + std::string(": ") +
-                                                   std::string(SDL_GetError())) {}
+public:
+  SDLException(std::string msg)
+      : std::runtime_error(msg + std::string(": ") +
+                           std::string(SDL_GetError())) {}
 };
 
 class SDLInitializer {
- private:
+private:
   static std::atomic<int> instanceCount;
- public:
+
+public:
   SDLInitializer(bool enableAudio = true);
   ~SDLInitializer();
 };
 
-//typedef std::shared_ptr<SDL_Texture, std::function<void(SDL_Texture *)>> TexturePtr;
+// typedef std::shared_ptr<SDL_Texture, std::function<void(SDL_Texture *)>>
+// TexturePtr;
 typedef std::shared_ptr<SDL_Texture> TexturePtr;
 
 class SDLTexture {
 public:
   SDLTexture() {}
-  SDLTexture(SDL_Renderer* renderer, int w, int h, SDL_PixelFormatEnum pixelFormat);
+  SDLTexture(SDL_Renderer *renderer, int w, int h,
+             SDL_PixelFormatEnum pixelFormat);
   void update(const vivictpp::libav::Frame &frame);
   bool operator!() const { return !texturePtr; }
   TexturePtr &operator->() { return texturePtr; }
@@ -51,26 +55,28 @@ public:
 private:
   TexturePtr texturePtr;
   SDL_PixelFormatEnum pixelFormat;
-
 };
 
-typedef std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>> SDLWindow;
-typedef std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>> SDLRenderer;
+typedef std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>
+    SDLWindow;
+typedef std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>
+    SDLRenderer;
 
 SDLWindow createWindow(int width, int height, int flags = SDL_WINDOW_RESIZABLE);
 
-SDLRenderer createRenderer(SDL_Window* window, int flags = 0);
+SDLRenderer createRenderer(SDL_Window *window, int flags = 0);
 
 TexturePtr
-createTexture(SDL_Renderer* renderer, int w, int h, SDL_PixelFormatEnum pixelFormat = SDL_PIXELFORMAT_NV12);
+createTexture(SDL_Renderer *renderer, int w, int h,
+              SDL_PixelFormatEnum pixelFormat = SDL_PIXELFORMAT_NV12);
 
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
-  createHandCursor();
+createHandCursor();
 
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
-  createPanCursor();
+createPanCursor();
 
-}  // sdl
-}  // vivictpp
+} // namespace sdl
+} // namespace vivictpp
 
 #endif // SDL_SDLUTILS_HH

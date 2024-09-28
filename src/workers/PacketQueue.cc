@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "workers/PacketQueue.hh" 
+#include "workers/PacketQueue.hh"
 
-vivictpp::workers::PacketQueue::PacketQueue(std::size_t maxSize):
-  maxSize(maxSize){}
+vivictpp::workers::PacketQueue::PacketQueue(std::size_t maxSize)
+    : maxSize(maxSize) {}
 
 bool vivictpp::workers::PacketQueue::add(AVPacket *pkt) {
   bool wasEmpty = false;
@@ -40,14 +40,18 @@ vivictpp::libav::Packet vivictpp::workers::PacketQueue::remove() {
   return result;
 }
 
-bool vivictpp::workers::PacketQueue::waitForNotFull(const std::chrono::milliseconds& relTime) {
+bool vivictpp::workers::PacketQueue::waitForNotFull(
+    const std::chrono::milliseconds &relTime) {
   std::unique_lock<std::mutex> lock(mutex);
-  return conditionVariable.wait_for(lock, relTime, [&]{ return _queue.size() < maxSize; });
+  return conditionVariable.wait_for(lock, relTime,
+                                    [&] { return _queue.size() < maxSize; });
 }
 
-bool vivictpp::workers::PacketQueue::waitForNotEmpty(const std::chrono::milliseconds& relTime) {
+bool vivictpp::workers::PacketQueue::waitForNotEmpty(
+    const std::chrono::milliseconds &relTime) {
   std::unique_lock<std::mutex> lock(mutex);
-  return conditionVariable.wait_for(lock, relTime, [&]{ return _queue.size() > 0; });
+  return conditionVariable.wait_for(lock, relTime,
+                                    [&] { return _queue.size() > 0; });
 }
 
 void vivictpp::workers::PacketQueue::clear() {
@@ -55,7 +59,7 @@ void vivictpp::workers::PacketQueue::clear() {
   {
     std::unique_lock<std::mutex> lock(mutex);
     wasFull = _queue.size() == maxSize;
-    while(!_queue.empty()) {
+    while (!_queue.empty()) {
       _queue.pop();
     }
   }

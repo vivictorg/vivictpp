@@ -5,10 +5,10 @@
 #ifndef AUDIO_AUDIOOUTPUT_HH_
 #define AUDIO_AUDIOOUTPUT_HH_
 
-#include "libav/Frame.hh"
-#include "workers/FrameBuffer.hh"
 #include "AVSync.hh"
+#include "libav/Frame.hh"
 #include "time/Time.hh"
+#include "workers/FrameBuffer.hh"
 
 namespace vivictpp {
 namespace audio {
@@ -22,7 +22,6 @@ public:
   virtual void queueAudio(const vivictpp::libav::Frame &frame) = 0;
   virtual void clearQueue() = 0;
   virtual vivictpp::time::Time currentPts() = 0;
-
 };
 
 class AudioOutputFactory {
@@ -31,7 +30,7 @@ public:
   virtual std::shared_ptr<AudioOutput> create(AVCodecContext *codecContext) = 0;
 };
 
-}  // audio
-}  // vivictpp
+} // namespace audio
+} // namespace vivictpp
 
-#endif  // AUDIO_AUDIOOUTPUT_HH_
+#endif // AUDIO_AUDIOOUTPUT_HH_

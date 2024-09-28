@@ -7,7 +7,7 @@
 
 #include "imgui.h"
 
-#define ICON_VPP_COLLAPSE "\xef\x80\x89"	// U+f000
+#define ICON_VPP_COLLAPSE "\xef\x80\x89" // U+f000
 #define ICON_VPP_EXPAND "\xef\x80\x8a"
 #define ICON_VPP_PLAY "\xef\x80\x8b"
 #define ICON_VPP_PAUSE "\xef\x80\x8c"
@@ -16,7 +16,7 @@
 #define ICON_VPP_ZOOM_IN "\xef\x80\x8f"
 #define ICON_VPP_ZOOM_OUT "\xef\x80\x90"
 #define ICON_VPP_ZOOM_RESET "\xef\x80\x91"
-#define ICON_VPP_COLLAPSE_SMALL "\xef\x80\x80"	// U+f000
+#define ICON_VPP_COLLAPSE_SMALL "\xef\x80\x80" // U+f000
 #define ICON_VPP_EXPAND_SMALL "\xef\x80\x81"
 #define ICON_VPP_PLAY_SMALL "\xef\x80\x82"
 #define ICON_VPP_PAUSE_SMALL "\xef\x80\x83"
@@ -26,12 +26,10 @@
 #define ICON_VPP_ZOOM_OUT_SMALL "\xef\x80\x87"
 #define ICON_VPP_ZOOM_RESET_SMALL "\xef\x80\x88"
 
-
 namespace vivictpp::imgui {
 
 void initFonts();
-ImFont* getIconFont();
-}
-
+ImFont *getIconFont();
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_FONTS_HH_ */

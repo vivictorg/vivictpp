@@ -5,25 +5,21 @@
 #ifndef VIVICTPP_THUMBNAIL_HH
 #define VIVICTPP_THUMBNAIL_HH
 
-
-#include <vector>
-#include "time/Time.hh"
 #include "libav/Frame.hh"
-
+#include "time/Time.hh"
+#include <vector>
 
 namespace vivictpp::video {
-        class Thumbnail {
-    public:
-        const vivictpp::time::Time pts;
-        const vivictpp::libav::Frame frame;
-    public:
-        Thumbnail(const vivictpp::time::Time pts, const vivictpp::libav::Frame frame):
-        pts(pts),
-        frame(frame) {}
-        Thumbnail(const Thumbnail &other):
-        pts(other.pts),
-        frame(other.frame) {}
-    };
-}
+class Thumbnail {
+public:
+  const vivictpp::time::Time pts;
+  const vivictpp::libav::Frame frame;
 
-#endif //VIVICTPP_THUMBNAIL_HH
+public:
+  Thumbnail(const vivictpp::time::Time pts, const vivictpp::libav::Frame frame)
+      : pts(pts), frame(frame) {}
+  Thumbnail(const Thumbnail &other) : pts(other.pts), frame(other.frame) {}
+};
+} // namespace vivictpp::video
+
+#endif // VIVICTPP_THUMBNAIL_HH

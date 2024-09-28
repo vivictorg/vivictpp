@@ -5,12 +5,12 @@
 #ifndef VIVICTPP_IMGUI_CONTROLS_HH_
 #define VIVICTPP_IMGUI_CONTROLS_HH_
 
-#include <vector>
+#include "VideoPlayback.hh"
 #include "imgui.h"
 #include "imgui/Events.hh"
-#include "VideoPlayback.hh"
 #include "imgui/VideoMetadataDisplay.hh"
 #include "ui/ThumbnailTexture.hh"
+#include <vector>
 
 namespace vivictpp::imgui {
 
@@ -28,6 +28,6 @@ public:
                            vivictpp::ui::ThumbnailTexture &thumbnailTexture);
 };
 
-}
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_CONTROLS_HH_ */

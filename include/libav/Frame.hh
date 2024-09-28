@@ -12,20 +12,21 @@ extern "C" {
 #include <libavutil/frame.h>
 }
 
-#include "VideoMetadata.hh"
 #include "Utils.hh"
+#include "VideoMetadata.hh"
 
 namespace vivictpp::libav {
 
 class Frame {
 private:
   std::shared_ptr<AVFrame> frame;
+
 public:
   Frame();
   Frame(const Frame &frame);
   ~Frame() = default;
   Frame &operator=(const Frame &frame);
-  AVFrame* avFrame() const { return frame.get(); }
+  AVFrame *avFrame() const { return frame.get(); }
   std::shared_ptr<AVFrame> operator->() const { return frame; }
   bool empty() const { return !frame; }
   void reset();
@@ -39,18 +40,20 @@ public:
   }
   FrameMetadata metadata() const {
     if (frame) {
-      return { av_get_picture_type_char(frame->pict_type), frame->pts, getPacketSize(frame.get()) };
+      return {av_get_picture_type_char(frame->pict_type), frame->pts,
+              getPacketSize(frame.get())};
     } else {
-      return { '?', 0, 0 };
+      return {'?', 0, 0};
     }
   }
   Frame transferHwData(AVPixelFormat swPixelFormat);
+
 private:
   Frame(AVFrame *avFrame);
 };
 
-void freeFrame(AVFrame* avFrame);
+void freeFrame(AVFrame *avFrame);
 
-}  // namespace vivictpp::libav
+} // namespace vivictpp::libav
 
 #endif // LIBAV_FRAME_HH

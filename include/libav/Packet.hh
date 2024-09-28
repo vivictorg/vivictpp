@@ -20,14 +20,15 @@ public:
   Packet(AVPacket *pkt);
   explicit Packet(bool eof);
   ~Packet() = default;
-  AVPacket* avPacket();
+  AVPacket *avPacket();
   bool empty() { return !packet; }
   bool eof() { return _eof; }
+
 private:
-    // Indicates this is a special packet marking eof
-    bool _eof{false};
+  // Indicates this is a special packet marking eof
+  bool _eof{false};
   std::shared_ptr<AVPacket> packet;
 };
 
-}  // namespace vivictpp::libav
+} // namespace vivictpp::libav
 #endif // LIBAV_PACKET_HH

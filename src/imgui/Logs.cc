@@ -10,10 +10,11 @@
 #include <string>
 
 void vivictpp::imgui::showLogs(ui::DisplayState &displayState) {
-  if (ImGui::Begin("Logs", &displayState.displayLogs, ImGuiWindowFlags_NoCollapse)) {
-      for (std::string row : vivictpp::logging::getMessages()) {
-            ImGui::TextUnformatted(row.c_str());
-      }
-      ImGui::End();
+  if (ImGui::Begin("Logs", &displayState.displayLogs,
+                   ImGuiWindowFlags_NoCollapse)) {
+    for (std::string row : vivictpp::logging::getMessages()) {
+      ImGui::TextUnformatted(row.c_str());
+    }
+    ImGui::End();
   }
 }

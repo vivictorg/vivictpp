@@ -6,29 +6,30 @@
 
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "spdlog/spdlog.h"
 
 #include "OptParser.hh"
 #include "SourceConfig.hh"
 
-#include "imgui/VivictPPImGui.hh"
 #include "Settings.hh"
 #include "VivictPPConfig.hh"
+#include "imgui/VivictPPImGui.hh"
 
 #ifdef _WIN32
 #include <windows.h>
 
 namespace utf8 {
-  char** get_argv (int* argc);
-  void free_argv (int argc, char** argv);
-}
+char **get_argv(int *argc);
+void free_argv(int argc, char **argv);
+} // namespace utf8
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-    int argc;
-    char **argv = utf8::get_argv(&argc);
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                    PWSTR pCmdLine, int nCmdShow) {
+  int argc;
+  char **argv = utf8::get_argv(&argc);
 #else
 int main(int argc, char **argv) {
 #endif
@@ -45,9 +46,9 @@ int main(int argc, char **argv) {
     vivictPPConfig.applySettings(vivictpp::loadSettings());
     vivictpp::logging::initializeLogging(vivictPPConfig.settings);
 
-
     for (auto sourceConfig : vivictPPConfig.sourceConfigs) {
-        spdlog::debug("Source: path={} filters={}", sourceConfig.path, sourceConfig.filter);
+      spdlog::debug("Source: path={} filters={}", sourceConfig.path,
+                    sourceConfig.filter);
     }
 
     vivictpp::imgui::VivictPPImGui vivictPPImGui(vivictPPConfig);

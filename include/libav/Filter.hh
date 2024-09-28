@@ -5,20 +5,20 @@
 #ifndef LIBAV_FILTER_HH
 #define LIBAV_FILTER_HH
 
-#include <string>
-#include <memory>
 #include <atomic>
+#include <memory>
+#include <string>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
+#include <libavformat/avformat.h>
 }
 
-#include "libav/Frame.hh"
 #include "Resolution.hh"
 #include "VideoMetadata.hh"
+#include "libav/Frame.hh"
 
 namespace vivictpp {
 namespace libav {
@@ -27,15 +27,18 @@ class Filter {
 private:
   bool eof_;
   Frame nextFrame;
+
 protected:
   Filter(std::string definition);
-  void createFilter(AVFilterContext **filt_ctx, std::string filterName, const std::string name, const char *args, void *opaque);
+  void createFilter(AVFilterContext **filt_ctx, std::string filterName,
+                    const std::string name, const char *args, void *opaque);
   void configureGraph(std::string definition);
   AVFilterContext *bufferSrcCtx;
   AVFilterContext *bufferSinkCtx;
   std::shared_ptr<AVFilterGraph> graph;
   std::string definition;
   std::atomic_bool reconfigure;
+
 public:
   virtual ~Filter() = default;
   virtual Frame filterFrame(const Frame &frame);
@@ -54,29 +57,31 @@ struct VideoFilterFormatParameters {
   AVBufferRef *hwFramesContext{nullptr};
 };
 
-
-class VideoFilter: public Filter {
+class VideoFilter : public Filter {
 public:
-  VideoFilter(AVStream *avStream, AVCodecContext *codecContext, std::string definition);
+  VideoFilter(AVStream *avStream, AVCodecContext *codecContext,
+              std::string definition);
   ~VideoFilter() = default;
   FilteredVideoMetadata getFilteredVideoMetadata();
   Frame filterFrame(const Frame &frame) override;
+
 private:
-    void configure();
+  void configure();
+
 private:
   VideoFilterFormatParameters formatParameters;
 };
 
-class AudioFilter: public Filter {
+class AudioFilter : public Filter {
 public:
   AudioFilter(AVCodecContext *codecContext, std::string definition);
   ~AudioFilter() = default;
+
 private:
-    void configure(AVCodecContext *codecContext,
-             std::string definition);
+  void configure(AVCodecContext *codecContext, std::string definition);
 };
 
-}  // namespace libav
-}  // namespace vivictpp
+} // namespace libav
+} // namespace vivictpp
 
 #endif // LIBAV_FILTER_HH

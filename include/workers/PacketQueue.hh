@@ -5,12 +5,12 @@
 #ifndef WORKERS_PACKETQUEUE_HH
 #define WORKERS_PACKETQUEUE_HH
 
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 #include <chrono>
-#include <memory>
+#include <condition_variable>
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <queue>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -28,9 +28,10 @@ public:
 
   bool add(AVPacket *pkt);
   vivictpp::libav::Packet remove();
-  bool waitForNotFull(const std::chrono::milliseconds& relTime);
-  bool waitForNotEmpty(const std::chrono::milliseconds& relTime);
+  bool waitForNotFull(const std::chrono::milliseconds &relTime);
+  bool waitForNotEmpty(const std::chrono::milliseconds &relTime);
   void clear();
+
 private:
   std::size_t maxSize;
   std::queue<vivictpp::libav::Packet> _queue;
@@ -38,7 +39,7 @@ private:
   std::condition_variable conditionVariable;
 };
 
-}  // namespace workers
-}  // namespace vivictpp
+} // namespace workers
+} // namespace vivictpp
 
 #endif // WORKERS_PACKETQUEUE_HH

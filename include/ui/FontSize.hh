@@ -10,8 +10,8 @@ extern "C" {
 #include <SDL.h>
 }
 
-#include <exception>
 #include <cmath>
+#include <exception>
 
 namespace vivictpp::ui {
 
@@ -19,31 +19,33 @@ const float REFERENCE_DPI = 150;
 
 class FontSize {
 public:
-    FontSize(int size):
-        size(size) {};
+  FontSize(int size) : size(size){};
 
-    static void setScaling(bool dpiScaling, float customScaleFactor) {
-        float dpiScaleFactor = 1.0;
-        if (dpiScaling) {
-            float dpi;
-            SDL_GetDisplayDPI(0, &dpi, nullptr, nullptr);
-            dpiScaleFactor = dpi / REFERENCE_DPI;
-        }
-        scaleFactor = dpiScaleFactor * customScaleFactor;
-        scalingEnabled = true;
+  static void setScaling(bool dpiScaling, float customScaleFactor) {
+    float dpiScaleFactor = 1.0;
+    if (dpiScaling) {
+      float dpi;
+      SDL_GetDisplayDPI(0, &dpi, nullptr, nullptr);
+      dpiScaleFactor = dpi / REFERENCE_DPI;
     }
+    scaleFactor = dpiScaleFactor * customScaleFactor;
+    scalingEnabled = true;
+  }
 
-    operator int() const { return scaledSize(); };
+  operator int() const { return scaledSize(); };
 
-  float scaledSizeFloat() const {  return round(size * (scalingEnabled ? scaleFactor : 1.0)); };
-  int scaledSize() const { return (int) scaledSizeFloat(); };
+  float scaledSizeFloat() const {
+    return round(size * (scalingEnabled ? scaleFactor : 1.0));
+  };
+  int scaledSize() const { return (int)scaledSizeFloat(); };
   static float getScaleFactor() { return scaleFactor; };
+
 private:
-    int size;
-    static bool scalingEnabled;
-    static float scaleFactor;
+  int size;
+  static bool scalingEnabled;
+  static float scaleFactor;
 };
 
-}; // vivictpp::ui;
+}; // namespace vivictpp::ui
 
 #endif // UI_FONTSIZE_HH

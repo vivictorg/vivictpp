@@ -11,16 +11,15 @@ vivictpp::vmaf::VmafLog::VmafLog(std::string logfile) {
     std::getline(infile, line);
     std::map<std::string, int> headers;
     getHeaders(line, headers);
-    while(std::getline(infile, line)) {
+    while (std::getline(infile, line)) {
       auto values = parseLine(line);
       vmafValues.push_back(values[headers["vmaf"]]);
     }
   }
 }
 
-
 void vivictpp::vmaf::VmafLog::getHeaders(std::string line,
-                                         std::map<std::string, int> & headers) {
+                                         std::map<std::string, int> &headers) {
   std::stringstream ss(line);
   std::string header;
   int i = 0;

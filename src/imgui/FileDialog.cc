@@ -4,26 +4,29 @@
 
 #include "imgui/FileDialog.hh"
 #include "imgui.h"
-#include <algorithm>
 #include "imgui/WidgetUtils.hh"
+#include <algorithm>
 
 void vivictpp::imgui::FileDialog::optionsPane() {
-    ImGui::Text("Hardware acceleration");
-    vivictpp::imgui::comboBox("##Hardware acceleration", hwAccelOptions, currentHwAccelOption);
-    ImGui::Dummy({1,10});
-    ImGui::Text("Preferred decoder");
-    vivictpp::imgui::comboBox("##Decoder", preferredDecoderOptions, currentDecoderOption);
-    ImGui::Dummy({1,10});
-    ImGui::Text("Filter");
-    ImGui::InputText("##filterinput", filterStr, IM_ARRAYSIZE(filterStr));
-    ImGui::Dummy({1,10});
-    ImGui::Text("Format options");
-    ImGui::InputText("##formatoptions", formatOptionsStr, IM_ARRAYSIZE(formatOptionsStr));
+  ImGui::Text("Hardware acceleration");
+  vivictpp::imgui::comboBox("##Hardware acceleration", hwAccelOptions,
+                            currentHwAccelOption);
+  ImGui::Dummy({1, 10});
+  ImGui::Text("Preferred decoder");
+  vivictpp::imgui::comboBox("##Decoder", preferredDecoderOptions,
+                            currentDecoderOption);
+  ImGui::Dummy({1, 10});
+  ImGui::Text("Filter");
+  ImGui::InputText("##filterinput", filterStr, IM_ARRAYSIZE(filterStr));
+  ImGui::Dummy({1, 10});
+  ImGui::Text("Format options");
+  ImGui::InputText("##formatoptions", formatOptionsStr,
+                   IM_ARRAYSIZE(formatOptionsStr));
 }
 
 void vivictpp::imgui::FileDialog::openLeft() {
   this->leftRight = LeftRight::Left;
-  openDialog( "Choose Left Source File");
+  openDialog("Choose Left Source File");
 }
 
 void vivictpp::imgui::FileDialog::openRight() {
@@ -32,28 +35,29 @@ void vivictpp::imgui::FileDialog::openRight() {
 }
 
 void vivictpp::imgui::FileDialog::openDialog(std::string text) {
-  auto optionsPaneCallback = [this](const char *vFilter, IGFDUserDatas vUserDatas, bool *vCantContinue) {
-                          (void) vFilter;
-                          (void) vUserDatas;
-                          (void) vCantContinue;
-                          this->optionsPane();
+  auto optionsPaneCallback = [this](const char *vFilter,
+                                    IGFDUserDatas vUserDatas,
+                                    bool *vCantContinue) {
+    (void)vFilter;
+    (void)vUserDatas;
+    (void)vCantContinue;
+    this->optionsPane();
   };
-  fileDialog.OpenDialog("ChooseFileDlgKey", text.c_str(), ".*", folder + "/", "",
-                        optionsPaneCallback, 350, 1, nullptr);
+  fileDialog.OpenDialog("ChooseFileDlgKey", text.c_str(), ".*", folder + "/",
+                        "", optionsPaneCallback, 350, 1, nullptr);
 }
 
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::FileDialog::draw() {
   std::vector<Action> actions;
-  if (fileDialog.Display("ChooseFileDlgKey", 0, {400,300}))
-  {
+  if (fileDialog.Display("ChooseFileDlgKey", 0, {400, 300})) {
     // action if OK
-    if (fileDialog.IsOk())
-    {
+    if (fileDialog.IsOk()) {
       std::string filePathName = fileDialog.GetFilePathName();
       folder = fileDialog.GetCurrentPath();
-      ActionType actionType = leftRight == LeftRight::Left ? ActionType::OpenFileLeft
-                              : ActionType::OpenFileRight;
-      actions.push_back({actionType, 0, {0,0}, filePathName});
+      ActionType actionType = leftRight == LeftRight::Left
+                                  ? ActionType::OpenFileLeft
+                                  : ActionType::OpenFileRight;
+      actions.push_back({actionType, 0, {0, 0}, filePathName});
     }
 
     // close

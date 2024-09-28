@@ -11,36 +11,39 @@
 #include <libavutil/dict.h>
 #include <string>
 
-void parseFormatOptions(std::string formatOptions, std::string &format, AVDictionary** options) {
-    if (formatOptions.empty()) {
-        return;
-    }
-    size_t start;
-    size_t end = 0;
-    std::string delim(":");
-    while ((start = formatOptions.find_first_not_of(delim, end)) != std::string::npos)
-    {
-      end = formatOptions.find(delim, start);
-      std::string keyValue = formatOptions.substr(start, end - start);
-      size_t index = keyValue.find("=");
-      if (index != std::string::npos){
-        std::string key = keyValue.substr(0, index);
-        std::string value = keyValue.substr(index+1);
-        if (key == std::string("format")) {
-          format = value;
-        } else {
-          av_dict_set(options, key.c_str(), value.c_str(), 0);
-        }
+void parseFormatOptions(std::string formatOptions, std::string &format,
+                        AVDictionary **options) {
+  if (formatOptions.empty()) {
+    return;
+  }
+  size_t start;
+  size_t end = 0;
+  std::string delim(":");
+  while ((start = formatOptions.find_first_not_of(delim, end)) !=
+         std::string::npos) {
+    end = formatOptions.find(delim, start);
+    std::string keyValue = formatOptions.substr(start, end - start);
+    size_t index = keyValue.find("=");
+    if (index != std::string::npos) {
+      std::string key = keyValue.substr(0, index);
+      std::string value = keyValue.substr(index + 1);
+      if (key == std::string("format")) {
+        format = value;
       } else {
-        av_dict_set(options, keyValue.c_str(), nullptr, 0);
+        av_dict_set(options, key.c_str(), value.c_str(), 0);
       }
+    } else {
+      av_dict_set(options, keyValue.c_str(), nullptr, 0);
     }
+  }
 }
 
-vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string formatOptions)
+vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile,
+                                              std::string formatOptions)
     : formatContext(nullptr), inputFile(inputFile), packet(nullptr),
-      logger(vivictpp::logging::getOrCreateLogger("vivictpp::libav::FormatHandler")),
-      seeklog(vivictpp::logging::getOrCreateLogger("vivictpp::seeklog")){
+      logger(vivictpp::logging::getOrCreateLogger(
+          "vivictpp::libav::FormatHandler")),
+      seeklog(vivictpp::logging::getOrCreateLogger("vivictpp::seeklog")) {
 #if LIBAVFORMAT_VERSION_MAJOR >= 59
   const AVInputFormat *inputFormat = nullptr;
 #else
@@ -49,16 +52,18 @@ vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string
   AVDictionary *options = NULL;
   std::string format;
   parseFormatOptions(formatOptions, format, &options);
-  if (!format.empty() && !(inputFormat = av_find_input_format(format.c_str()))) {
+  if (!format.empty() &&
+      !(inputFormat = av_find_input_format(format.c_str()))) {
     av_dict_free(&options);
     throw std::runtime_error(std::string("Unknown format: ") + format);
   }
 
-  vivictpp::libav::AVResult result = avformat_open_input(&this->formatContext, this->inputFile.c_str(),
-                                                         inputFormat, &options);
+  vivictpp::libav::AVResult result = avformat_open_input(
+      &this->formatContext, this->inputFile.c_str(), inputFormat, &options);
   av_dict_free(&options);
   if (result.error()) {
-    throw std::runtime_error(std::string("Failed to open input: ") + result.getMessage());
+    throw std::runtime_error(std::string("Failed to open input: ") +
+                             result.getMessage());
   }
 
   // Retrieve stream information
@@ -67,7 +72,7 @@ vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string
   }
 
   // Dump information about file onto standard error
-  //av_dump_format(formatContext, 0, this->inputFile.c_str(), 0);
+  // av_dump_format(formatContext, 0, this->inputFile.c_str(), 0);
 
   for (unsigned int i = 0; i < this->formatContext->nb_streams; i++) {
     this->streams.push_back(this->formatContext->streams[i]);
@@ -78,8 +83,7 @@ vivictpp::libav::FormatHandler::FormatHandler(std::string inputFile, std::string
     case AVMEDIA_TYPE_AUDIO:
       this->audioStreams.push_back(this->formatContext->streams[i]);
       break;
-    default:
-      ;
+    default:;
     }
     this->formatContext->streams[i]->discard = AVDISCARD_ALL;
   }
@@ -96,7 +100,8 @@ vivictpp::libav::FormatHandler::~FormatHandler() {
   }
 }
 
-void vivictpp::libav::FormatHandler::setActiveStreams(const std::set<int> &activeStreams) {
+void vivictpp::libav::FormatHandler::setActiveStreams(
+    const std::set<int> &activeStreams) {
   for (unsigned int i = 0; i < this->formatContext->nb_streams; i++) {
     if (activeStreams.find(i) != activeStreams.end()) {
       setStreamActive(i);
@@ -117,11 +122,12 @@ void vivictpp::libav::FormatHandler::setStreamInactive(int streamIndex) {
   activeStreams.erase(streamIndex);
 }
 
-AVStream* firstActive(const std::vector<AVStream*> &streams) {
-   auto it =std::find_if(streams.begin(), streams.end(), [](const AVStream* entry){
-      return entry->discard == AVDISCARD_DEFAULT;
-    });
-   return it == streams.end() ? nullptr : *it;
+AVStream *firstActive(const std::vector<AVStream *> &streams) {
+  auto it =
+      std::find_if(streams.begin(), streams.end(), [](const AVStream *entry) {
+        return entry->discard == AVDISCARD_DEFAULT;
+      });
+  return it == streams.end() ? nullptr : *it;
 }
 
 void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
@@ -147,16 +153,17 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
     flags = AVSEEK_FLAG_BACKWARD;
   }
   */
-  int64_t ts = av_rescale_q(seek_t, vivictpp::time::TIME_BASE_Q, stream->time_base);
+  int64_t ts =
+      av_rescale_q(seek_t, vivictpp::time::TIME_BASE_Q, stream->time_base);
   if (stream->start_time != AV_NOPTS_VALUE && stream->start_time > ts) {
-      ts = stream->start_time;
+    ts = stream->start_time;
   } else {
-      flags = AVSEEK_FLAG_BACKWARD;
+    flags = AVSEEK_FLAG_BACKWARD;
   }
   seeklog->debug("start_time={}", stream->start_time);
   seeklog->debug("vivictpp::libav::FormatHandler::seek ts={}", ts);
-  vivictpp::libav::AVResult result = av_seek_frame(this->formatContext, stream->index,
-                                                   ts, flags);
+  vivictpp::libav::AVResult result =
+      av_seek_frame(this->formatContext, stream->index, ts, flags);
   if (result.error()) {
     seeklog->error("Seek failed: {}", result.getMessage());
     logger->error("Seek failed: {}", result.getMessage());
@@ -167,17 +174,20 @@ void vivictpp::libav::FormatHandler::seek(vivictpp::time::Time t) {
 AVPacket *vivictpp::libav::FormatHandler::nextPacket() {
   vivictpp::libav::AVResult ret;
   while ((ret = av_read_frame(this->formatContext, this->packet)).success()) {
-      logger->debug("FormatHandler::nextPacket  Got packet: pts={} dts={} stream_index={} keyframe={}",
-                    this->packet->pts, this->packet->dts, this->packet->stream_index, this->packet->flags &
-                    AV_PKT_FLAG_KEY);
+    logger->debug("FormatHandler::nextPacket  Got packet: pts={} dts={} "
+                  "stream_index={} keyframe={}",
+                  this->packet->pts, this->packet->dts,
+                  this->packet->stream_index,
+                  this->packet->flags & AV_PKT_FLAG_KEY);
     if (activeStreams.find(packet->stream_index) != activeStreams.end()) {
       return this->packet;
     }
   }
   if (ret.eof()) {
-      this->_eof = true;
-      return nullptr;
+    this->_eof = true;
+    return nullptr;
   } else {
-    throw std::runtime_error("av_read_frame returned error: " + ret.getMessage());
+    throw std::runtime_error("av_read_frame returned error: " +
+                             ret.getMessage());
   }
 }

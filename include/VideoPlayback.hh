@@ -14,8 +14,7 @@
 
 namespace vivictpp {
 
-//enum class PlaybackState { STOPPED, PLAYING, SEEKING };
-
+// enum class PlaybackState { STOPPED, PLAYING, SEEKING };
 
 struct PlaybackState {
   vivictpp::time::Time duration{0};
@@ -32,16 +31,18 @@ struct PlaybackState {
 
 class VideoPlayback {
 private:
-
   class SeekState {
   public:
     vivictpp::time::Time seekTarget;
     vivictpp::time::Time seekEndPos;
     bool seekDone{true};
     bool error;
+
   private:
-    int currentSeekId{1}; // Used to ignore obsolete callbacks from previos seek operations
+    int currentSeekId{
+        1}; // Used to ignore obsolete callbacks from previos seek operations
     std::mutex m;
+
   public:
     int seekStart(vivictpp::time::Time seekTarget);
     void seekFinished(int seekId, vivictpp::time::Time pos, bool err);
@@ -57,8 +58,10 @@ private:
   PlaybackState playbackState;
   int seekRetry{0};
   vivictpp::logging::Logger logger;
+
 private:
   void initPlaybackState();
+
 public:
   VideoPlayback(const std::vector<SourceConfig> &sourceConfigs);
   void setLeftSource(const SourceConfig &source);
@@ -66,7 +69,8 @@ public:
   void togglePlaying();
   void play();
   void pause();
-  void seek(vivictpp::time::Time seekPts, vivictpp::time::Time streamSeekOffset = 0);
+  void seek(vivictpp::time::Time seekPts,
+            vivictpp::time::Time streamSeekOffset = 0);
   void seekRelative(vivictpp::time::Time deltaPts);
   void seekRelativeFrame(int distance);
   bool checkAdvanceFrame(int64_t nextPresent);
@@ -96,11 +100,9 @@ public:
     }
     return value;
   }
-  const PlaybackState& getPlaybackState() { return playbackState; }
-
+  const PlaybackState &getPlaybackState() { return playbackState; }
 };
 
-}  // namespace vivictpp
-
+} // namespace vivictpp
 
 #endif /* VIVICTPP_VIDEOPLAYBACK_HH_ */

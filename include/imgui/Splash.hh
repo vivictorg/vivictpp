@@ -19,7 +19,6 @@ ____   ____._______   ____._______________________
      VIVICT VIDEO COMPARISON TOOL ++
 )";
 
-}  // namespace vivictpp::imgui
-
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_SPLASH_HH_ */

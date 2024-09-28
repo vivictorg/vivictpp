@@ -12,13 +12,13 @@ extern "C" {
 }
 
 #include <exception>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <set>
 
-#include "time/Time.hh"
 #include "logging/Logging.hh"
+#include "time/Time.hh"
 
 namespace vivictpp {
 namespace libav {
@@ -33,9 +33,7 @@ public:
   const std::vector<AVStream *> &getAudioStreams() const {
     return audioStreams;
   }
-  const std::vector<AVStream *> &getStreams() const {
-    return streams;
-  }
+  const std::vector<AVStream *> &getStreams() const { return streams; }
   AVFormatContext *getFormatContext() const { return formatContext; }
   AVPacket *nextPacket();
   void seek(vivictpp::time::Time t);
@@ -59,7 +57,7 @@ private:
   bool _eof{false};
 };
 
-}  // namespace libav
-}  // namespace vivictpp
+} // namespace libav
+} // namespace vivictpp
 
 #endif // LIBAV_FORMATHANDLER_HH

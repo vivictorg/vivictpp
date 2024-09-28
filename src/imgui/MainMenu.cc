@@ -6,9 +6,9 @@
 #include "imgui.h"
 #include "imgui/Events.hh"
 
-std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
-  const PlaybackState &playbackState,
-  const ui::DisplayState &displayState) {
+std::vector<vivictpp::imgui::Action>
+vivictpp::imgui::MainMenu::draw(const PlaybackState &playbackState,
+                                const ui::DisplayState &displayState) {
   std::vector<Action> actions;
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
@@ -16,7 +16,8 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
       if (ImGui::MenuItem("Open left", "Ctrl+O")) {
         actions.push_back({ActionType::ShowFileDialogLeft});
       }
-      if (ImGui::MenuItem("Open right", "Ctrl+Alt+O", false, playbackState.hasLeftSource)) {
+      if (ImGui::MenuItem("Open right", "Ctrl+Alt+O", false,
+                          playbackState.hasLeftSource)) {
         actions.push_back({ActionType::ShowFileDialogRight});
       }
       ImGui::Separator();
@@ -47,7 +48,8 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::MainMenu::draw(
       if (ImGui::MenuItem("Display Time", "T", displayState.displayTime)) {
         actions.push_back({ActionType::ToggleDisplayTime});
       }
-      if (ImGui::MenuItem("Display Metadata", "D", displayState.displayMetadata)) {
+      if (ImGui::MenuItem("Display Metadata", "D",
+                          displayState.displayMetadata)) {
         actions.push_back({ActionType::ToggleDisplayMetadata});
       }
       ImGui::EndMenu();

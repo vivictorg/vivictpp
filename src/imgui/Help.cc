@@ -7,7 +7,7 @@
 #include "imgui.h"
 
 const std::string HELP_TEXT =
-  R"(
+    R"(
 KEYBOARD SHORTCUTS
 
 SPACE  Play/Pause video

@@ -5,15 +5,15 @@
 #ifndef SDL_SDLAUDIOOUTPUT_HH
 #define SDL_SDLAUDIOOUTPUT_HH
 
-#include "sdl/SDLUtils.hh"
-#include "workers/FrameBuffer.hh"
 #include "AVSync.hh"
 #include "audio/AudioOutput.hh"
+#include "sdl/SDLUtils.hh"
 #include "time/Time.hh"
+#include "workers/FrameBuffer.hh"
 #include <memory>
 
 extern "C" {
-  #include <libavcodec/avcodec.h>
+#include <libavcodec/avcodec.h>
 }
 
 namespace vivictpp {
@@ -26,8 +26,7 @@ struct AudioBuffer {
   int64_t pts{0};
 };
 
-
-class SDLAudioOutput : public vivictpp::audio::AudioOutput  {
+class SDLAudioOutput : public vivictpp::audio::AudioOutput {
 public:
   SDLAudioOutput(AVCodecContext *codecContext);
   ~SDLAudioOutput();
@@ -38,8 +37,10 @@ public:
   vivictpp::time::Time currentPts() override;
   uint32_t queuedSamples();
   vivictpp::time::Time queueDuration() override;
+
 private:
   void nextFrame();
+
 private:
   vivictpp::time::Time lastPts;
   SDL_AudioSpec obtainedSpec;
@@ -52,17 +53,15 @@ private:
 
 class SDLAudioOutputFactory : public vivictpp::audio::AudioOutputFactory {
 public:
-  virtual std::shared_ptr<vivictpp::audio::AudioOutput> create(AVCodecContext *codecContext) override {
-      return std::make_shared<vivictpp::sdl::SDLAudioOutput>(codecContext);
-    }
-
+  virtual std::shared_ptr<vivictpp::audio::AudioOutput>
+  create(AVCodecContext *codecContext) override {
+    return std::make_shared<vivictpp::sdl::SDLAudioOutput>(codecContext);
+  }
 };
 
 static SDLAudioOutputFactory audioOutputFactory;
 
-}  // sdl
-}  // vivictpp
-
-
+} // namespace sdl
+} // namespace vivictpp
 
 #endif

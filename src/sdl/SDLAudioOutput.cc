@@ -14,10 +14,10 @@ extern "C" {
 #include "spdlog/spdlog.h"
 #include <exception>
 
-vivictpp::sdl::SDLAudioOutput::SDLAudioOutput(AVCodecContext *codecContext) :
-  sampleFormat(codecContext->sample_fmt),
-  channels(vivictpp::libav::getChannels(codecContext)),
-  bytesPerSample(av_get_bytes_per_sample(sampleFormat) * channels) {
+vivictpp::sdl::SDLAudioOutput::SDLAudioOutput(AVCodecContext *codecContext)
+    : sampleFormat(codecContext->sample_fmt),
+      channels(vivictpp::libav::getChannels(codecContext)),
+      bytesPerSample(av_get_bytes_per_sample(sampleFormat) * channels) {
   SDL_AudioSpec wantedSpec;
   wantedSpec.channels = vivictpp::libav::getChannels(codecContext);
   wantedSpec.freq = codecContext->sample_rate;
@@ -27,7 +27,9 @@ vivictpp::sdl::SDLAudioOutput::SDLAudioOutput(AVCodecContext *codecContext) :
   wantedSpec.callback = nullptr;
   wantedSpec.userdata = nullptr;
 
-  audioDevice = SDL_OpenAudioDevice(nullptr, 0, &wantedSpec, &obtainedSpec, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+  audioDevice = SDL_OpenAudioDevice(nullptr, 0, &wantedSpec, &obtainedSpec,
+                                    SDL_AUDIO_ALLOW_FREQUENCY_CHANGE |
+                                        SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
   if (audioDevice <= 0) {
     throw std::runtime_error("Failed to open audio device");
   }
@@ -37,12 +39,14 @@ vivictpp::sdl::SDLAudioOutput::~SDLAudioOutput() {
   SDL_CloseAudioDevice(audioDevice);
 }
 
-void vivictpp::sdl::SDLAudioOutput::queueAudio(const vivictpp::libav::Frame &frame) {
-  uint32_t size = (uint32_t) av_samples_get_buffer_size(NULL, vivictpp::libav::getChannels(frame.avFrame()),
-                                                frame.avFrame()->nb_samples,
-                                                (AVSampleFormat) frame.avFrame()->format, 1);
+void vivictpp::sdl::SDLAudioOutput::queueAudio(
+    const vivictpp::libav::Frame &frame) {
+  uint32_t size = (uint32_t)av_samples_get_buffer_size(
+      NULL, vivictpp::libav::getChannels(frame.avFrame()),
+      frame.avFrame()->nb_samples, (AVSampleFormat)frame.avFrame()->format, 1);
   SDL_QueueAudio(audioDevice, frame.avFrame()->data[0], size);
-  lastPts = av_rescale(frame.pts(), vivictpp::time::TIME_BASE, obtainedSpec.freq);
+  lastPts =
+      av_rescale(frame.pts(), vivictpp::time::TIME_BASE, obtainedSpec.freq);
 }
 
 void vivictpp::sdl::SDLAudioOutput::clearQueue() {
@@ -59,7 +63,8 @@ uint32_t vivictpp::sdl::SDLAudioOutput::queuedSamples() {
 }
 
 vivictpp::time::Time vivictpp::sdl::SDLAudioOutput::queueDuration() {
-  return av_rescale(queuedSamples(), vivictpp::time::TIME_BASE, obtainedSpec.freq);
+  return av_rescale(queuedSamples(), vivictpp::time::TIME_BASE,
+                    obtainedSpec.freq);
 }
 
 void vivictpp::sdl::SDLAudioOutput::start() {

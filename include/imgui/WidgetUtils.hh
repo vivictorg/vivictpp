@@ -5,25 +5,27 @@
 #ifndef VIVICTPP_IMGUI_WIDGETUTILS_HH_
 #define VIVICTPP_IMGUI_WIDGETUTILS_HH_
 
+#include "imgui.h"
+#include "imgui/Colors.hh"
+#include "logging/Logging.hh"
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
-#include "imgui.h"
-#include "logging/Logging.hh"
-#include "imgui/Colors.hh"
 
 namespace vivictpp::imgui {
 
-void comboBox(std::string label, const std::vector<std::string> &items, std::string &currentItem, const std::function<bool(const std::string&)> &exclude = {});
+void comboBox(std::string label, const std::vector<std::string> &items,
+              std::string &currentItem,
+              const std::function<bool(const std::string &)> &exclude = {});
 
 template <typename T>
-void prioritizedList (const char* str_id,
-                      const float &width,
-                      std::vector<T> &items,
-                      const std::function<void(T&)> &render, bool enableRemove = false,
-                      const std::function<void(T&)> &onRemove = {}){
+void prioritizedList(const char *str_id, const float &width,
+                     std::vector<T> &items,
+                     const std::function<void(T &)> &render,
+                     bool enableRemove = false,
+                     const std::function<void(T &)> &onRemove = {}) {
   ImGui::PushID(str_id);
-  for (size_t n=0; n < items.size(); n++) {
+  for (size_t n = 0; n < items.size(); n++) {
     ImGui::PushItemWidth(8.0f);
     ImGui::PushID(n);
     render(items[n]);
@@ -33,7 +35,7 @@ void prioritizedList (const char* str_id,
     }
     if (ImGui::ArrowButton("##moveup", ImGuiDir_Up)) {
       T current = items[n];
-      int n_next = n-1;
+      int n_next = n - 1;
       items[n] = items[n_next];
       items[n_next] = current;
     }
@@ -46,7 +48,7 @@ void prioritizedList (const char* str_id,
     }
     if (ImGui::ArrowButton("##movedown", ImGuiDir_Down)) {
       T current = items[n];
-      int n_next = n+1;
+      int n_next = n + 1;
       items[n] = items[n_next];
       items[n_next] = current;
     }
@@ -71,39 +73,40 @@ void prioritizedList (const char* str_id,
 }
 
 template <typename T>
-void tableRow(const char* label, const char* format, T value) {
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::Text("%s", label);
-    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
-    ImGui::TableNextColumn();
-    ImGui::Text(format, value);
-    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+void tableRow(const char *label, const char *format, T value) {
+  ImGui::TableNextRow();
+  ImGui::TableNextColumn();
+  ImGui::Text("%s", label);
+  ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+  ImGui::TableNextColumn();
+  ImGui::Text(format, value);
+  ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
 }
 
 template <>
-void tableRow<std::string>(const char* label, const char* format, std::string value);
+void tableRow<std::string>(const char *label, const char *format,
+                           std::string value);
 
 template <typename T>
-void tableRow2(float firstColumnWidth, const char* label, const char* format, T value) {
-    ImGui::Text("%s", label);
-    ImGui::SameLine(firstColumnWidth);
-    ImGui::Text(format, value);
+void tableRow2(float firstColumnWidth, const char *label, const char *format,
+               T value) {
+  ImGui::Text("%s", label);
+  ImGui::SameLine(firstColumnWidth);
+  ImGui::Text(format, value);
 }
 
 template <typename T>
-void tableRow2(float firstColumnWidth, const char* label, const char* format, T value1, T value2) {
-    ImGui::Text("%s", label);
-    ImGui::SameLine(firstColumnWidth);
-    ImGui::Text(format, value1, value2);
+void tableRow2(float firstColumnWidth, const char *label, const char *format,
+               T value1, T value2) {
+  ImGui::Text("%s", label);
+  ImGui::SameLine(firstColumnWidth);
+  ImGui::Text(format, value1, value2);
 }
 
 template <>
-void tableRow2<std::string>(float firstColumnWidth, const char* label, const char* format, std::string value);
+void tableRow2<std::string>(float firstColumnWidth, const char *label,
+                            const char *format, std::string value);
 
-
-
-}  // namespace vivictpp::imgui
-
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_WIDGETUTILS_HH_ */

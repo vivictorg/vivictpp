@@ -10,15 +10,11 @@ void freePacket(AVPacket *pkt) {
   }
 }
 
-vivictpp::libav::Packet::Packet():
-  packet() {}
+vivictpp::libav::Packet::Packet() : packet() {}
 
-vivictpp::libav::Packet::Packet(AVPacket *pkt):
-  packet(pkt ? av_packet_clone(pkt) : pkt, &freePacket) {}
+vivictpp::libav::Packet::Packet(AVPacket *pkt)
+    : packet(pkt ? av_packet_clone(pkt) : pkt, &freePacket) {}
 
-  vivictpp::libav::Packet::Packet(bool _eof):
-  _eof(_eof) {}
+vivictpp::libav::Packet::Packet(bool _eof) : _eof(_eof) {}
 
-AVPacket* vivictpp::libav::Packet::avPacket() {
-  return packet.get();
-}
+AVPacket *vivictpp::libav::Packet::avPacket() { return packet.get(); }

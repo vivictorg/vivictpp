@@ -5,10 +5,10 @@
 #ifndef VIVICTPP_SETTINGS_HH_
 #define VIVICTPP_SETTINGS_HH_
 
-#include <vector>
-#include <string>
-#include <map>
 #include <filesystem>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace vivictpp {
 
@@ -31,6 +31,6 @@ void saveSettings(const Settings &settings);
 
 bool operator==(const Settings &lhs, const Settings &rhs);
 
-}
+} // namespace vivictpp
 
 #endif /* VIVICTPP_SETTINGS_HH_ */

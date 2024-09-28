@@ -12,7 +12,7 @@ void vivictpp::AVSync::playbackStart(vivictpp::time::Time ptsMicros) {
 
 int64_t vivictpp::AVSync::clock() {
   int64_t t = vivictpp::time::relativeTimeMicros();
-  return  t - t0;
+  return t - t0;
 }
 
 int64_t vivictpp::AVSync::diffMicros(vivictpp::time::Time ptsMicros) {

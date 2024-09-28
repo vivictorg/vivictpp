@@ -5,7 +5,8 @@
 #include "VideoPlayback.hh"
 #include "time/Time.hh"
 
-int vivictpp::VideoPlayback::SeekState::seekStart(vivictpp::time::Time seekTarget) {
+int vivictpp::VideoPlayback::SeekState::seekStart(
+    vivictpp::time::Time seekTarget) {
   std::lock_guard<std::mutex> lg(m);
   currentSeekId++;
   seekDone = false;
@@ -14,7 +15,9 @@ int vivictpp::VideoPlayback::SeekState::seekStart(vivictpp::time::Time seekTarge
   return currentSeekId;
 };
 
-void vivictpp::VideoPlayback::SeekState::seekFinished(int seekId, vivictpp::time::Time pos, bool err) {
+void vivictpp::VideoPlayback::SeekState::seekFinished(int seekId,
+                                                      vivictpp::time::Time pos,
+                                                      bool err) {
   spdlog::info("Seek finished, pos={}, err={}", pos, err);
   std::lock_guard<std::mutex> lg(m);
   if (seekId != currentSeekId) {
@@ -29,14 +32,14 @@ void vivictpp::VideoPlayback::SeekState::sync() {
   std::lock_guard<std::mutex> lg(m);
 }
 
-vivictpp::VideoPlayback::VideoPlayback(const std::vector<SourceConfig> &sourceConfigs):
-  videoInputs(),
-  logger(vivictpp::logging::getOrCreateLogger("vivictpp::VideoPlayback"))
-{
+vivictpp::VideoPlayback::VideoPlayback(
+    const std::vector<SourceConfig> &sourceConfigs)
+    : videoInputs(),
+      logger(vivictpp::logging::getOrCreateLogger("vivictpp::VideoPlayback")) {
   if (sourceConfigs.size() >= 1) {
     videoInputs.openLeft(sourceConfigs[0]);
   }
-  if (sourceConfigs.size() >=2 ) {
+  if (sourceConfigs.size() >= 2) {
     videoInputs.openRight(sourceConfigs[1]);
   }
   if (!sourceConfigs.empty()) {
@@ -84,7 +87,8 @@ void vivictpp::VideoPlayback::play() {
 
 void vivictpp::VideoPlayback::pause() { playbackState.playing = false; }
 
-void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,  vivictpp::time::Time streamSeekOffset) {
+void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,
+                                   vivictpp::time::Time streamSeekOffset) {
   logger->debug("seek: pts={}", seekPts);
   seekPts = std::max(seekPts, videoInputs.minPts());
   if (videoInputs.hasMaxPts()) {
@@ -105,9 +109,12 @@ void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,  vivictpp::time
     logger->debug("seek: pts is not in range");
     playbackState.seeking = true;
     int seekId = seekState.seekStart(seekPts);
-    videoInputs.seek(seekPts, [this, seekId](vivictpp::time::Time pos, bool error) {
-      this->seekState.seekFinished(seekId, pos, error);
-    }, streamSeekOffset);
+    videoInputs.seek(
+        seekPts,
+        [this, seekId](vivictpp::time::Time pos, bool error) {
+          this->seekState.seekFinished(seekId, pos, error);
+        },
+        streamSeekOffset);
   }
 }
 
@@ -121,14 +128,18 @@ void vivictpp::VideoPlayback::seekRelative(vivictpp::time::Time deltaPts) {
 }
 
 void vivictpp::VideoPlayback::seekRelativeFrame(int distance) {
-  if (distance == 0) return;
+  if (distance == 0)
+    return;
   if (playbackState.seeking) {
     seek(seekState.seekTarget + distance * frameDuration);
   } else {
     vivictpp::time::Time seekPts;
-    if (distance == 1) seekPts = videoInputs.nextPts();
-    else if (distance == -1) seekPts = videoInputs.previousPts();
-    else seekPts = playbackState.pts + distance * frameDuration;
+    if (distance == 1)
+      seekPts = videoInputs.nextPts();
+    else if (distance == -1)
+      seekPts = videoInputs.previousPts();
+    else
+      seekPts = playbackState.pts + distance * frameDuration;
     if (vivictpp::time::isNoPts(seekPts)) {
       seekPts = playbackState.pts + distance * frameDuration;
     }
@@ -145,16 +156,19 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
       logger->debug("checkAdvanceFrame: seekState.seekDone=false");
       return false;
     }
-//    logger->debug("checkAdvanceFrame playbackState.seeking=true, seekEndPos={}", seekState.seekEndPos);
-    logger->debug("seekEndPos={} seekTarget={}", seekState.seekEndPos, seekState.seekTarget);
-    if (!videoInputs.ptsInRange(seekState.seekTarget) && seekState.seekEndPos - seekState.seekTarget > 1000) {
-      // In some circumstances, for instance if steeping back one frame from an iframe
-      // Seeking may not work due to av_seek_frame apperantly seeking on packet dts
-      // Which may be slightly lower than seek dts we calculate. Therefore, retry seek
-      // with seeking to an earlier position in stream
+    //    logger->debug("checkAdvanceFrame playbackState.seeking=true,
+    //    seekEndPos={}", seekState.seekEndPos);
+    logger->debug("seekEndPos={} seekTarget={}", seekState.seekEndPos,
+                  seekState.seekTarget);
+    if (!videoInputs.ptsInRange(seekState.seekTarget) &&
+        seekState.seekEndPos - seekState.seekTarget > 1000) {
+      // In some circumstances, for instance if steeping back one frame from an
+      // iframe Seeking may not work due to av_seek_frame apperantly seeking on
+      // packet dts Which may be slightly lower than seek dts we calculate.
+      // Therefore, retry seek with seeking to an earlier position in stream
       if (seekRetry == 0) {
         seekRetry = 1;
-        seek(seekState.seekTarget,  vivictpp::time::seconds(-1));
+        seek(seekState.seekTarget, vivictpp::time::seconds(-1));
         return false;
       }
     }
@@ -194,17 +208,17 @@ bool vivictpp::VideoPlayback::checkAdvanceFrame(int64_t nextPresent) {
   }
 
   vivictpp::time::Time nextPts = videoInputs.nextPts();
-  vivictpp::time::Time nextDisplayPts = playbackStartPts + speedFactorDen *
-                                        (nextPresent - t0) / speedFactorNum;
+  vivictpp::time::Time nextDisplayPts =
+      playbackStartPts + speedFactorDen * (nextPresent - t0) / speedFactorNum;
   if (nextDisplayPts > videoInputs.maxPts()) {
-      nextDisplayPts = videoInputs.maxPts();
+    nextDisplayPts = videoInputs.maxPts();
   }
   if (videoInputs.ptsInRange(nextPts)) {
     if (nextDisplayPts >= nextPts) {
-      while( nextDisplayPts >= nextPts && videoInputs.ptsInRange(nextPts)) {
+      while (nextDisplayPts >= nextPts && videoInputs.ptsInRange(nextPts)) {
         advanceFrame(nextPts);
         if (std::abs(nextPts - videoInputs.maxPts()) < 1000) {
-            pause();
+          pause();
         }
         nextPts = videoInputs.nextPts();
       }
@@ -222,5 +236,5 @@ void vivictpp::VideoPlayback::advanceFrame(vivictpp::time::Time nextPts) {
   playbackState.pts = nextPts;
 
   videoInputs.step(playbackState.pts);
-//  logger->debug("After advance frame pts={}", videoInputs.);
+  //  logger->debug("After advance frame pts={}", videoInputs.);
 }

@@ -3,15 +3,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "Settings.hh"
-#include "toml.hpp"
-#include "platform_folders.h"
 #include "fmt/core.h"
-#include <iostream>
+#include "platform_folders.h"
+#include "toml.hpp"
 #include <fstream>
+#include <iostream>
 #include <map>
 
 std::filesystem::path getSettingsFilePath() {
-  return std::filesystem::path(fmt::format("{}/vivictpp/vivictpp.toml", sago::getConfigHome())).make_preferred();
+  return std::filesystem::path(
+             fmt::format("{}/vivictpp/vivictpp.toml", sago::getConfigHome()))
+      .make_preferred();
 }
 
 toml::array toTomlArray(std::vector<std::string> v) {
@@ -32,7 +34,8 @@ toml::array toTomlArray(std::map<std::string, std::string> m) {
 
 std::vector<std::string> toVector(const toml::array *arr) {
   std::vector<std::string> result;
-  if (!arr) return result;
+  if (!arr)
+    return result;
   for (size_t i = 0; i < arr->size(); i++) {
     result.push_back((*arr)[i].as_string()->get());
   }
@@ -41,7 +44,8 @@ std::vector<std::string> toVector(const toml::array *arr) {
 
 std::map<std::string, std::string> toMap(const toml::table *tbl) {
   std::map<std::string, std::string> result;
-  if (!tbl) return result;
+  if (!tbl)
+    return result;
   for (auto it = tbl->begin(); it != tbl->end(); it++) {
     result[std::string(it->first.str())] = it->second.as_string()->get();
   }
@@ -49,8 +53,8 @@ std::map<std::string, std::string> toMap(const toml::table *tbl) {
 }
 
 vivictpp::Settings vivictpp::loadSettings() {
-    auto filePath = getSettingsFilePath();
-    return loadSettings(filePath);
+  auto filePath = getSettingsFilePath();
+  return loadSettings(filePath);
 }
 
 void loadInt(int &target, const toml::table &table, const std::string &path) {
@@ -65,19 +69,22 @@ void loadBool(bool &target, const toml::table &table, const std::string &path) {
   }
 }
 
-void loadVector(std::vector<std::string> &target, const toml::table &table, const std::string &path) {
+void loadVector(std::vector<std::string> &target, const toml::table &table,
+                const std::string &path) {
   if (table.at_path(path).is_array()) {
     target = toVector(table.at_path(path).as_array());
   }
 }
 
-void loadString(std::string &target, const toml::table &table, const std::string &path) {
+void loadString(std::string &target, const toml::table &table,
+                const std::string &path) {
   if (table.at_path(path).is_string()) {
     target = table.at_path(path).as_string()->get();
   }
 }
 
-void loadMap(std::map<std::string, std::string> &target, const toml::table &table, const std::string &path) {
+void loadMap(std::map<std::string, std::string> &target,
+             const toml::table &table, const std::string &path) {
   if (table.at_path(path).is_table()) {
     target = toMap(table.at_path(path).as_table());
   }
@@ -92,7 +99,8 @@ vivictpp::Settings vivictpp::loadSettings(std::filesystem::path filePath) {
     toml::table toml = toml::parse_file(filePath.string());
     Settings settings;
     loadInt(settings.baseFontSize, toml, "fontsettings.basefontsize");
-    loadBool(settings.disableFontAutoScaling, toml, "fontsettings.disableautoscaling");
+    loadBool(settings.disableFontAutoScaling, toml,
+             "fontsettings.disableautoscaling");
     loadVector(settings.hwAccels, toml, "decoding.enabledHwAccels");
     loadVector(settings.preferredDecoders, toml, "decoding.preferredDecoders");
     loadInt(settings.logBufferSize, toml, "logsettings.logbuffersize");
@@ -101,11 +109,10 @@ vivictpp::Settings vivictpp::loadSettings(std::filesystem::path filePath) {
     loadMap(settings.logLevels, toml, "loglevels");
     return settings;
 
-  } catch (const toml::parse_error& err) {
+  } catch (const toml::parse_error &err) {
     // TODO: Add logging
     return {};
   }
-
 }
 
 toml::table settingsToToml(const vivictpp::Settings &settings) {
@@ -140,13 +147,13 @@ void vivictpp::saveSettings(const vivictpp::Settings &settings) {
   settingsFile.close();
 }
 
-bool vivictpp::operator==(const vivictpp::Settings &lhs, const vivictpp::Settings &rhs) {
-    return lhs.baseFontSize == rhs.baseFontSize &&
-             lhs.disableFontAutoScaling == rhs.disableFontAutoScaling &&
-             lhs.hwAccels == rhs.hwAccels &&
-             lhs.preferredDecoders == rhs.preferredDecoders &&
-             lhs.logBufferSize == rhs.logBufferSize &&
-             lhs.logToFile == rhs.logToFile &&
-             lhs.logFile == rhs.logFile &&
-             lhs.logLevels == rhs.logLevels;
+bool vivictpp::operator==(const vivictpp::Settings &lhs,
+                          const vivictpp::Settings &rhs) {
+  return lhs.baseFontSize == rhs.baseFontSize &&
+         lhs.disableFontAutoScaling == rhs.disableFontAutoScaling &&
+         lhs.hwAccels == rhs.hwAccels &&
+         lhs.preferredDecoders == rhs.preferredDecoders &&
+         lhs.logBufferSize == rhs.logBufferSize &&
+         lhs.logToFile == rhs.logToFile && lhs.logFile == rhs.logFile &&
+         lhs.logLevels == rhs.logLevels;
 }

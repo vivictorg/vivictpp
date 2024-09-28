@@ -4,13 +4,13 @@
 
 #include "imgui/About.hh"
 
-#include "imgui.h"
 #include "Version.hh"
+#include "imgui.h"
 #include <cstdio>
 #include <string>
 
 const std::string COPYRIGHT_INFO =
-  R"(
+    R"(
 Copyright 2021-2022 Sveriges Televison AB (svt.se)
 Copyright 2023 Gustav Grusell (gustav.grusell@gmail.com)
 
@@ -34,7 +34,7 @@ VIVICT++ uses the following third-party libraries. See below for licenses.
 )";
 
 const std::string LICENSES1 =
-  R"(
+    R"(
 ====
 The below license applies to Vivict++, FFmpeg, FreeMono
 
@@ -173,7 +173,7 @@ the scope of this License.
 )";
 
 const std::string LICENSES1_2 =
-  R"(
+    R"(
   3. You may copy and distribute the Program (or a work based on it,
 under Section 2) in object code or executable form under the terms of
 Sections 1 and 2 above provided that you also do one of the following:
@@ -383,7 +383,7 @@ Public License instead of this License.
 )";
 
 const std::string LICENSES2 =
-  R"(
+    R"(
 ====
 The below license applies to SDL2, SDL2_ttf
 
@@ -405,7 +405,7 @@ freely, subject to the following restrictions:
 )";
 
 const std::string LICENSES3 =
-  R"(
+    R"(
 ====
 The below license applies to ImGui
 
@@ -433,7 +433,7 @@ SOFTWARE.
 )";
 
 const std::string LICENSES4 =
-  R"(
+    R"(
 ====
 The below license applies to ImGuiFileDialog
 
@@ -461,7 +461,7 @@ SOFTWARE.
 )";
 
 const std::string LICENSES5 =
-  R"(
+    R"(
 ====
 The below license applies to sdplog
 
@@ -493,7 +493,7 @@ and users must comply to its license: https://github.com/fmtlib/fmt/blob/master/
 )";
 
 const std::string LICENSES6 =
-  R"(
+    R"(
 ====
 The below license applies to cli11
 
@@ -525,7 +525,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 )";
 
 const std::string LICENSES7 =
-  R"(
+    R"(
 ====
 The below license applies to vivict-icons
 
@@ -553,9 +553,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 )";
 
-
 const std::string LICENSES8 =
-  R"(
+    R"(
 ====
 The below license applies to PlatformFolders
 
@@ -583,7 +582,7 @@ SOFTWARE.
 )";
 
 const std::string LICENSES9 =
-  R"(
+    R"(
 ====
 The below license applies to tomlplusplus
 
@@ -607,7 +606,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 )";
 
 const std::string LICENSE10 =
-  R"(
+    R"(
 ====
 The below license applies to utf8
 
@@ -637,10 +636,11 @@ SOFTWARE.
 
 void vivictpp::imgui::showAbout(ui::DisplayState &displayState) {
   char version[255];
-  std::string hash = std::string(VPP_GIT_HASH).empty() ?
-                     std::string("") : std::string(" (") + VPP_GIT_HASH + ")";
+  std::string hash = std::string(VPP_GIT_HASH).empty()
+                         ? std::string("")
+                         : std::string(" (") + VPP_GIT_HASH + ")";
   std::sprintf(version, "VIVICT++ %s%s", VPP_VERSION, hash.c_str());
-;
+  ;
   if (ImGui::Begin("About", &displayState.displayAbout)) {
     ImGui::Text("%s\n\n", version);
     ImGui::Text("%s", COPYRIGHT_INFO.c_str());
@@ -656,7 +656,6 @@ void vivictpp::imgui::showAbout(ui::DisplayState &displayState) {
     ImGui::TextUnformatted(LICENSES8.c_str());
     ImGui::TextUnformatted(LICENSES9.c_str());
     ImGui::TextUnformatted(LICENSE10.c_str());
-
   }
   ImGui::End();
 }

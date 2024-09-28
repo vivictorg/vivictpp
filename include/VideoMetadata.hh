@@ -13,33 +13,33 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 }
 
+#include <atomic>
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <atomic>
 
 #include "Resolution.hh"
 #include "time/Time.hh"
 
 class FilteredVideoMetadata {
 public:
-    FilteredVideoMetadata(std::string filterDefinition = "",
-                          Resolution resolution = Resolution(0,0),
-                          AVRational sampleAspectRatio = {1,1},
-                          double frameRate = 0);
-    std::string filteredDefinition;
-    Resolution resolution;
-    AVRational sampleAspectRatio;
-    double frameRate;
+  FilteredVideoMetadata(std::string filterDefinition = "",
+                        Resolution resolution = Resolution(0, 0),
+                        AVRational sampleAspectRatio = {1, 1},
+                        double frameRate = 0);
+  std::string filteredDefinition;
+  Resolution resolution;
+  AVRational sampleAspectRatio;
+  double frameRate;
+
 public:
-    bool empty() const { return filteredDefinition.empty(); }
+  bool empty() const { return filteredDefinition.empty(); }
 };
 
 class VideoMetadata {
 public:
   VideoMetadata();
-  VideoMetadata(const std::string &source,
-                const AVFormatContext *formatContext,
+  VideoMetadata(const std::string &source, const AVFormatContext *formatContext,
                 const AVStream *videoStream,
                 const FilteredVideoMetadata &filteredVideoMetadata);
 
@@ -62,6 +62,7 @@ public:
   std::string toString() const;
   bool empty() const { return _empty; }
   bool hasDuration() const { return duration != vivictpp::time::NO_TIME; }
+
 private:
   std::string resolutionAsString() const;
   bool _empty;

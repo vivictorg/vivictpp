@@ -5,8 +5,8 @@
 #ifndef LIBAV_AVERRORUTILS_HH
 #define LIBAV_AVERRORUTILS_HH
 
-#include <string>
 #include <exception>
+#include <string>
 
 #include "libavutil/error.h"
 
@@ -15,19 +15,15 @@ namespace libav {
 
 class AVResult {
 public:
-  AVResult():
-    code(0) { }
-  AVResult(int code):
-    code(code) {  }
+  AVResult() : code(0) {}
+  AVResult(int code) : code(code) {}
 
   std::string getMessage() {
     char buf[512];
     av_strerror(code, buf, 512);
     return std::string(buf);
   }
-  bool operator==(const AVResult &other) {
-    return this->code == other.code;
-  }
+  bool operator==(const AVResult &other) { return this->code == other.code; }
   bool success() { return code == 0; }
   bool error() { return code != 0; }
   bool eagain() { return code == AVERROR(EAGAIN); }
@@ -42,7 +38,7 @@ private:
   int code;
 };
 
-}  // namespace libav
-}  // namespace vivictpp
+} // namespace libav
+} // namespace vivictpp
 
 #endif // LIBAV_AVERRORUTILS_HH

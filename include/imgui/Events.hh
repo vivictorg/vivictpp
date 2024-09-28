@@ -5,10 +5,10 @@
 #ifndef VIVICTPP_IMGUI_EVENTS_HH_
 #define VIVICTPP_IMGUI_EVENTS_HH_
 
-#include "time/Time.hh"
 #include "imgui.h"
-#include <string>
+#include "time/Time.hh"
 #include <memory>
+#include <string>
 
 namespace vivictpp::imgui {
 
@@ -17,46 +17,31 @@ public:
   virtual ~Event() = default;
 };
 
-class Quit: public Event {};
+class Quit : public Event {};
 
-class WindowSizeChange: public Event {};
+class WindowSizeChange : public Event {};
 
-class MouseMotion: public Event {
+class MouseMotion : public Event {
 public:
-  MouseMotion(int x, int y):
-    x(x), y(y) { }
+  MouseMotion(int x, int y) : x(x), y(y) {}
   int x;
   int y;
 };
 
-class KeyEvent: public Event {
+class KeyEvent : public Event {
 public:
-  KeyEvent(std::string keyName, bool shift, bool ctrl, bool alt):
-    keyName(keyName),
-    shift(shift),
-    ctrl(ctrl),
-    alt(alt) {};
+  KeyEvent(std::string keyName, bool shift, bool ctrl, bool alt)
+      : keyName(keyName), shift(shift), ctrl(ctrl), alt(alt){};
   std::string keyName;
   bool shift{false};
   bool ctrl{false};
   bool alt{false};
-  bool noModifiers() const {
-    return !shift && !ctrl && !alt;
-  }
-  bool isShift() const {
-    return shift && !ctrl && !alt;
-  }
-  bool isCtrl() const {
-    return !shift && ctrl && !alt;
-  }
-  bool isCtrlShift() const {
-    return shift && ctrl && !alt;
-  }
-  bool isCtrlAlt() const {
-    return !shift && ctrl && alt;
-  }
+  bool noModifiers() const { return !shift && !ctrl && !alt; }
+  bool isShift() const { return shift && !ctrl && !alt; }
+  bool isCtrl() const { return !shift && ctrl && !alt; }
+  bool isCtrlShift() const { return shift && ctrl && !alt; }
+  bool isCtrlAlt() const { return !shift && ctrl && alt; }
 };
-
 
 enum ActionType {
   NoAction,
@@ -92,19 +77,15 @@ enum ActionType {
 };
 
 struct Action {
-  Action(ActionType type, vivictpp::time::Time seek = 0, ImVec2 scroll = {0,0},
-         std::string file = ""):
-    type(type),
-    seek(seek),
-    scroll(scroll),
-    file(file){};
+  Action(ActionType type, vivictpp::time::Time seek = 0, ImVec2 scroll = {0, 0},
+         std::string file = "")
+      : type(type), seek(seek), scroll(scroll), file(file){};
   ActionType type;
   vivictpp::time::Time seek;
   ImVec2 scroll;
   std::string file;
 };
 
-}  // namespace vivictpp::imgui
-
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_EVENTS_HH_ */

@@ -5,11 +5,12 @@
 #include "imgui/WidgetUtils.hh"
 #include "imgui.h"
 
-void vivictpp::imgui::comboBox(std::string label,
-                               const std::vector<std::string> &items,
-                               std::string &currentItem,
-                               const std::function<bool(const std::string&)> &exclude) {
-  if ((exclude && exclude(currentItem)) || std::find(items.begin(), items.end(), currentItem) == items.end()) {
+void vivictpp::imgui::comboBox(
+    std::string label, const std::vector<std::string> &items,
+    std::string &currentItem,
+    const std::function<bool(const std::string &)> &exclude) {
+  if ((exclude && exclude(currentItem)) ||
+      std::find(items.begin(), items.end(), currentItem) == items.end()) {
     currentItem = "";
     for (auto &item : items) {
       if (!exclude || !exclude(item)) {
@@ -35,19 +36,23 @@ void vivictpp::imgui::comboBox(std::string label,
   }
 }
 
-
 template <>
-void vivictpp::imgui::tableRow<std::string>(const char* label, const char* format, std::string value) {
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::Text("%s", label);
-    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
-    ImGui::TableNextColumn();
-    ImGui::Text(format, value.c_str());
-    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+void vivictpp::imgui::tableRow<std::string>(const char *label,
+                                            const char *format,
+                                            std::string value) {
+  ImGui::TableNextRow();
+  ImGui::TableNextColumn();
+  ImGui::Text("%s", label);
+  ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
+  ImGui::TableNextColumn();
+  ImGui::Text(format, value.c_str());
+  ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, transparentBg);
 }
 
-template<>
-void vivictpp::imgui::tableRow2<std::string>(const float firstColumnWidth, const char* label, const char* format, std::string value) {
+template <>
+void vivictpp::imgui::tableRow2<std::string>(const float firstColumnWidth,
+                                             const char *label,
+                                             const char *format,
+                                             std::string value) {
   tableRow2(firstColumnWidth, label, format, value.c_str());
 }

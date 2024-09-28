@@ -5,22 +5,22 @@
 #define SDL_MAIN_HANDLED
 
 #include <ostream>
-#define CATCH_CONFIG_RUNNER  // This tells Catch to provide a main() - only do this in one cpp file
+#define CATCH_CONFIG_RUNNER // This tells Catch to provide a main() - only do
+                            // this in one cpp file
 #include "catch2/catch.hpp"
 
-//extern "C" {
-//#include <SDL.h>
-//}
+// extern "C" {
+// #include <SDL.h>
+// }
 
-
-#include <vector>
-#include <chrono>
-#include <thread>
-#include <iostream>
 #include "SourceConfig.hh"
-#include "time/TimeUtils.hh"
 #include "time/Time.hh"
+#include "time/TimeUtils.hh"
+#include <chrono>
+#include <iostream>
 #include <stdlib.h>
+#include <thread>
+#include <vector>
 
 /*
 

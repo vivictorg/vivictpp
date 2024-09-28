@@ -13,9 +13,7 @@ namespace vivictpp {
 
 class AVSync {
 public:
-  AVSync():
-    t0(0) {
-  }
+  AVSync() : t0(0) {}
   void playbackStart(vivictpp::time::Time ptsMicros);
   int64_t clock(); // playback time micros
   int64_t diffMicros(vivictpp::time::Time ptsMicros);
@@ -24,6 +22,6 @@ private:
   int64_t t0;
 };
 
-}  // namespace vivictpp
+} // namespace vivictpp
 
 #endif

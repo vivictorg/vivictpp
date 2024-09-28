@@ -5,17 +5,17 @@
 #ifndef VIVICTPP_IMGUI_IMGUISDL_HH_
 #define VIVICTPP_IMGUI_IMGUISDL_HH_
 
-#include "imgui/Events.hh"
 #include "Settings.hh"
-#include "sdl/SDLUtils.hh"
-#include "ui/VideoTextures.hh"
-#include "ui/ThumbnailTexture.hh"
 #include "VivictPPConfig.hh"
+#include "imgui/Events.hh"
+#include "sdl/SDLUtils.hh"
+#include "ui/ThumbnailTexture.hh"
+#include "ui/VideoTextures.hh"
 #include "video/VideoIndexer.hh"
-#include <vector>
-#include <memory>
 #include <filesystem>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace vivictpp::imgui {
 
@@ -34,16 +34,20 @@ private:
   std::string iniFilenameStr;
   bool scaleRenderer;
   vivictpp::ui::ThumbnailTexture thumbnailTexture;
+
 public:
   ImGuiSDL(const Settings &settings);
   ~ImGuiSDL();
   void newFrame();
   void updateTextures(const ui::DisplayState &displayState);
   vivictpp::ui::VideoTextures &getVideoTextures() { return videoTextures; }
-  void updateThumbnails(std::shared_ptr<vivictpp::video::VideoIndex> videoIndex) {
+  void
+  updateThumbnails(std::shared_ptr<vivictpp::video::VideoIndex> videoIndex) {
     thumbnailTexture.setVideoIndex(videoIndex);
   }
-  vivictpp::ui::ThumbnailTexture &getThumbnailTexture() { return thumbnailTexture; }
+  vivictpp::ui::ThumbnailTexture &getThumbnailTexture() {
+    return thumbnailTexture;
+  }
   void fitWindowToTextures();
   bool isWindowClose(SDL_Event &event);
   std::vector<std::shared_ptr<Event>> handleEvents();
@@ -52,7 +56,6 @@ public:
   void updateFontSettings(const Settings &settings);
 };
 
-}  // namespace vivictpp::imgui
-
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_IMGUISDL_HH_ */

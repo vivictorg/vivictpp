@@ -7,41 +7,38 @@
 #include "libav/AVErrorUtils.hh"
 #include "spdlog/spdlog.h"
 
-void vivictpp::libav::freeFrame(AVFrame* avFrame) {
+void vivictpp::libav::freeFrame(AVFrame *avFrame) {
   if (avFrame) {
     av_frame_free(&avFrame);
   }
 }
 
-vivictpp::libav::Frame::Frame():
-  frame(av_frame_alloc(), &freeFrame) {
-}
+vivictpp::libav::Frame::Frame() : frame(av_frame_alloc(), &freeFrame) {}
 
-vivictpp::libav::Frame::Frame(AVFrame *frame):
-  frame(frame, &freeFrame) {
-}
+vivictpp::libav::Frame::Frame(AVFrame *frame) : frame(frame, &freeFrame) {}
 
 vivictpp::libav::Frame::Frame(const Frame &otherFrame) {
   if (otherFrame.frame) {
     frame.reset(av_frame_clone(otherFrame.frame.get()), &freeFrame);
   } else {
-    frame.reset((AVFrame*) nullptr, &freeFrame);
+    frame.reset((AVFrame *)nullptr, &freeFrame);
   }
 }
 
-vivictpp::libav::Frame &vivictpp::libav::Frame::operator=(const Frame &otherFrame) {
+vivictpp::libav::Frame &
+vivictpp::libav::Frame::operator=(const Frame &otherFrame) {
   if (otherFrame.frame) {
     frame.reset(av_frame_clone(otherFrame.frame.get()), &freeFrame);
   } else {
-    frame.reset((AVFrame*) nullptr, &freeFrame);
+    frame.reset((AVFrame *)nullptr, &freeFrame);
   }
   return *this;
 }
 
-vivictpp::libav::Frame vivictpp::libav::Frame::transferHwData(AVPixelFormat swPixelFormat) {
+vivictpp::libav::Frame
+vivictpp::libav::Frame::transferHwData(AVPixelFormat swPixelFormat) {
   // av_hwframe_transfer_get_formats(src, AV_HWFRAME_TRANSFER_DIRECTION_FROM)
 
-  
   Frame swFrame;
   swFrame.avFrame()->format = swPixelFormat;
   AVResult ret = av_hwframe_transfer_data(swFrame.avFrame(), avFrame(), 0);

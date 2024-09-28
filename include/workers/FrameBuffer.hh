@@ -10,20 +10,20 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/imgutils.h>
-  //#include <unistd.h>
+// #include <unistd.h>
 }
 
+#include <chrono>
+#include <condition_variable>
 #include <iostream>
 #include <limits>
 #include <mutex>
 #include <vector>
-#include <condition_variable>
-#include <chrono>
 
-#include "workers/QueuePointer.hh"
 #include "libav/Frame.hh"
 #include "logging/Logging.hh"
 #include "time/Time.hh"
+#include "workers/QueuePointer.hh"
 
 namespace vivictpp {
 namespace workers {
@@ -34,12 +34,12 @@ namespace workers {
 to the head, size is decreased to make room for new frames. Pts for each frame
 is stored in a separate array.
 
-It is assumed that there is only a single reader thread and a single writer thread.
+It is assumed that there is only a single reader thread and a single writer
+thread.
 
 A mutex is used to ensure consistency
 
  */
-
 
 class FrameBuffer {
 public:
@@ -61,7 +61,7 @@ public:
   vivictpp::time::Time minPts();
   vivictpp::time::Time maxPts();
   bool isFull();
-  bool waitForNotFull(const std::chrono::milliseconds& relTime);
+  bool waitForNotFull(const std::chrono::milliseconds &relTime);
   bool isEmpty();
   const std::vector<vivictpp::time::Time> &getPtsBuffer() { return ptsBuffer; }
 
@@ -84,6 +84,6 @@ private:
   std::mutex mutex;
   std::condition_variable conditionVariable;
 };
-}  // namespace workers
-}  // namespace vivictpp
+} // namespace workers
+} // namespace vivictpp
 #endif // WORKERS_FRAMEBUFFER_HH

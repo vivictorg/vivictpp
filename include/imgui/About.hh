@@ -13,5 +13,4 @@ void showAbout(ui::DisplayState &displayState);
 
 }
 
-
 #endif /* VIVICTPP_IMGUI_ABOUT_HH_ */

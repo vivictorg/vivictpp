@@ -12,5 +12,4 @@ void showHelp(ui::DisplayState &displayState);
 
 }
 
-
 #endif /* VIVICTPP_IMGUI_HELP_HH_ */

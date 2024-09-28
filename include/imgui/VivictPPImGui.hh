@@ -5,20 +5,20 @@
 #ifndef VIVICTPP_IMGUI_VIVICTPPIMGUI_HH_
 #define VIVICTPP_IMGUI_VIVICTPPIMGUI_HH_
 
-#include "VideoPlayback.hh"
 #include "Settings.hh"
+#include "VideoPlayback.hh"
 #include "VivictPPConfig.hh"
+#include "imgui.h"
+#include "imgui/Controls.hh"
+#include "imgui/Events.hh"
+#include "imgui/FileDialog.hh"
+#include "imgui/ImGuiSDL.hh"
+#include "imgui/MainMenu.hh"
+#include "imgui/SettingsDialog.hh"
+#include "imgui/VideoMetadataDisplay.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/DisplayState.hh"
 #include "ui/VideoTextures.hh"
-#include "imgui/Events.hh"
-#include "imgui/ImGuiSDL.hh"
-#include "imgui/Controls.hh"
-#include "imgui/VideoMetadataDisplay.hh"
-#include "imgui/FileDialog.hh"
-#include "imgui/MainMenu.hh"
-#include "imgui/SettingsDialog.hh"
-#include "imgui.h"
 #include <vector>
 
 namespace vivictpp::imgui {
@@ -32,8 +32,10 @@ private:
   ImVec2 videoPos;
   bool scrollUpdated{false};
   bool wasDragging{false};
+
 public:
-  void draw(vivictpp::ui::VideoTextures &videoTextures, const ui::DisplayState &displayState);
+  void draw(vivictpp::ui::VideoTextures &videoTextures,
+            const ui::DisplayState &displayState);
   void onZoomChange(const Resolution &nativeResolution, const ui::Zoom &zoom);
   void onScroll(const ImVec2 &scrollDelta);
   const ImVec2 &getVideoPos() { return videoPos; }
@@ -60,17 +62,19 @@ private:
   FileDialog fileDialog;
   MainMenu mainMenu;
   SettingsDialog settingsDialog;
+
 private:
   Action handleKeyEvent(const KeyEvent &keyEvent);
-  std::vector<Action> handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);
+  std::vector<Action>
+  handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
   void openFile(const vivictpp::imgui::Action &action);
+
 public:
   VivictPPImGui(const VivictPPConfig &vivictPPConfig);
   void run();
 };
 
-}  // namespace vivictpp::imgui
-
+} // namespace vivictpp::imgui
 
 #endif /* VIVICTPP_IMGUI_VIVICTPPIMGUI_HH_ */
