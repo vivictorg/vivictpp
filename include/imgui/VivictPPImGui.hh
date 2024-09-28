@@ -7,6 +7,7 @@
 
 #include "Settings.hh"
 #include "VideoPlayback.hh"
+#include "VideoWindow.hh"
 #include "VivictPPConfig.hh"
 #include "imgui.h"
 #include "imgui/Controls.hh"
@@ -22,25 +23,6 @@
 #include <vector>
 
 namespace vivictpp::imgui {
-
-class VideoWindow {
-private:
-  ImVec2 pos;
-  ImVec2 scroll;
-  ImVec2 size;
-  ImVec2 videoSize;
-  ImVec2 videoPos;
-  bool scrollUpdated{false};
-  bool wasDragging{false};
-
-public:
-  void draw(vivictpp::ui::VideoTextures &videoTextures,
-            const ui::DisplayState &displayState);
-  void onZoomChange(const Resolution &nativeResolution, const ui::Zoom &zoom);
-  void onScroll(const ImVec2 &scrollDelta);
-  const ImVec2 &getVideoPos() { return videoPos; }
-  const ImVec2 &getVideoSize() { return videoSize; }
-};
 
 /*
 class TimeDisplay {
