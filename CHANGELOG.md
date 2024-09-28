@@ -1,6 +1,10 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## CURRENT
+### Fixed
+- Seeking when using VAAPI hardware acceleration no longer crashes the app (issue #64)
+
 ## 1.1.0 - 2024-09-25
 ### Fixed
 - End of file is now handled correctly

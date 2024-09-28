@@ -54,7 +54,8 @@ void vivictpp::workers::DecoderWorker::seek(vivictpp::time::Time pos,
         // For some reason it seems necessary to reconfigure filter on seek when
         // using videotoolbox Haven't investigated it much but this seems to
         // work.
-        if (dw->decoder->getHwDeviceType() == AV_HWDEVICE_TYPE_VIDEOTOOLBOX) {
+        if (dw->decoder->getHwDeviceType() == AV_HWDEVICE_TYPE_VIDEOTOOLBOX ||
+            dw->decoder->getHwDeviceType() == AV_HWDEVICE_TYPE_VAAPI) {
           dw->filter->reconfigureOnNextFrame();
         }
         dw->frameBuffer.clear();
