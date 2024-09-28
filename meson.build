@@ -120,7 +120,9 @@ imgui_sources=[
   'src/imgui/VideoWindow.cc',
   'src/imgui/WidgetUtils.cc',
   'src/imgui/Logs.cc',
-  'libs/ImGuiFileDialog/ImGuiFileDialog.cpp'
+  'libs/ImGuiFileDialog/ImGuiFileDialog.cpp',
+  'libs/implot/implot.cpp',
+  'libs/implot/implot_items.cpp'
 ]
 
 sources = [
