@@ -7,8 +7,8 @@
 #include "imgui.h"
 #include "imgui/Events.hh"
 #include "imgui/Fonts.hh"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_sdlrenderer.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_sdlrenderer2.h"
 #include "platform_folders.h"
 #include "ui/FontSize.hh"
 #include <filesystem>
@@ -66,7 +66,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
 
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
-  ImGui_ImplSDLRenderer_Init(renderer);
+  ImGui_ImplSDLRenderer2_Init(renderer);
   // Dont't scale fonts in relation to dpi if we are scaling the renderer
   vivictpp::ui::FontSize::setScaling(!scaleRenderer &&
                                          !settings.disableFontAutoScaling,
@@ -76,7 +76,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
 
 void vivictpp::imgui::ImGuiSDL::updateFontSettings(const Settings &settings) {
   ImGui::GetIO().Fonts->Clear();
-  ImGui_ImplSDLRenderer_DestroyFontsTexture();
+  ImGui_ImplSDLRenderer2_DestroyFontsTexture();
   vivictpp::ui::FontSize::setScaling(!scaleRenderer &&
                                          !settings.disableFontAutoScaling,
                                      settings.baseFontSize / 13.0f);
@@ -84,13 +84,13 @@ void vivictpp::imgui::ImGuiSDL::updateFontSettings(const Settings &settings) {
 }
 
 vivictpp::imgui::ImGuiSDL::~ImGuiSDL() {
-  ImGui_ImplSDLRenderer_Shutdown();
+  ImGui_ImplSDLRenderer2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 }
 
 void vivictpp::imgui::ImGuiSDL::newFrame() {
-  ImGui_ImplSDLRenderer_NewFrame();
+  ImGui_ImplSDLRenderer2_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
 }
@@ -101,7 +101,7 @@ void vivictpp::imgui::ImGuiSDL::render() {
       renderer, (Uint8)(CLEAR_COLOR.x * 255), (Uint8)(CLEAR_COLOR.y * 255),
       (Uint8)(CLEAR_COLOR.z * 255), (Uint8)(CLEAR_COLOR.w * 255));
   SDL_RenderClear(renderer);
-  ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+  ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
   SDL_RenderPresent(renderer);
   ImGui::EndFrame();
 }
