@@ -47,7 +47,7 @@ static const std::vector<std::string> loggers{
     "VideoInputs",
     "vivictpp::VideoPlayback",
     "vivictpp::workers::FrameBuffer",
-    "vivictpp::video::VideoIndexer"
+    "vivictpp::video::VideoIndexer",
     "libav"};
 
 // static std::mutex loggersMutex;
@@ -116,8 +116,10 @@ const std::vector<std::string> vivictpp::logging::getMessages() {
 
 vivictpp::logging::Logger
 vivictpp::logging::getOrCreateLogger(std::string name) {
+  spdlog::debug("getOrCreateLogger {}", name);
   Logger logger = spdlog::get(name);
   if (!logger) {
+    spdlog::debug("Creating logger {}", name);
     logger = std::make_shared<spdlog::logger>(name, std::begin(sinks),
                                               std::end(sinks));
     spdlog::initialize_logger(logger);
@@ -200,4 +202,8 @@ void vivictpp::logging::initializeLogging(const vivictpp::Settings &settings) {
   spdlog::set_pattern("%H:%M:%S.%e %^%=8l%$ %-20n thread-%t  %v");
   setLogLevels(settings.logLevels, true);
   av_log_set_callback(&avLogCallback);
+  // Ensure all loggers initialized to avoid race conditions
+  for (auto logger : loggers) {
+    getOrCreateLogger(logger);
+  }
 }
