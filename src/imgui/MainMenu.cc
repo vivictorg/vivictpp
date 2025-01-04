@@ -52,6 +52,9 @@ vivictpp::imgui::MainMenu::draw(const PlaybackState &playbackState,
                           displayState.displayMetadata)) {
         actions.push_back({ActionType::ToggleDisplayMetadata});
       }
+      if (ImGui::MenuItem("Display Plot", "P", displayState.displayPlot)) {
+        actions.push_back({ActionType::ToggleDisplayPlot});
+      }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Playback")) {

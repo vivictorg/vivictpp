@@ -27,13 +27,13 @@ if build_machine.system() == 'windows'
 
   cc = meson.get_compiler('cpp')
 
-  sdl2_dir = meson.source_root() / 'winlibs' / 'SDL2-2.26.5'
+  sdl2_dir = meson.project_source_root() / 'winlibs' / 'SDL2-2.26.5'
   sdl2_dep = cc.find_library('sdl2', dirs: [sdl2_dir / 'lib' / 'x64'])
 
-  sdl2_ttf_dir = meson.source_root() / 'winlibs' / 'SDL2_ttf-2.20.2'
+  sdl2_ttf_dir = meson.project_source_root() / 'winlibs' / 'SDL2_ttf-2.20.2'
   sdl2_ttf_dep = cc.find_library('sdl2_ttf', dirs: [sdl2_ttf_dir / 'lib' / 'x64'])
 
-  ffmpeg_dir = meson.source_root() / 'winlibs' / 'ffmpeg-7.0.2-full_build-shared'
+  ffmpeg_dir = meson.project_source_root() / 'winlibs' / 'ffmpeg-7.0.2-full_build-shared'
   # get_option('ffmpeg_install_dir')
 
   ffmpeg_inc = [ffmpeg_dir / 'include', sdl2_dir / 'include', sdl2_ttf_dir / 'include']
@@ -116,6 +116,7 @@ imgui_sources=[
   'src/imgui/FileDialog.cc',
   'src/imgui/Help.cc',
   'src/imgui/About.cc',
+  'src/imgui/PlotWindow.cc',
   'src/imgui/SettingsDialog.cc',
   'src/imgui/VideoWindow.cc',
   'src/imgui/WidgetUtils.cc',

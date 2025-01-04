@@ -104,6 +104,10 @@ Files: libs/utf8/*
 Copyright: 2014-2023 Mircea Neacsu
 License: MIT
 
+Files: libs/implot/*
+Copyright: 2023 Evan Pezent
+License: MIT
+
 Files: get-version.sh
 Copyright: 2023 Gustav Grusell
 License: CC0-1.0

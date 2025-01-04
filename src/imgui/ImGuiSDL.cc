@@ -16,6 +16,7 @@
 extern "C" {
 #include "SDL.h"
 }
+#include "libs/implot/implot.h"
 #include "logging/Logging.hh"
 
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
@@ -36,6 +37,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
   IMGUI_CHECKVERSION();
 
   ImGui::CreateContext();
+  ImPlot::CreateContext();
 
   ImGuiIO &io = ImGui::GetIO();
   iniFilename.make_preferred();
@@ -86,6 +88,7 @@ void vivictpp::imgui::ImGuiSDL::updateFontSettings(const Settings &settings) {
 vivictpp::imgui::ImGuiSDL::~ImGuiSDL() {
   ImGui_ImplSDLRenderer2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
+  ImPlot::DestroyContext();
   ImGui::DestroyContext();
 }
 

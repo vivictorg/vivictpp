@@ -8,6 +8,7 @@
 #include "logging/Logging.hh"
 #include "time/Time.hh"
 #include "video/Thumbnail.hh"
+#include <atomic>
 #include <mutex>
 #include <vector>
 
@@ -19,6 +20,36 @@ struct IndexFrameData {
   bool keyFrame;
 };
 
+struct PlotData {
+  std::vector<float> pts;
+  std::vector<float> values;
+
+  void clear() {
+    pts.clear();
+    values.clear();
+  }
+};
+
+struct PlotDatas {
+  PlotData gopBitrate;
+  PlotData frameSize;
+
+  void clear() {
+    gopBitrate.clear();
+    frameSize.clear();
+  }
+};
+
+struct GopData {
+  std::vector<double> pts;
+  std::vector<double> bitrate;
+
+  void clear() {
+    pts.clear();
+    bitrate.clear();
+  }
+};
+
 class VideoIndex {
 
 private:
@@ -27,28 +58,20 @@ private:
   std::vector<int> frameSizes;
   std::vector<bool> keyFrameFlag;
   std::vector<vivictpp::video::Thumbnail> thumbnails;
+  PlotDatas plotDatas;
+  int currentGopSize;
+  double currentGopPts;
+  std::atomic_bool indexingDone{false};
   mutable std::mutex m;
 
 private:
-  void addFrameData(const IndexFrameData &frameData) {
-    std::lock_guard<std::mutex> lg(m);
-    this->ptsValues.push_back(frameData.pts);
-    this->frameSizes.push_back(frameData.size);
-    this->keyFrameFlag.push_back(frameData.keyFrame);
-    if (frameData.keyFrame) {
-      keyFrames.push_back(frameData.pts);
-    }
-  }
+  void addFrameData(const IndexFrameData &frameData);
 
-  void addThumbnail(const vivictpp::video::Thumbnail &thumbnail) {
-    std::lock_guard<std::mutex> lg(m);
-    thumbnails.push_back(thumbnail);
-  }
-  void clear() {
-    std::lock_guard<std::mutex> lg(m);
-    thumbnails.clear();
-    keyFrames.clear();
-  }
+  void addGop(const vivictpp::time::Time gopEndPts) ;
+
+  void addThumbnail(const vivictpp::video::Thumbnail &thumbnail);
+  void finalizeIndex();
+  void clear();
 
   friend class VideoIndexer;
 
@@ -70,6 +93,12 @@ public:
   const std::vector<int> &getFrameSizes() {
     std::lock_guard<std::mutex> lg(m);
     return frameSizes;
+  }
+  bool ready() { return indexingDone; }
+
+  const PlotDatas &getPlotDatas() {
+    std::lock_guard<std::mutex> lg(m);
+    return plotDatas;
   }
 };
 

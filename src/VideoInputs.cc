@@ -53,7 +53,7 @@ void VideoInputs::openLeft(const SourceConfig &sourceConfig) {
   leftInput.packetWorker.reset();
   leftInput.decoder.reset();
 
-  videoIndexer.prepareIndex(sourceConfig.path, sourceConfig.formatOptions);
+  leftInput.videoIndexer.prepareIndex(sourceConfig.path, sourceConfig.formatOptions);
 
   auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
       new vivictpp::workers::PacketWorker(sourceConfig.path,
@@ -80,6 +80,7 @@ void VideoInputs::openRight(const SourceConfig &sourceConfig) {
   packetWorkers.push_back(leftInput.packetWorker);
   rightInput.packetWorker.reset();
   rightInput.decoder.reset();
+  rightInput.videoIndexer.prepareIndex(sourceConfig.path, sourceConfig.formatOptions, false);
   auto packetWorker = std::shared_ptr<vivictpp::workers::PacketWorker>(
       new vivictpp::workers::PacketWorker(sourceConfig.path,
                                           sourceConfig.formatOptions));

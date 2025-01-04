@@ -275,6 +275,21 @@ vivictpp --preferred-decoders h264_cuvid,hevc_cuvid,libopenjpeg video.mp4
 ### Displaying video quality (VMAF) data
 _*Note that this functionality is currently not available in the new imgui UI. It mayb be reinstated in the future.*_
 
+### Plotting bitrate and frame size
+Visibility of the plot window can be toggled with the `p` key, or by selecting the menu item `View->Plot`. The plot window can display bitrate
+in kbit/s calculated per GOP, or alternatively the size of each video frame in bytes.
+
+The table below lists actions that can be used to zoom/pan inside the plot window.
+
+| Action | Description |
+|--------|-------------|
+| Left click and drag | Pan |
+| Mouse wheel | Zoom in/out |
+| Right click and drag | Zoom in/out |
+| Double click | Reset zoom |
+| Ctrl + left click | Seek to position |
+
+
 ### Specifying input format
 In case your input file is in a format this not easily identified, ie raw video, you can use the
 `format` input in the open file dialog, or the

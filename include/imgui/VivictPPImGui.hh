@@ -17,6 +17,7 @@
 #include "imgui/MainMenu.hh"
 #include "imgui/SettingsDialog.hh"
 #include "imgui/VideoMetadataDisplay.hh"
+#include "imgui/PlotWindow.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/DisplayState.hh"
 #include "ui/VideoTextures.hh"
@@ -44,6 +45,7 @@ private:
   FileDialog fileDialog;
   MainMenu mainMenu;
   SettingsDialog settingsDialog;
+  PlotWindow plotWindow;
 
 private:
   Action handleKeyEvent(const KeyEvent &keyEvent);

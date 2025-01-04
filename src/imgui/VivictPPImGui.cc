@@ -15,6 +15,7 @@
 #include "imgui/Splash.hh"
 #include "imgui/VideoWindow.hh"
 #include "imgui_internal.h"
+#include "libs/implot/implot.h"
 #include "time/TimeUtils.hh"
 #include <memory>
 
@@ -24,7 +25,9 @@
 vivictpp::imgui::VivictPPImGui::VivictPPImGui(
     const VivictPPConfig &vivictPPConfig)
     : settings(vivictPPConfig.settings), imGuiSDL(settings),
-      videoPlayback(vivictPPConfig.sourceConfigs), settingsDialog(settings) {
+      videoPlayback(vivictPPConfig.sourceConfigs), settingsDialog(settings),
+      plotWindow(videoPlayback.getVideoInputs().getLeftVideoIndex(),
+                videoPlayback.getVideoInputs().getRightVideoIndex()) {
   displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;
   if (displayState.splitScreenDisabled) {
     displayState.splitPercent = 100;
@@ -34,7 +37,8 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(
     displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
     displayState.updateDecoderMetadata(
         videoPlayback.getVideoInputs().decoderMetadata());
-    imGuiSDL.updateThumbnails(videoPlayback.getVideoInputs().getVideoIndex());
+    imGuiSDL.updateThumbnails(
+        videoPlayback.getVideoInputs().getLeftVideoIndex());
     imGuiSDL.updateTextures(displayState);
     imGuiSDL.fitWindowToTextures();
   }
@@ -90,6 +94,7 @@ void vivictpp::imgui::VivictPPImGui::run() {
       displayState.pts = videoPlayback.getPlaybackState().pts;
       displayState.isPlaying = videoPlayback.isPlaying();
       videoWindow.draw(imGuiSDL.getVideoTextures(), displayState);
+      handleActions(plotWindow.draw(displayState));
     } else {
       drawSplash();
     }
@@ -270,6 +275,9 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
     case ActionType::ToggleDisplayMetadata:
       displayState.displayMetadata = !displayState.displayMetadata;
       break;
+    case ActionType::ToggleDisplayPlot:
+      displayState.displayPlot = !displayState.displayPlot;
+      break;
     case ActionType::Scroll:
       videoWindow.onScroll(action.scroll);
       break;
@@ -347,7 +355,10 @@ void vivictpp::imgui::VivictPPImGui::openFile(
   displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
   displayState.updateDecoderMetadata(
       videoPlayback.getVideoInputs().decoderMetadata());
-  imGuiSDL.updateThumbnails(videoPlayback.getVideoInputs().getVideoIndex());
+  if (action.type == ActionType::OpenFileLeft) {
+    imGuiSDL.updateThumbnails(
+        videoPlayback.getVideoInputs().getLeftVideoIndex());
+  }
   imGuiSDL.updateTextures(displayState);
   imGuiSDL.fitWindowToTextures();
 }

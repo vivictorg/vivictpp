@@ -30,6 +30,7 @@ extern "C" {
 struct MediaPipe {
   std::shared_ptr<vivictpp::workers::PacketWorker> packetWorker;
   std::shared_ptr<vivictpp::workers::DecoderWorker> decoder;
+  vivictpp::video::VideoIndexer videoIndexer;
 };
 
 class SeekState {
@@ -63,7 +64,7 @@ private:
     logger->debug("leftPtsOffset: {}", leftPtsOffset);
   }
   SeekState seekState;
-  vivictpp::video::VideoIndexer videoIndexer;
+  //vivictpp::video::VideoIndexer videoIndexer;
   vivictpp::logging::Logger logger;
 
 public:
@@ -177,8 +178,11 @@ public:
     }
     return audio1.decoder->frames();
   }
-  std::shared_ptr<vivictpp::video::VideoIndex> getVideoIndex() {
-    return videoIndexer.getIndex();
+  std::shared_ptr<vivictpp::video::VideoIndex> getLeftVideoIndex() {
+    return leftInput.videoIndexer.getIndex();
+  }
+  std::shared_ptr<vivictpp::video::VideoIndex> getRightVideoIndex() {
+    return rightInput.videoIndexer.getIndex();
   }
 
 private:

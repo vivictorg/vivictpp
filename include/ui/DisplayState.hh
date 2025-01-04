@@ -66,7 +66,7 @@ struct DisplayState {
   std::string timeStr;
   bool displayTime{true};
   bool displayMetadata{true};
-  bool displayPlot{true};
+  bool displayPlot{false};
   bool splitScreenDisabled{false};
   bool fitToScreen{true};
   bool isPlaying{false};

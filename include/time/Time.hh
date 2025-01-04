@@ -21,6 +21,8 @@ const AVRational TIME_BASE_Q = {1, AV_TIME_BASE};
 
 inline double ptsToDouble(Time pts) { return pts * av_q2d(TIME_BASE_Q); }
 
+inline Time doubleToPts(double d) { return (int64_t)(d * TIME_BASE); }
+
 inline bool isNoPts(Time pts) { return pts == NO_TIME; }
 
 inline Time seconds(int s) { return s * TIME_BASE; }
