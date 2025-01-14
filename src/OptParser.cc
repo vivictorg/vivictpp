@@ -81,7 +81,9 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
   app.add_option("--right-filter", rightFilter, "Video filters for left video");
 
   bool enableAudio(false);
+  bool blindTest(false);
   //    app.add_flag("--enable-audio",  enableAudio, "Enable audio");
+  app.add_flag("--blind-test", blindTest, "Randomize order of videos and hide metadata");
 
   std::string leftInputFormat;
   std::string rightInputFormat;
@@ -138,6 +140,6 @@ bool vivictpp::OptParser::parseOptions(int argc, char **argv) {
   }
 
   this->vivictPPConfig = VivictPPConfig(sourceConfigs, !enableAudio,
-                                        {hwAccels, preferredDecoders});
+                                        {hwAccels, preferredDecoders}, blindTest);
   return true;
 };

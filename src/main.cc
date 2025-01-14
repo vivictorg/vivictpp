@@ -8,6 +8,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <random>
 
 #include "spdlog/spdlog.h"
 
@@ -17,6 +19,8 @@
 #include "Settings.hh"
 #include "VivictPPConfig.hh"
 #include "imgui/VivictPPImGui.hh"
+
+
 
 #ifdef _WIN32
 #include <windows.h>
@@ -50,7 +54,11 @@ int main(int argc, char **argv) {
       spdlog::debug("Source: path={} filters={}", sourceConfig.path,
                     sourceConfig.filter);
     }
-
+    if (vivictPPConfig.blindTest) {
+      std::random_device r {};
+      auto rng = std::default_random_engine {r()};
+      std::shuffle(std::begin(vivictPPConfig.sourceConfigs), std::end(vivictPPConfig.sourceConfigs), rng);
+    }
     vivictpp::imgui::VivictPPImGui vivictPPImGui(vivictPPConfig);
     vivictPPImGui.run();
   } catch (const std::exception &e) {

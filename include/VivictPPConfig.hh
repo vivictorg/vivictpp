@@ -15,16 +15,20 @@
 
 class VivictPPConfig {
 public:
-  VivictPPConfig() : VivictPPConfig({}, false, {}) {}
+  VivictPPConfig() : VivictPPConfig({}, false, {}, false) {}
 
   VivictPPConfig(std::vector<SourceConfig> sourceConfigs, bool disableAudio,
-                 vivictpp::libav::DecoderOptions decoderOptions)
+                 vivictpp::libav::DecoderOptions decoderOptions,
+    bool blindTest)
       : sourceConfigs(sourceConfigs), disableAudio(disableAudio),
+        blindTest(blindTest),
         decoderOptions(decoderOptions) {}
 
   std::vector<SourceConfig> sourceConfigs;
 
   bool disableAudio;
+
+  bool blindTest;
 
   vivictpp::libav::DecoderOptions decoderOptions;
 

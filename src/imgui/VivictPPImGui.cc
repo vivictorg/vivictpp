@@ -194,6 +194,7 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(
   if (displayState.splitScreenDisabled) {
     displayState.splitPercent = 100;
   }
+  displayState.displayMetadata = !vivictPPConfig.blindTest;
   if (videoPlayback.getPlaybackState().ready) {
     displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
     displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
