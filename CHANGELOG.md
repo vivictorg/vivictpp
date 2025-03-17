@@ -4,6 +4,8 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 ## CURRENT
 ### Fixed
 - Seeking when using VAAPI hardware acceleration no longer crashes the app (issue #64)
+### Added
+- Bitrate and frame size can now be plotted
 
 ## 1.1.0 - 2024-09-25
 ### Fixed
