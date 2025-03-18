@@ -18,3 +18,4 @@ winlibs
 winexec
 .buildenv
 .idea
+.vscode
