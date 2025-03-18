@@ -340,6 +340,7 @@ Vivict++ uses the following thirdparty dependencies.
 * [PlatformFolders](https://github.com/sago007/PlatformFolders) ([MIT License](https://github.com/sago007/PlatformFolders/blob/master/LICENSE)
 * [tomlplusplus](https://github.com/marzer/tomlplusplus) ([MIT License](https://github.com/marzer/tomlplusplus/blob/master/LICENSE)
 * [utf8](https://github.com/neacsum/utf8)([MIT License](https://raw.githubusercontent.com/neacsum/utf8/main/LICENSE)
+* [implot](https://github.com/epezent/implot) ([MIT License](https://raw.githubusercontent.com/epezent/implot/main/LICENSE))
 
 ## License
 
