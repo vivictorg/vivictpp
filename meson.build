@@ -93,6 +93,7 @@ incdir = include_directories('include',
                              'imgui/backends',
                              'libs/ImGuiFileDialog',
                              'libs/tomlplusplus',
+                             'libs/json',
                              ffmpeg_inc)
 
 git_hash_cmd = run_command('git', 'rev-parse', '--short', 'HEAD')
@@ -117,6 +118,7 @@ imgui_sources=[
   'src/imgui/Help.cc',
   'src/imgui/About.cc',
   'src/imgui/PlotWindow.cc',
+  'src/imgui/QualityFileDialog.cc',
   'src/imgui/SettingsDialog.cc',
   'src/imgui/VideoWindow.cc',
   'src/imgui/WidgetUtils.cc',
@@ -145,6 +147,7 @@ sources = [
   'src/sdl/SDLAudioOutput.cc',
   'src/sdl/SDLUtils.cc',
   'src/time/TimeUtils.cc',
+  'src/qualitymetrics/QualityMetrics.cc',
   'src/ui/FontSize.cc',
   'src/ui/VideoTextures.cc',
   'src/ui/ThumbnailTexture.cc',
@@ -186,3 +189,5 @@ executable('vivictpp', 'src/main.cc', link_with: vivictpplib, dependencies: deps
 #test('Playback', playbackTest)
 settingsTest = executable('settingsTest', 'test/SettingsTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
 test('Settings', settingsTest)
+qualitymetricsTest = executable('qualitymetricsTest', 'test/qualitymetrics/QualityMetricsTest.cc', link_with: vivictpplib,  dependencies: deps + test_deps, include_directories: incdir, cpp_args: extra_args)
+test('QualityMetrics', qualitymetricsTest)

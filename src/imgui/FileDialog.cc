@@ -24,17 +24,17 @@ void vivictpp::imgui::FileDialog::optionsPane() {
                    IM_ARRAYSIZE(formatOptionsStr));
 }
 
-void vivictpp::imgui::FileDialog::openLeft() {
+void vivictpp::imgui::FileDialog::openLeft(std::string currentFile) {
   this->leftRight = LeftRight::Left;
-  openDialog("Choose Left Source File");
+  openDialog("Choose Left Source File", currentFile);
 }
 
-void vivictpp::imgui::FileDialog::openRight() {
+void vivictpp::imgui::FileDialog::openRight(std::string currentFile) {
   this->leftRight = LeftRight::Right;
-  openDialog("Choose Right Source File");
+  openDialog("Choose Right Source File", currentFile);
 }
 
-void vivictpp::imgui::FileDialog::openDialog(std::string text) {
+void vivictpp::imgui::FileDialog::openDialog(std::string text, std::string currentFile) {
   auto optionsPaneCallback = [this](const char *vFilter,
                                     IGFDUserDatas vUserDatas,
                                     bool *vCantContinue) {
@@ -43,7 +43,8 @@ void vivictpp::imgui::FileDialog::openDialog(std::string text) {
     (void)vCantContinue;
     this->optionsPane();
   };
-  fileDialog.OpenDialog("ChooseFileDlgKey", text.c_str(), ".*", folder + "/",
+  std::string folder = currentFile.empty() ? this->folder + "/" : std::filesystem::path(currentFile).parent_path().string();
+  fileDialog.OpenDialog("ChooseFileDlgKey", text.c_str(), ".*", folder,
                         "", optionsPaneCallback, 350, 1, nullptr);
 }
 

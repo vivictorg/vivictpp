@@ -15,6 +15,7 @@
 #include "VideoMetadata.hh"
 #include "libav/DecoderMetadata.hh"
 #include "libav/Frame.hh"
+#include "qualitymetrics/QualityMetrics.hh"
 #include "time/Time.hh"
 
 namespace vivictpp {
@@ -86,6 +87,8 @@ struct DisplayState {
   bool displayAbout{false};
   bool displaySettingsDialog{false};
   bool displayLogs{false};
+  vivictpp::qualitymetrics::QualityMetrics leftQualityMetrics;
+  vivictpp::qualitymetrics::QualityMetrics rightQualityMetrics;
 
   void updateFrames(std::array<vivictpp::libav::Frame, 2> frames) {
     leftFrame = frames[0];

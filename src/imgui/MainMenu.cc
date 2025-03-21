@@ -20,6 +20,12 @@ vivictpp::imgui::MainMenu::draw(const PlaybackState &playbackState,
                           playbackState.hasLeftSource)) {
         actions.push_back({ActionType::ShowFileDialogRight});
       }
+      if (ImGui::MenuItem("Open left quality", "Ctrl+P", false)) {
+        actions.push_back({ActionType::ShowQualityFileDialogLeft});
+      }
+      if (ImGui::MenuItem("Open right quality", "Ctrl+Alt+P", false)) {
+        actions.push_back({ActionType::ShowQualityFileDialogRight});
+      }
       ImGui::Separator();
       if (ImGui::MenuItem("Settings", "Ctrl+Alt+S")) {
         actions.push_back({ActionType::ShowSettingsDialog});

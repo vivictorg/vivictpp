@@ -73,7 +73,11 @@ enum ActionType {
   ShowAbout,
   ShowSettingsDialog,
   UpdateSettings,
-  ShowLogs
+  ShowLogs,
+  ShowQualityFileDialogLeft,
+  ShowQualityFileDialogRight,
+  OpenQualityFileLeft,
+  OpenQualityFileRight,
 };
 
 struct Action {

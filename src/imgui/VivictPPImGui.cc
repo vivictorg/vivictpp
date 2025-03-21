@@ -81,6 +81,7 @@ void vivictpp::imgui::VivictPPImGui::run() {
           mainMenu.draw(videoPlayback.getPlaybackState(), displayState));
     }
     handleActions(fileDialog.draw());
+    handleActions(qualityFileDialog.draw());
     if (videoPlayback.getPlaybackState().ready) {
       handleActions(controls.draw(videoPlayback.getPlaybackState(),
                                   displayState,
@@ -175,6 +176,10 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(
         return {vivictpp::imgui::ShowFileDialogLeft};
       break;
     case 'P':
+      if (keyEvent.isCtrlAlt())
+        return {vivictpp::imgui::ShowQualityFileDialogRight};
+      else if (keyEvent.isCtrl())
+        return {vivictpp::imgui::ShowQualityFileDialogLeft};
       return {vivictpp::imgui::ToggleDisplayPlot};
     case 'S':
       if (keyEvent.ctrl && keyEvent.alt)
@@ -294,11 +299,11 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
       displayState.leftFrameOffset = videoPlayback.increaseLeftFrameOffset();
       break;
     case ActionType::ShowFileDialogLeft:
-      fileDialog.openLeft();
+      fileDialog.openLeft(displayState.leftVideoMetadata.source);
       break;
     case ActionType::ShowFileDialogRight:
       if (videoPlayback.getPlaybackState().hasLeftSource) {
-        fileDialog.openRight();
+        fileDialog.openRight(displayState.rightVideoMetadata.source);
       }
       break;
     case ActionType::OpenFileLeft:
@@ -323,6 +328,18 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
       break;
     case ActionType::ShowLogs:
       displayState.displayLogs = !displayState.displayLogs;
+      break;
+    case ActionType::ShowQualityFileDialogLeft:
+      qualityFileDialog.openLeft(displayState.leftVideoMetadata.source);
+      break;
+    case ActionType::ShowQualityFileDialogRight:
+      qualityFileDialog.openRight(displayState.rightVideoMetadata.source);
+      break;
+    case ActionType::OpenQualityFileLeft:
+      openQualityFile(action);
+      break;
+    case ActionType::OpenQualityFileRight:
+      openQualityFile(action);
       break;
     default:;
     }
@@ -361,4 +378,13 @@ void vivictpp::imgui::VivictPPImGui::openFile(
   }
   imGuiSDL.updateTextures(displayState);
   imGuiSDL.fitWindowToTextures();
+}
+
+void vivictpp::imgui::VivictPPImGui::openQualityFile(
+    const vivictpp::imgui::Action &action) {
+  if (action.type == ActionType::OpenQualityFileLeft) {
+    displayState.leftQualityMetrics = vivictpp::qualitymetrics::QualityMetrics(action.file);
+  } else {
+    displayState.rightQualityMetrics = vivictpp::qualitymetrics::QualityMetrics(action.file);
+  }
 }

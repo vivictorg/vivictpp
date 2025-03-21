@@ -18,6 +18,7 @@
 #include "imgui/SettingsDialog.hh"
 #include "imgui/VideoMetadataDisplay.hh"
 #include "imgui/PlotWindow.hh"
+#include "imgui/QualityFileDialog.hh"
 #include "sdl/SDLUtils.hh"
 #include "ui/DisplayState.hh"
 #include "ui/VideoTextures.hh"
@@ -46,14 +47,14 @@ private:
   MainMenu mainMenu;
   SettingsDialog settingsDialog;
   PlotWindow plotWindow;
-
+  QualityFileDialog qualityFileDialog;
 private:
   Action handleKeyEvent(const KeyEvent &keyEvent);
   std::vector<Action>
   handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
   void openFile(const vivictpp::imgui::Action &action);
-
+  void openQualityFile(const vivictpp::imgui::Action &action);
 public:
   VivictPPImGui(const VivictPPConfig &vivictPPConfig);
   void run();

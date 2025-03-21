@@ -28,7 +28,7 @@ private:
   char formatOptionsStr[512]{'\0'};
 
 private:
-  void openDialog(std::string text);
+  void openDialog(std::string text, std::string currentFile);
   void optionsPane();
 
 public:
@@ -44,9 +44,9 @@ public:
     }
   }
 
-  void openLeft();
+  void openLeft(std::string currentFile = "");
 
-  void openRight();
+  void openRight(std::string currentFile = "");
 
   const std::string selectedHwAccel() { return currentHwAccelOption; }
 
