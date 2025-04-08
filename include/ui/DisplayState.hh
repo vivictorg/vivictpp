@@ -87,8 +87,8 @@ struct DisplayState {
   bool displayAbout{false};
   bool displaySettingsDialog{false};
   bool displayLogs{false};
-  vivictpp::qualitymetrics::QualityMetrics leftQualityMetrics;
-  vivictpp::qualitymetrics::QualityMetrics rightQualityMetrics;
+  std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> leftQualityMetrics;
+  std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> rightQualityMetrics;
 
   void updateFrames(std::array<vivictpp::libav::Frame, 2> frames) {
     leftFrame = frames[0];

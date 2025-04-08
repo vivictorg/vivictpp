@@ -27,7 +27,7 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(
     : settings(vivictPPConfig.settings), imGuiSDL(settings),
       videoPlayback(vivictPPConfig.sourceConfigs), settingsDialog(settings),
       plotWindow(videoPlayback.getVideoInputs().getLeftVideoIndex(),
-                videoPlayback.getVideoInputs().getRightVideoIndex()) {
+                 videoPlayback.getVideoInputs().getRightVideoIndex()) {
   displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;
   if (displayState.splitScreenDisabled) {
     displayState.splitPercent = 100;
@@ -73,6 +73,14 @@ void drawSplash() {
 void vivictpp::imgui::VivictPPImGui::run() {
 
   while (!done) {
+    std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> newValue = std::atomic_exchange(&newLeftQualityMetrics,  std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>(nullptr));
+    if (newValue) {
+      displayState.leftQualityMetrics = newValue;
+    }
+    newValue = std::atomic_exchange(&newRightQualityMetrics,  std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>(nullptr));
+    if (newValue) {
+      displayState.rightQualityMetrics = newValue;
+    }
     handleActions(handleEvents(imGuiSDL.handleEvents()));
 
     imGuiSDL.newFrame();
@@ -382,9 +390,20 @@ void vivictpp::imgui::VivictPPImGui::openFile(
 
 void vivictpp::imgui::VivictPPImGui::openQualityFile(
     const vivictpp::imgui::Action &action) {
-  if (action.type == ActionType::OpenQualityFileLeft) {
-    displayState.leftQualityMetrics = vivictpp::qualitymetrics::QualityMetrics(action.file);
-  } else {
-    displayState.rightQualityMetrics = vivictpp::qualitymetrics::QualityMetrics(action.file);
-  }
+
+  qualityMetricsLoader.loadMetrics(
+      action.file,
+      [this, action](
+          std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+          std::unique_ptr<std::exception> error) {
+        if (error) {
+          this->logger->error("Error loading quality file: {}", error->what());
+          return;
+        }
+        if (action.type == ActionType::OpenQualityFileLeft) {
+          std::atomic_store(&newLeftQualityMetrics, metrics);
+        } else {
+          std::atomic_store(&newRightQualityMetrics, metrics);
+        }
+      });
 }

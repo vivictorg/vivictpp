@@ -48,7 +48,8 @@ static const std::vector<std::string> loggers{
     "vivictpp::VideoPlayback",
     "vivictpp::workers::FrameBuffer",
     "vivictpp::video::VideoIndexer",
-    "libav"};
+    "libav",
+    "vivictpp::qualityMetrics::QualityMetrics"};
 
 // static std::mutex loggersMutex;
 static const std::map<std::string, spdlog::level::level_enum> logLevels{

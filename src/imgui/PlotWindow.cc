@@ -11,7 +11,8 @@ const char *PLOT_TYPE_FRAMESIZE = "Framesize";
 
 void plotLine(const std::string &type, const std::string name,
               const vivictpp::video::PlotDatas &plotDatas,
-              const vivictpp::qualitymetrics::QualityMetrics &qualityMetrics) {
+              const std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>
+                  qualityMetrics) {
   const vivictpp::video::PlotData *plotData = nullptr;
   if (type == PLOT_TYPE_BITRATEGOP || type == PLOT_TYPE_FRAMESIZE) {
     plotData = type == PLOT_TYPE_BITRATEGOP ? &plotDatas.gopBitrate
@@ -19,7 +20,10 @@ void plotLine(const std::string &type, const std::string name,
     ImPlot::PlotLine(name.c_str(), (float *)plotData->pts.data(),
                      plotData->values.data(), plotData->pts.size());
   } else {
-    const auto &metric = qualityMetrics.getMetric(type);
+    if (!qualityMetrics || !qualityMetrics->hasMetric(type)) {
+      return;
+    }
+    const auto &metric = qualityMetrics->getMetric(type);
     float *ptsData = (float *)plotDatas.frameSize.pts.data();
     ImPlot::PlotLine(name.c_str(), ptsData, (float *)metric.data(),
                      metric.size());
@@ -62,6 +66,31 @@ int formatBitrate(double value, char *buff, int size, void *userData) {
   return 0;
 }
 
+std::vector<std::pair<std::string, std::string>>
+vivictpp::imgui::PlotWindow::getSelectableQualityMetrics(const vivictpp::ui::DisplayState &displayState) {
+  std::vector<std::pair<std::string, std::string>> metrics;
+  if (displayState.leftQualityMetrics) {
+    for (const auto &metric : displayState.leftQualityMetrics->getMetrics()) {
+      std::string name =
+          displayState.rightQualityMetrics &&
+                  displayState.rightQualityMetrics->hasMetric(metric)
+              ? metric
+              : metric + " (left only)";
+      metrics.push_back({name, metric});
+    }
+  }
+  if (displayState.rightQualityMetrics) {
+    for (const auto &metric : displayState.rightQualityMetrics->getMetrics()) {
+      if (displayState.leftQualityMetrics &&
+          displayState.leftQualityMetrics->hasMetric(metric)) {
+        continue;
+      }
+      metrics.push_back({metric + " (right only)", metric});
+    }
+  }
+  return metrics;
+}
+
 std::vector<vivictpp::imgui::Action>
 vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
   std::vector<vivictpp::imgui::Action> actions;
@@ -97,9 +126,10 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
       if (ImGui::Selectable("Frame size", plotType == PLOT_TYPE_FRAMESIZE)) {
         plotType = PLOT_TYPE_FRAMESIZE;
       }
-      for (const auto &metric : displayState.leftQualityMetrics.getMetrics()) {
-        if (ImGui::Selectable(metric.c_str(), plotType == metric)) {
-          plotType = metric;
+      auto selectableMetrics = getSelectableQualityMetrics(displayState);
+      for (const auto &metric : selectableMetrics) {
+        if (ImGui::Selectable(metric.first.c_str(), plotType == metric.second)) {
+          plotType = metric.second;
         }
       }
       ImGui::EndCombo();
@@ -134,13 +164,16 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
       if (resetTimePlotY == 2) {
         timeY[1] = 0;
       }
+
       ImPlot::PlotLine("Time", timeX, timeY, 2);
+
       rect = ImPlot::GetPlotLimits();
       timeY[0] = rect.Y.Min;
       if (resetTimePlotY > 0) {
         resetTimePlotY--;
       }
       if (resetTimePlotY == 0) {
+        timeY[0] = rect.Y.Min;
         timeY[1] = rect.Y.Max;
       }
       // timeY[1] = rect.Y.Max;

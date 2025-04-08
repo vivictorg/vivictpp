@@ -8,6 +8,9 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <functional>
+#include <memory>
+#include "logging/Logging.hh"
 
 namespace vivictpp {
 namespace qualitymetrics {
@@ -19,11 +22,39 @@ struct PooledMetrics {
   float harmonicMean;
 };
 
+class QualityMetrics;
+
+typedef std::function<void(std::shared_ptr<QualityMetrics>, std::unique_ptr<std::exception>)>
+    QualityMetricsLoaderCallback;
+
+class QualityMetricsLoader {
+public:
+  QualityMetricsLoader()
+      : logger(vivictpp::logging::getOrCreateLogger(
+            "vivictpp::qualitymetrics::QualityMetricsLoader")) {}
+  ~QualityMetricsLoader() { stopLoaderThread(); }
+  void loadMetrics(std::string sourceFile,
+                   QualityMetricsLoaderCallback callback);
+
+private:
+  void loadMetricsInternal(std::string sourceFile,
+                           QualityMetricsLoaderCallback callback);
+  void stopLoaderThread();
+
+private:
+  QualityMetricsLoaderCallback callback;
+  vivictpp::logging::Logger logger;
+  std::unique_ptr<std::thread> loaderThread;
+  std::atomic_bool stopLoader{false};
+};
+
 class QualityMetrics {
 public:
   static QualityMetrics loadMetricsForSource(std::string sourceFile);
   QualityMetrics() = default;
   QualityMetrics(std::string metricsFile);
+  QualityMetrics(const QualityMetrics& other) = default;
+  QualityMetrics& operator=(const QualityMetrics& other) = default;
   ~QualityMetrics() = default;
 
   std::vector<std::string> getMetrics() const {
@@ -42,9 +73,11 @@ public:
     return pooledMetrics.at(metric);
   }
 
-  bool empty() const {
-    return metrics.empty();
+  const bool hasMetric(const std::string &metric) const {
+    return metrics.find(metric) != metrics.end();
   }
+
+  bool empty() const { return metrics.empty(); }
 
 private:
   std::map<std::string, std::vector<float>> metrics;

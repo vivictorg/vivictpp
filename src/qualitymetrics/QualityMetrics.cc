@@ -22,12 +22,43 @@ parseCsvFile(std::string logfile, std::vector<std::string> metrics);
 std::map<std::string, std::vector<float>>
 parseJsonFile(std::string metricsFile, std::vector<std::string> metricNames);
 
+void vivictpp::qualitymetrics::QualityMetricsLoader::loadMetrics(
+    std::string sourceFile,
+    vivictpp::qualitymetrics::QualityMetricsLoaderCallback callback) {
+  stopLoaderThread();
+  stopLoader = false;
+  loaderThread = std::make_unique<std::thread>(
+      &QualityMetricsLoader::loadMetricsInternal, this, sourceFile, callback);
+}
+
+void vivictpp::qualitymetrics::QualityMetricsLoader::stopLoaderThread() {
+  if (loaderThread) {
+    stopLoader = true;
+    loaderThread->join();
+    loaderThread.reset();
+  }
+}
+
+void vivictpp::qualitymetrics::QualityMetricsLoader::loadMetricsInternal(
+    std::string sourceFile,
+    vivictpp::qualitymetrics::QualityMetricsLoaderCallback callback) {
+  std::shared_ptr<QualityMetrics> metrics;
+  try {
+    metrics = std::make_shared<QualityMetrics>(sourceFile);
+  } catch (const std::exception &e) {
+    logger->warn("Error loading metrics for source: {}", sourceFile);
+    callback(nullptr, std::make_unique<std::exception>(e));
+  }
+  callback(metrics, nullptr);
+}
+
 vivictpp::qualitymetrics::QualityMetrics::QualityMetrics(
     std::string metricsFile) {
+      std::vector<std::string> metricsToLoad{"vmaf", "vmaf_hd", "integer_motion", "integer_motion2"};
   if (endsWith(metricsFile, ".csv")) {
-    metrics = parseCsvFile(metricsFile, {"vmaf_hd", "vmaf"});
+    metrics = parseCsvFile(metricsFile, metricsToLoad);
   } else if (endsWith(metricsFile, ".json")) {
-    metrics = parseJsonFile(metricsFile, {"vmaf_hd", "vmaf"});
+    metrics = parseJsonFile(metricsFile, metricsToLoad);
   } else {
     throw std::invalid_argument("Invalid metrics file format");
   }
@@ -36,26 +67,29 @@ vivictpp::qualitymetrics::QualityMetrics::QualityMetrics(
 vivictpp::qualitymetrics::QualityMetrics
 vivictpp::qualitymetrics::QualityMetrics::loadMetricsForSource(
     std::string sourceFile) {
-  spdlog::warn("Loading metrics for source: {}", sourceFile);
-  std::string jsonPath = std::filesystem::path(sourceFile)
-                             .replace_extension()
-                             .string() + "_vmaf.json";
-  spdlog::warn("Checking for json file: {}", jsonPath);
+  auto logger = vivictpp::logging::getOrCreateLogger("vivictpp::qualityMetrics::QualityMetrics");
+  logger->info("Loading metrics for source: {}", sourceFile);
+  std::string jsonPath =
+      std::filesystem::path(sourceFile).replace_extension().string() +
+      "_vmaf.json";
+  logger->info("Checking for json file: {}", jsonPath);
   if (std::filesystem::exists(jsonPath)) {
     return QualityMetrics(jsonPath);
   }
   std::string csvPath =
-      std::filesystem::path(sourceFile).replace_extension().string() + "_vmaf.csv";
-  spdlog::warn("Checking for csv file: {}", csvPath);
+      std::filesystem::path(sourceFile).replace_extension().string() +
+      "_vmaf.csv";
+  logger->info("Checking for csv file: {}", csvPath);
   if (std::filesystem::exists(csvPath)) {
     return QualityMetrics(csvPath);
   }
-  spdlog::warn("No metrics found for source: {}", sourceFile);
+  logger->info("No metrics found for source: {}", sourceFile);
   return QualityMetrics();
 }
 
 std::map<std::string, std::vector<float>>
 parseJsonFile(std::string metricsFile, std::vector<std::string> metricNames) {
+  auto logger = vivictpp::logging::getOrCreateLogger("vivictpp::qualityMetrics::QualityMetrics");
   std::map<std::string, std::vector<float>> metrics;
   std::ifstream infile(metricsFile);
   nlohmann::json json;
@@ -70,7 +104,7 @@ parseJsonFile(std::string metricsFile, std::vector<std::string> metricNames) {
         metrics[metric] = std::vector<float>();
       }
       float value = frame["metrics"][metric].get<float>();
-      spdlog::warn("Metric: {} Value: {}", metric, value);
+      logger->warn("Metric: {} Value: {}", metric, value);
       metrics[metric].push_back(value);
     }
   }
@@ -103,22 +137,26 @@ std::vector<float> parseCsvLine(std::string line) {
 
 std::map<std::string, std::vector<float>>
 parseCsvFile(std::string logfile, std::vector<std::string> metrics) {
-
   std::map<std::string, std::vector<float>> result;
   if (logfile.empty()) {
     return result;
-  }
-  for (auto &metric : metrics) {
-    result[metric] = std::vector<float>();
   }
   std::ifstream infile(logfile);
   std::string line;
   std::getline(infile, line);
   std::map<std::string, int> headers;
   getCsvHeaders(line, headers);
+  
+  std::vector<std::string> existingMetrics;
+  for (auto &metric: metrics) {
+    if (headers.find(metric) != headers.end()) {
+      existingMetrics.push_back(metric);
+      result[metric] = std::vector<float>();
+    }
+  }
   while (std::getline(infile, line)) {
     auto values = parseCsvLine(line);
-    for (auto &metric : metrics) {
+    for (auto &metric : existingMetrics) {
       result[metric].push_back(values[headers[metric]]);
     }
   }

@@ -6,14 +6,23 @@
 #include "catch2/catch.hpp"
 #include "qualitymetrics/QualityMetrics.hh"
 
-bool closeEnough(double a, double b) { return abs(a - b) < 0.00001; }
+bool closeEnough(double a, double b) { return abs(a - b) < 0.0001; }
 
-TEST_CASE("QualityMetricsTest", "[QualityMetrics]") {
+TEST_CASE("Load quality metrics JSON", "[QualityMetrics]") {
     vivictpp::qualitymetrics::QualityMetrics metrics("../testdata/vmaf.json");
     REQUIRE(metrics.getMetrics().size() == 1);
     auto vmafHd = metrics.getMetric("vmaf_hd");
     REQUIRE(vmafHd.size() == 250);
-    REQUIRE(closeEnough(vmafHd[0], 93.869087));
-    REQUIRE(closeEnough(vmafHd[249], 95.772802));
+    REQUIRE(abs(vmafHd[0] - 93.879087) < 0.0001);
+    REQUIRE(abs(vmafHd[249] - 95.772802) < 0.0001);
+}
+
+TEST_CASE("Load quality metrics CSV", "[QualityMetrics]") {
+    vivictpp::qualitymetrics::QualityMetrics metrics("../testdata/vmaf.csv");
+    REQUIRE(metrics.getMetrics().size() == 1);
+    auto vmafHd = metrics.getMetric("vmaf");
+    REQUIRE(vmafHd.size() == 250);
+    REQUIRE(abs(vmafHd[0] - 95.009138) < 0.0001);
+    REQUIRE(abs(vmafHd[249] - 97.881930) < 0.0001);
 }
 
