@@ -131,7 +131,12 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::SettingsDialog::draw(
       modifiedSettings.preferredDecoders.push_back(currentDecoder);
     }
     ImGui::Unindent();
+    ImGui::Separator();
 
+    ImGui::Text("Metrics");
+    ImGui::Indent();
+    ImGui::Checkbox("Autoload metrics", &modifiedSettings.autoloadMetrics);
+    ImGui::Unindent();
     ImGui::Separator();
     ImGui::Text("Logging");
     ImGui::Indent();

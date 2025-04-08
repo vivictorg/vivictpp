@@ -19,6 +19,7 @@ struct Settings {
   std::vector<std::string> preferredDecoders{{}};
   int logBufferSize{128};
   bool logToFile{false};
+  bool autoloadMetrics{false};
   std::string logFile;
   std::map<std::string, std::string> logLevels{{"default", "info"}};
 };

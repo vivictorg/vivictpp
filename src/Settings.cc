@@ -107,6 +107,7 @@ vivictpp::Settings vivictpp::loadSettings(std::filesystem::path filePath) {
     loadBool(settings.logToFile, toml, "logsettings.logtofile");
     loadString(settings.logFile, toml, "logsettings.logfile");
     loadMap(settings.logLevels, toml, "loglevels");
+    loadBool(settings.autoloadMetrics, toml, "metrics.autoload");
     return settings;
 
   } catch (const toml::parse_error &err) {
@@ -121,6 +122,7 @@ toml::table settingsToToml(const vivictpp::Settings &settings) {
   toml::table fontSettings;
   toml::table logSettings;
   toml::table logLevels;
+  toml::table metricSettings;
   fontSettings.insert("basefontsize", settings.baseFontSize);
   fontSettings.insert("disableautoscaling", settings.disableFontAutoScaling);
   decoding.insert("enabledHwAccels", toTomlArray(settings.hwAccels));
@@ -132,11 +134,12 @@ toml::table settingsToToml(const vivictpp::Settings &settings) {
   for (auto e : settings.logLevels) {
     logLevels.insert(e.first, e.second);
   }
-
+  metricSettings.insert("autoload", settings.autoloadMetrics);
   tbl.insert("fontsettings", fontSettings);
   tbl.insert("decoding", decoding);
   tbl.insert("logsettings", logSettings);
   tbl.insert("loglevels", logLevels);
+  tbl.insert("metrics", metricSettings);
   return tbl;
 }
 
