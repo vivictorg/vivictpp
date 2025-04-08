@@ -48,7 +48,8 @@ private:
   SettingsDialog settingsDialog;
   PlotWindow plotWindow;
   QualityFileDialog qualityFileDialog;
-  vivictpp::qualitymetrics::QualityMetricsLoader qualityMetricsLoader;
+  vivictpp::qualitymetrics::QualityMetricsLoader leftQualityMetricsLoader;
+  vivictpp::qualitymetrics::QualityMetricsLoader rightQualityMetricsLoader;
   std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>
       newLeftQualityMetrics;
   std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>
@@ -60,6 +61,7 @@ private:
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
   void openFile(const vivictpp::imgui::Action &action);
   void openQualityFile(const vivictpp::imgui::Action &action);
+  void loadMetricsCallback(std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error, vivictpp::imgui::Action action);
   vivictpp::logging::Logger logger;
 public:
   VivictPPImGui(const VivictPPConfig &vivictPPConfig);

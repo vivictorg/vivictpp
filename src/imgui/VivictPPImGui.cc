@@ -42,6 +42,16 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(
     imGuiSDL.updateTextures(displayState);
     imGuiSDL.fitWindowToTextures();
   }
+  if (vivictPPConfig.sourceConfigs.size() > 0) {
+    leftQualityMetricsLoader.autoloadMetrics(vivictPPConfig.sourceConfigs[0].path, [this](std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error) {
+      this->loadMetricsCallback(metrics, error, vivictpp::imgui::ActionType::OpenQualityFileLeft);
+    });
+  }
+  if (vivictPPConfig.sourceConfigs.size() > 1) {
+    rightQualityMetricsLoader.autoloadMetrics(vivictPPConfig.sourceConfigs[1].path, [this](std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error) {
+      this->loadMetricsCallback(metrics, error, vivictpp::imgui::ActionType::OpenQualityFileRight);
+    });
+  }
 }
 
 void drawSplash() {
@@ -390,20 +400,30 @@ void vivictpp::imgui::VivictPPImGui::openFile(
 
 void vivictpp::imgui::VivictPPImGui::openQualityFile(
     const vivictpp::imgui::Action &action) {
-
-  qualityMetricsLoader.loadMetrics(
-      action.file,
-      [this, action](
+  auto callback = [this, action](
           std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
-          std::unique_ptr<std::exception> error) {
-        if (error) {
-          this->logger->error("Error loading quality file: {}", error->what());
-          return;
-        }
-        if (action.type == ActionType::OpenQualityFileLeft) {
-          std::atomic_store(&newLeftQualityMetrics, metrics);
-        } else {
-          std::atomic_store(&newRightQualityMetrics, metrics);
-        }
-      });
+          std::shared_ptr<std::exception> error) {
+        this->loadMetricsCallback(metrics, error, action);
+      };
+  if (action.type == ActionType::OpenQualityFileLeft) {
+    leftQualityMetricsLoader.loadMetrics(
+        action.file,
+        callback);
+  } else if (action.type == ActionType::OpenQualityFileRight) {
+    rightQualityMetricsLoader.loadMetrics(
+        action.file,
+        callback);
+  }
+}
+
+void vivictpp::imgui::VivictPPImGui::loadMetricsCallback(std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics, std::shared_ptr<std::exception> error, vivictpp::imgui::Action action) {
+  if (error) {
+    this->logger->error("Error loading quality file: {}", error->what());
+    return;
+  }
+  if (action.type == ActionType::OpenQualityFileLeft) {
+    std::atomic_store(&newLeftQualityMetrics, metrics);
+  } else if (action.type == ActionType::OpenQualityFileRight) {
+    std::atomic_store(&newRightQualityMetrics, metrics);
+  }
 }

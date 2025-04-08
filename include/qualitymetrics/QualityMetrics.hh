@@ -24,7 +24,7 @@ struct PooledMetrics {
 
 class QualityMetrics;
 
-typedef std::function<void(std::shared_ptr<QualityMetrics>, std::unique_ptr<std::exception>)>
+typedef std::function<void(std::shared_ptr<QualityMetrics>, std::shared_ptr<std::exception>)>
     QualityMetricsLoaderCallback;
 
 class QualityMetricsLoader {
@@ -33,11 +33,14 @@ public:
       : logger(vivictpp::logging::getOrCreateLogger(
             "vivictpp::qualitymetrics::QualityMetricsLoader")) {}
   ~QualityMetricsLoader() { stopLoaderThread(); }
-  void loadMetrics(std::string sourceFile,
+  void loadMetrics(std::string metricsFile,
+                   QualityMetricsLoaderCallback callback);
+  void autoloadMetrics(std::string sourceFile,
                    QualityMetricsLoaderCallback callback);
 
+
 private:
-  void loadMetricsInternal(std::string sourceFile,
+  void loadMetricsInternal(std::string metricsFile,
                            QualityMetricsLoaderCallback callback);
   void stopLoaderThread();
 
@@ -50,7 +53,7 @@ private:
 
 class QualityMetrics {
 public:
-  static QualityMetrics loadMetricsForSource(std::string sourceFile);
+  
   QualityMetrics() = default;
   QualityMetrics(std::string metricsFile);
   QualityMetrics(const QualityMetrics& other) = default;
@@ -73,7 +76,7 @@ public:
     return pooledMetrics.at(metric);
   }
 
-  const bool hasMetric(const std::string &metric) const {
+  bool hasMetric(const std::string &metric) const {
     return metrics.find(metric) != metrics.end();
   }
 
