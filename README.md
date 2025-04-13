@@ -272,23 +272,28 @@ For instance, to use cuvid decoders for h264 and h265, and libopenjpeg for jpeg 
 vivictpp --preferred-decoders h264_cuvid,hevc_cuvid,libopenjpeg video.mp4
 ```
 
-### Displaying video quality (VMAF) data
-_*Note that this functionality is currently not available in the new imgui UI. It mayb be reinstated in the future.*_
 
-### Plotting bitrate and frame size
+### Plotting bitrate and frame size, and video quality metrics
 Visibility of the plot window can be toggled with the `p` key, or by selecting the menu item `View->Plot`. The plot window can display bitrate
-in kbit/s calculated per GOP, or alternatively the size of each video frame in bytes.
+in kbit/s calculated per GOP, the size of each video frame in bytes, or video quality metrics if any are available.
 
-The table below lists actions that can be used to zoom/pan inside the plot window.
+The table below lists actions that can be used to zoom/pan inside the plot window. Note that the behaviour of the behaviour with regards
+to zoom/pan will change depending on if the `autofix X` and `autofit Y` checkboxes are checked. When autofit is enabled, zoom/pan will
+be disabled for that axis.
 
 | Action | Description |
 |--------|-------------|
 | Left click and drag | Pan |
 | Mouse wheel | Zoom in/out |
-| Right click and drag | Zoom in/out |
+| Right click and drag | Zoom in/out (shift/alt can be used to only zoom in X/Y orientation)|
 | Double click | Reset zoom |
 | Ctrl + left click | Seek to position |
 
+#### Loading video quality metrics
+Video quality metrics can be loaded from an external file by seleting `File->open left metrics` or `File->open right metrics`. Metrics files need to be in either json or csv format. In the case of json, this should be the json format as outputted by the `vmaf` tool.
+
+If `Autoload metrics` is checked in the settings, vivict++ will autoload any metrics files found when a video file is opened. For vivict++ to be able to autoload
+a metrics file, it needs to be in the same folder as the videofile, and named as the videofile but with the filename suffix replaced with `_vmaf.json` or `_vmaf.csv`.
 
 ### Specifying input format
 In case your input file is in a format this not easily identified, ie raw video, you can use the
