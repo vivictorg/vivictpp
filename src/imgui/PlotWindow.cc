@@ -67,7 +67,8 @@ int formatBitrate(double value, char *buff, int size, void *userData) {
 }
 
 std::vector<std::pair<std::string, std::string>>
-vivictpp::imgui::PlotWindow::getSelectableQualityMetrics(const vivictpp::ui::DisplayState &displayState) {
+vivictpp::imgui::PlotWindow::getSelectableQualityMetrics(
+    const vivictpp::ui::DisplayState &displayState) {
   std::vector<std::pair<std::string, std::string>> metrics;
   if (displayState.leftQualityMetrics) {
     for (const auto &metric : displayState.leftQualityMetrics->getMetrics()) {
@@ -100,6 +101,8 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
 
   static bool transparentBg = false;
   static bool showPlotWindow = true;
+  static bool autofitX = true;
+  static bool autofitY = true;
   showPlotWindow = displayState.displayPlot;
   if (ImGui::Begin("Plot window", &showPlotWindow,
                    transparentBg ? ImGuiWindowFlags_NoBackground
@@ -108,11 +111,8 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
     ImGui::Text("Transparent Background");
     ImGui::SameLine();
     ImGui::Checkbox("##Transparent background", &transparentBg);
-    static double timeX[2] = {0.0, 0.0};
-    static double timeY[2] = {0.0, 0.0};
-    timeX[0] = timeX[1] = vivictpp::time::ptsToDouble(displayState.pts);
     static std::string plotType = PLOT_TYPE_BITRATEGOP;
-    int resetTimePlotY = 0;
+
     std::string previousPlotType = plotType;
     ImGui::SameLine();
     ImGui::Text("Left plot");
@@ -128,15 +128,22 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
       }
       auto selectableMetrics = getSelectableQualityMetrics(displayState);
       for (const auto &metric : selectableMetrics) {
-        if (ImGui::Selectable(metric.first.c_str(), plotType == metric.second)) {
+        if (ImGui::Selectable(metric.first.c_str(),
+                              plotType == metric.second)) {
           plotType = metric.second;
         }
       }
       ImGui::EndCombo();
     }
-    resetTimePlotY = previousPlotType != plotType ? 2 : 0;
-    // timeY[0] = 0.0;
-    // timeY[1] = 2000;
+    ImGui::SameLine();
+    ImGui::Text("Autofix X");
+    ImGui::SameLine();
+    ImGui::Checkbox("##Autofit X", &autofitX);
+    ImGui::SameLine();
+    ImGui::Text("Autofix Y");
+    ImGui::SameLine();
+    ImGui::Checkbox("##Autofit Y", &autofitY);
+
     ImPlot::PushStyleColor(ImPlotCol_FrameBg,
                            {0, 0, 0, transparentBg ? 0.4f : 1.0f});
     ImPlot::PushStyleColor(ImPlotCol_PlotBg, {0, 0, 0, 0});
@@ -144,9 +151,9 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
       // ImPlot::GetInputMap().Fit = ImGuiMouseButton_Right;
       // ImPlot::GetInputMap().Menu = ImGuiMouseButton_Middle;
       static ImPlotRect rect;
-      ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoMenus);
+      ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoMenus | (autofitX ? ImPlotAxisFlags_AutoFit : 0));
       ImPlot::SetupAxis(ImAxis_Y1, nullptr,
-                        ImPlotAxisFlags_NoMenus | ImPlotAxisFlags_AutoFit);
+                        ImPlotAxisFlags_NoMenus | (autofitY ? ImPlotAxisFlags_AutoFit : 0));
       bool includeMs = rect.X.Max - rect.X.Min < 10;
       ImPlot::SetupAxisFormat(ImAxis_X1, formatTime, &includeMs);
       // bool isBitrate = plotType == PLOT_TYPE_BITRATEGOP;
@@ -161,22 +168,7 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
                  rightVideoIndex->getPlotDatas(),
                  displayState.rightQualityMetrics);
       }
-      if (resetTimePlotY == 2) {
-        timeY[1] = 0;
-      }
 
-      ImPlot::PlotLine("Time", timeX, timeY, 2);
-
-      rect = ImPlot::GetPlotLimits();
-      timeY[0] = rect.Y.Min;
-      if (resetTimePlotY > 0) {
-        resetTimePlotY--;
-      }
-      if (resetTimePlotY == 0) {
-        timeY[0] = rect.Y.Min;
-        timeY[1] = rect.Y.Max;
-      }
-      // timeY[1] = rect.Y.Max;
       bool isHovered = ImGui::IsItemHovered();
       bool isFocused = ImGui::IsItemFocused();
       if (isHovered && isFocused &&
@@ -188,6 +180,7 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
         actions.push_back(
             {ActionType::Seek, vivictpp::time::doubleToPts(ipp.x)});
       }
+      drawPtsMarker(displayState);
       ImPlot::EndPlot();
     }
     ImPlot::PopStyleColor(2);
@@ -198,4 +191,21 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
   }
 
   return actions;
+}
+
+void vivictpp::imgui::PlotWindow::drawPtsMarker(
+    const ui::DisplayState &displayState) {
+  auto plotPos = ImPlot::GetPlotPos();
+  auto plotSize = ImPlot::GetPlotSize();
+  auto timePoint = ImPlot::PlotToPixels(
+      vivictpp::time::ptsToDouble(displayState.pts), 0, ImAxis_X1, ImAxis_Y1);
+  auto p1 = ImVec2(timePoint.x, plotPos.y);
+  auto p2 = ImVec2(timePoint.x - 4, plotPos.y - 7);
+  auto p3 = ImVec2(timePoint.x + 4, plotPos.y - 7);
+  ImGui::GetWindowDrawList()->AddLine(
+      ImVec2(timePoint.x, plotPos.y),
+      ImVec2(timePoint.x, plotPos.y + plotSize.y), IM_COL32(255, 255, 255, 255),
+      0.5f);
+  ImGui::GetWindowDrawList()->AddTriangleFilled(p1, p2, p3,
+                                                IM_COL32(255, 255, 255, 255));
 }

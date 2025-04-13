@@ -16,8 +16,6 @@ namespace vivictpp::imgui {
 
 class PlotWindow {
 private:
-  double timeX[2] = {0.0, 0.0};
-  double timeY[2] = {0.0, 0.0};
   std::shared_ptr<vivictpp::video::VideoIndex> leftVideoIndex;
   std::shared_ptr<vivictpp::video::VideoIndex> rightVideoIndex;
 
@@ -28,6 +26,7 @@ public:
 
   private:
   std::vector<std::pair<std::string, std::string>> getSelectableQualityMetrics(const ui::DisplayState &displayState);
+  void drawPtsMarker(const ui::DisplayState &displayState);
 };
 
 } // namespace vivictpp::imgui
