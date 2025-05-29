@@ -224,6 +224,19 @@ Vivict++ can also be run with only one video
 * Panning is done by left clicking and dragging
 * Left clicking anywhere starts/stops the playback
 
+### Comparing videos with different resolutions and/or aspect ratios
+When comparing videos with different resolutions, the videos will be presented at the highest resolution of the two. The lower resolution video will be upscaled.
+
+If two videos with different aspect ratios are compared, display aspect ratio is select with the algorithm described below.
+
+1. If one of the videos has an aspect ratio of 16:9, this aspect ratio is selected.
+2. Otherwise, the widest aspect ratio of the two videos is selected
+
+The videos will be padded as necessary to fit the selected aspect ratio. After padding, if necessary, the smaller video will be upscaled to match the resolution of the larger video.
+
+For use cases where the above behaviour does not give the desired results, it is reccomended to use videoFilters to pad or crop one of the videos to match the other.
+
+
 ### Using video filters
 The `--left-filter` and `--right-filter` options can be used to specify ffmpeg filters that are applied to the input(s) before being displayed. The filters should be specified using ffmpeg filter syntax, see [FFmpeg Filters Documentation](http://ffmpeg.org/ffmpeg-filters.html)
 

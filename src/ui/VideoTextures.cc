@@ -12,23 +12,55 @@ SDL_PixelFormatEnum getTexturePixelFormat(const vivictpp::libav::Frame &frame) {
   return SDL_PIXELFORMAT_YV12;
 }
 
+bool isAspectRatio169(const Resolution &resolution) {
+  return resolution.w * 9 == resolution.h * 16;
+}
+
+// Native resolution is calculated as the resolution that can fit both videos
+// after the video with narrower aspect ratio has been padded to wider AR
+void vivictpp::ui::VideoTextures::calcNativeResolution(const vivictpp::ui::DisplayState &displayState) {
+  Resolution leftDisplayResolution =
+      displayState.leftVideoMetadata.displayResolution;
+  if (displayState.rightVideoMetadata.empty()) {
+    nativeResolution = leftDisplayResolution;
+    return;
+  }
+
+  //AVRational displayAspectRatio{leftDisplayResolution.w, leftDisplayResolution.h};
+
+  Resolution rightDisplayResolution =
+      displayState.rightVideoMetadata.displayResolution;
+
+  // prefer 16:9 AR
+  if (isAspectRatio169(rightDisplayResolution) ||
+      isAspectRatio169(leftDisplayResolution)) {
+    nativeAspectRatio = {16, 9};
+  } else if (leftDisplayResolution.w * rightDisplayResolution.h > 
+      rightDisplayResolution.w * leftDisplayResolution.h) {
+        // if none of the videos is 16:9, prefer wider aspect ratio
+    nativeAspectRatio = {leftDisplayResolution.w, leftDisplayResolution.h};
+  } else {
+    nativeAspectRatio = {rightDisplayResolution.w, rightDisplayResolution.h};
+  }
+
+  // Now find the minimum resolution that can fit both videos after they
+  // are padded to the display aspect ratio
+
+  Resolution leftPadded = leftDisplayResolution.padToAspectRatio(nativeAspectRatio);
+  Resolution rightPadded = rightDisplayResolution.padToAspectRatio(nativeAspectRatio);
+
+  if (leftPadded.w >= rightPadded.w) {
+    nativeResolution = leftPadded;
+  } else {
+    nativeResolution = rightPadded;
+  }
+}
+
 bool vivictpp::ui::VideoTextures::initTextures(
     SDL_Renderer *renderer, const DisplayState &displayState) {
   if (videoMetadataVersion == displayState.videoMetadataVersion)
     return false;
-  Resolution leftDisplayResolution =
-      displayState.leftVideoMetadata.filteredResolution.toDisplayResolution(
-          displayState.leftVideoMetadata.filteredSampleAspectRatio);
-  if (!displayState.rightVideoMetadata.empty()) {
-    Resolution rightDisplayResolution =
-        displayState.rightVideoMetadata.filteredResolution.toDisplayResolution(
-            displayState.rightVideoMetadata.filteredSampleAspectRatio);
-    nativeResolution = leftDisplayResolution.w > rightDisplayResolution.w
-                           ? leftDisplayResolution
-                           : rightDisplayResolution;
-  } else {
-    nativeResolution = leftDisplayResolution;
-  }
+  calcNativeResolution(displayState);
   leftTexture = vivictpp::sdl::SDLTexture(
       renderer, displayState.leftVideoMetadata.filteredResolution.w,
       displayState.leftVideoMetadata.filteredResolution.h,

@@ -27,13 +27,25 @@ struct Resolution {
   Resolution scaleToWidth(const int width) const {
     return Resolution(width, h * width / w);
   }
-  Resolution scaleKeepingAspectRatio(int maxw, int maxh) {
+  Resolution scaleKeepingAspectRatio(int maxw, int maxh) const {
     if (w * maxh < h * maxw) {
       return Resolution(w * maxh / h, maxh);
     } else {
       return Resolution(maxw, h * maxw / w);
     }
   }
+  Resolution padToAspectRatio(const AVRational aspectRatio) const {
+    if (w * aspectRatio.den == h * aspectRatio.num) {
+      return Resolution(w, h);
+    }
+    if (w * aspectRatio.num > h * aspectRatio.den) {
+      // is wider than the aspect ratio, pad height
+      return Resolution(w, w * aspectRatio.den / aspectRatio.num);
+    }
+    // is narrower than the aspect ratio, pad width
+    return Resolution(h * aspectRatio.num / aspectRatio.den, h);
+  }
+  
   std::string toString() const {
     std::ostringstream oss;
     oss << this->w << "x" << this->h;

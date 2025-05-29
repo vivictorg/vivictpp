@@ -16,12 +16,14 @@ public:
   vivictpp::sdl::SDLTexture leftTexture;
   vivictpp::sdl::SDLTexture rightTexture;
   Resolution nativeResolution;
+  AVRational nativeAspectRatio;
 
 public:
   bool update(SDL_Renderer *renderer, const DisplayState &displayState);
 
 private:
   bool initTextures(SDL_Renderer *renderer, const DisplayState &displayState);
+  void calcNativeResolution(const DisplayState &displayState);
   int videoMetadataVersion{-1};
 };
 } // namespace vivictpp::ui

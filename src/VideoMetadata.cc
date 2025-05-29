@@ -53,6 +53,7 @@ VideoMetadata::VideoMetadata(const std::string &source,
       filteredSampleAspectRatio(filteredVideoMetadata.empty()
                                     ? sampleAspectRatio
                                     : filteredVideoMetadata.sampleAspectRatio),
+      displayResolution(filteredResolution.toDisplayResolution(filteredSampleAspectRatio)),
       filteredVideoMetadata(filteredVideoMetadata),
       bitrate(getBitrate(videoStream)),
       frameRate(av_q2d(videoStream->r_frame_rate)),
@@ -75,6 +76,7 @@ std::string VideoMetadata::resolutionAsString() const {
   }
   return oss.str();
 }
+
 
 std::string VideoMetadata::toString() const {
   std::string separator = "\t";

@@ -50,6 +50,7 @@ public:
   AVRational sampleAspectRatio;
   Resolution filteredResolution;
   AVRational filteredSampleAspectRatio;
+  Resolution displayResolution;
   FilteredVideoMetadata filteredVideoMetadata;
   int bitrate;
   double frameRate;
