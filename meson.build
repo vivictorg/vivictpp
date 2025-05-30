@@ -1,5 +1,7 @@
 project('vivict++', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'])
 
+cmake = import('cmake')
+
 extra_args = ['-D__STDC_CONSTANT_MACROS']
 if meson.get_compiler('cpp').get_id() == 'gcc'
   extra_args += '-Wno-shadow'
@@ -43,6 +45,18 @@ if build_machine.system() == 'windows'
   libavfilter_dep = cc.find_library('avfilter', dirs : [ffmpeg_dir / 'lib'])
   libswscale_dep = cc.find_library('swscale', dirs : [ffmpeg_dir / 'lib'])
 else
+  opt_var = cmake.subproject_options()
+  opt_var.add_cmake_defines({'SDL3_BUILD_TESTS': 'OFF'})
+  opt_var.add_cmake_defines({'SDL3_BUILD_EXAMPLES': 'OFF'})
+  opt_var.add_cmake_defines({'POSITION_INDEPENDENT_CODE': 'ON'})
+  opt_var.append_compile_args('c++', '-fPIC')
+  opt_var.append_compile_args('c', '-fPIC')
+
+  sdl3_proj = cmake.subproject('SDL3', options: opt_var)
+
+  message('CMake targets:\n - ' + '\n - '.join(sdl3_proj.target_list()))
+  sdl3_dep = sdl3_proj.dependency('SDL3-shared')
+
 
   if get_option('use_sdl2_subproject')
     sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false', 'default_library=static'])
@@ -66,6 +80,7 @@ endif
 
 deps = [
   zlib_dep,
+  sdl3_dep,
   sdl2_dep,
   sdl2_ttf_dep,
   #  dependency('freetype2', version: '>=2.8.1'),
