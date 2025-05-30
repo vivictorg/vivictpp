@@ -14,7 +14,7 @@
 #include <filesystem>
 #include <memory>
 extern "C" {
-#include "SDL.h"
+#include <SDL3/SDL.h>
 }
 #include "libs/implot/implot.h"
 #include "logging/Logging.hh"
@@ -25,7 +25,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
     : sdlInitializer(false),
       windowPtr(vivictpp::sdl::createWindow(windowWidth, windowHeight,
                                             SDL_WINDOW_RESIZABLE |
-                                                SDL_WINDOW_ALLOW_HIGHDPI)),
+                                                SDL_WINDOW_HIGH_PIXEL_DENSITY)),
       window(windowPtr.get()),
       rendererPtr(vivictpp::sdl::createRenderer(
           window, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)),
@@ -52,7 +52,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
   //  ui::initIconTextures(renderer);
 
   int rw = 0, rh = 0;
-  SDL_GetRendererOutputSize(renderer, &rw, &rh);
+  SDL_GetCurrentRenderOutputSize(renderer, &rw, &rh);
   scaleRenderer = rw != windowWidth;
   ;
   if (scaleRenderer) {
@@ -63,7 +63,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
       fprintf(stderr, "WARNING: width scale != height scale\n");
     }
 
-    SDL_RenderSetScale(renderer, widthScale, heightScale);
+    SDL_SetRenderScale(renderer, widthScale, heightScale);
   }
 
   // Setup Platform/Renderer backends
@@ -139,7 +139,7 @@ bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {
 
 bool vivictpp::imgui::ImGuiSDL::isWindowClose(SDL_Event &event) {
   return event.type == SDL_WINDOWEVENT &&
-         event.window.event == SDL_WINDOWEVENT_CLOSE &&
+         event.window.event == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
          event.window.windowID == SDL_GetWindowID(window);
 }
 
@@ -150,25 +150,25 @@ vivictpp::imgui::ImGuiSDL::handleEvents() {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     ImGui_ImplSDL2_ProcessEvent(&event);
-    if (event.type == SDL_QUIT || isWindowClose(event)) {
+    if (event.type == SDL_EVENT_QUIT || isWindowClose(event)) {
       events.push_back(std::make_shared<vivictpp::imgui::Quit>());
       return events;
     } else if (event.type == SDL_WINDOWEVENT &&
-               event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+               event.window.event == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
       windowWidth = event.window.data1;
       windowHeight = event.window.data2;
       events.push_back(std::make_shared<vivictpp::imgui::WindowSizeChange>());
-    } else if (event.type == SDL_MOUSEMOTION) {
+    } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
       SDL_MouseMotionEvent mouseEvent = event.motion;
       events.push_back(std::make_shared<vivictpp::imgui::MouseMotion>(
           mouseEvent.x, mouseEvent.y));
-    } else if (event.type == SDL_KEYDOWN && !io.WantCaptureKeyboard) {
+    } else if (event.type == SDL_EVENT_KEY_DOWN && !io.WantCaptureKeyboard) {
       SDL_KeyboardEvent kbe = event.key;
       SDL_Keymod modState = SDL_GetModState();
       events.push_back(std::make_shared<vivictpp::imgui::KeyEvent>(
           std::string(SDL_GetKeyName(kbe.keysym.sym)),
-          !!(modState & KMOD_SHIFT), !!(modState & KMOD_CTRL),
-          !!(modState & KMOD_ALT)));
+          !!(modState & SDL_KMOD_SHIFT), !!(modState & SDL_KMOD_CTRL),
+          !!(modState & SDL_KMOD_ALT)));
     }
   }
   return events;

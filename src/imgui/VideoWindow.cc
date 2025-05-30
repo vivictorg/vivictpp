@@ -4,7 +4,7 @@
 
 #include "imgui/VideoWindow.hh"
 #include "ImGuiFileDialog.h"
-#include "SDL_video.h"
+#include <SDL3/SDL_video.h>
 #include "Settings.hh"
 #include "SourceConfig.hh"
 #include "VivictPPConfig.hh"

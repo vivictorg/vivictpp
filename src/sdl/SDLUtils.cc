@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "sdl/SDLUtils.hh"
-#include "SDL_pixels.h"
+#include <SDL3/SDL_pixels.h>
 
 std::atomic<int> vivictpp::sdl::SDLInitializer::instanceCount(0);
 
@@ -81,7 +81,7 @@ vivictpp::sdl::createTexture(SDL_Renderer *renderer, int w, int h,
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
 vivictpp::sdl::createPanCursor() {
   auto cursor = std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>(
-      SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL), SDL_FreeCursor);
+      SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_MOVE), SDL_DestroyCursor);
   if (!cursor) {
     throw SDLException("Failed to create cursor");
   }
@@ -91,7 +91,7 @@ vivictpp::sdl::createPanCursor() {
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
 vivictpp::sdl::createHandCursor() {
   auto cursor = std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>(
-      SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND), SDL_FreeCursor);
+      SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER), SDL_DestroyCursor);
   if (!cursor) {
     throw SDLException("Failed to create cursor");
   }

@@ -7,7 +7,7 @@
 #define UI_FONTSIZE_HH
 
 extern "C" {
-#include <SDL.h>
+#include <SDL3/SDL.h>
 }
 
 #include <cmath>

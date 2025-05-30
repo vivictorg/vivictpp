@@ -7,7 +7,7 @@
 #include "libav/Utils.hh"
 
 extern "C" {
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <libavutil/avutil.h>
 }
 
@@ -21,7 +21,7 @@ vivictpp::sdl::SDLAudioOutput::SDLAudioOutput(AVCodecContext *codecContext)
   SDL_AudioSpec wantedSpec;
   wantedSpec.channels = vivictpp::libav::getChannels(codecContext);
   wantedSpec.freq = codecContext->sample_rate;
-  wantedSpec.format = AUDIO_S16SYS;
+  wantedSpec.format = SDL_AUDIO_S16;
   wantedSpec.samples = 1024;
   wantedSpec.silence = 0;
   wantedSpec.callback = nullptr;

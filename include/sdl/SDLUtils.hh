@@ -5,9 +5,9 @@
 #ifndef SDL_SDLUTILS_HH
 #define SDL_SDLUTILS_HH
 
-#include "SDL_video.h"
+#include <SDL3/SDL_video.h>
 extern "C" {
-#include "SDL.h"
+#include <SDL3/SDL.h>
 }
 
 #include <atomic>
