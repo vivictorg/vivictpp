@@ -1,6 +1,10 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## 1.3.0-pre1
+### Changed
+- When videos have different aspect ratios, they are now padded instead of stretched
+
 ## 1.2.0 - 2025-05-29
 ### Fixed
 - Seeking when using VAAPI hardware acceleration no longer crashes the app (issue #64)
