@@ -28,7 +28,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
                                                 SDL_WINDOW_HIGH_PIXEL_DENSITY)),
       window(windowPtr.get()),
       rendererPtr(vivictpp::sdl::createRenderer(
-          window, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_NUMBER)),
+          window)),
       renderer(rendererPtr.get()),
       iniFilename(std::filesystem::path(fmt::format("{}/vivictpp/imgui.ini",
                                                     sago::getConfigHome()))

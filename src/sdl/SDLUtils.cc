@@ -11,7 +11,7 @@ vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio) {
   if (instanceCount++ == 0) {
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     uint32_t flags =
-        SDL_INIT_VIDEO | SDL_INIT_TIMER | (enableAudio ? SDL_INIT_AUDIO : 0);
+        SDL_INIT_VIDEO | (enableAudio ? SDL_INIT_AUDIO : 0);
     if (SDL_Init(flags)) {
       throw SDLException("Failed to initialize SDL");
     }
@@ -45,8 +45,7 @@ void vivictpp::sdl::SDLTexture::update(const vivictpp::libav::Frame &frame) {
 vivictpp::sdl::SDLWindow vivictpp::sdl::createWindow(int width, int height,
                                                      int flags) {
   auto window = std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>(
-      SDL_CreateWindow("Vivict++", SDL_WINDOWPOS_UNDEFINED,
-                       SDL_WINDOWPOS_UNDEFINED, width, height, flags),
+      SDL_CreateWindow("Vivict++", width, height, flags),
       SDL_DestroyWindow);
   if (!window) {
     throw SDLException("Failed to create window");
@@ -54,11 +53,10 @@ vivictpp::sdl::SDLWindow vivictpp::sdl::createWindow(int width, int height,
   return window;
 }
 
-vivictpp::sdl::SDLRenderer vivictpp::sdl::createRenderer(SDL_Window *window,
-                                                         int flags) {
+vivictpp::sdl::SDLRenderer vivictpp::sdl::createRenderer(SDL_Window *window) {
   auto renderer =
       std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>(
-          SDL_CreateRenderer(window, -1, flags), SDL_DestroyRenderer);
+          SDL_CreateRenderer(window, nullptr), SDL_DestroyRenderer);
   if (!renderer) {
     throw SDLException("Failed to create renderer");
   }
