@@ -28,7 +28,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
                                                 SDL_WINDOW_HIGH_PIXEL_DENSITY)),
       window(windowPtr.get()),
       rendererPtr(vivictpp::sdl::createRenderer(
-          window, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)),
+          window, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_NUMBER)),
       renderer(rendererPtr.get()),
       iniFilename(std::filesystem::path(fmt::format("{}/vivictpp/imgui.ini",
                                                     sago::getConfigHome()))
@@ -115,24 +115,31 @@ void vivictpp::imgui::ImGuiSDL::updateTextures(
 }
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
-  SDL_DisplayMode DM;
   int displayIndex = SDL_GetWindowDisplayIndex(window);
-  SDL_GetCurrentDisplayMode(displayIndex, &DM);
+  auto displayMode = SDL_GetCurrentDisplayMode(displayIndex);
+  if (displayMode == nullptr) {
+    throw new vivictpp::sdl::SDLException("Failed to get display mode");
+  }
   int w,h;
-  SDL_GetWindowSize(window, &w, &h);
-  int newW = std::min(DM.w, std::max(w,videoTextures.nativeResolution.w));
-  int newH = std::min(DM.h, std::max(h, 20 +videoTextures.nativeResolution.h));
+  if (!SDL_GetWindowSize(window, &w, &h)) {
+    throw new vivictpp::sdl::SDLException("Failed to get window size");
+  }
+  int newW = std::min(displayMode->w, std::max(w,videoTextures.nativeResolution.w));
+  int newH = std::min(displayMode >h, std::max(h, 20 +videoTextures.nativeResolution.h));
   if (newW > w || newH > h) {
-    SDL_SetWindowSize(window, newW, newH);
+    if (!SDL_SetWindowSize(window, newW, newH)) {
+      spdlog::error("Failed to set window size");
+    }
   }
 }
 
 bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {
   fullscreen = !fullscreen;
   if (fullscreen) {
-    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    SDL_SetWindowFullscreenMode(window, nullptr);
+    SDL_SetWindowFullscreen(window, true);
   } else {
-    SDL_SetWindowFullscreen(window, 0);
+    SDL_SetWindowFullscreen(window, false);
   }
   return fullscreen;
 }

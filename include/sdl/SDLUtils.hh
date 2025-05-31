@@ -46,7 +46,7 @@ class SDLTexture {
 public:
   SDLTexture() {}
   SDLTexture(SDL_Renderer *renderer, int w, int h,
-             SDL_PixelFormatEnum pixelFormat);
+             SDL_PixelFormat pixelFormat);
   void update(const vivictpp::libav::Frame &frame);
   bool operator!() const { return !texturePtr; }
   TexturePtr &operator->() { return texturePtr; }
@@ -54,7 +54,7 @@ public:
 
 private:
   TexturePtr texturePtr;
-  SDL_PixelFormatEnum pixelFormat;
+  SDL_PixelFormat pixelFormat;
 };
 
 typedef std::unique_ptr<SDL_Window, std::function<void(SDL_Window *)>>
@@ -68,7 +68,7 @@ SDLRenderer createRenderer(SDL_Window *window, int flags = 0);
 
 TexturePtr
 createTexture(SDL_Renderer *renderer, int w, int h,
-              SDL_PixelFormatEnum pixelFormat = SDL_PIXELFORMAT_NV12);
+              SDL_PixelFormat pixelFormat = SDL_PIXELFORMAT_NV12);
 
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
 createHandCursor();

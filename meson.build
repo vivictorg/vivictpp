@@ -81,7 +81,6 @@ endif
 deps = [
   zlib_dep,
   sdl3_dep,
-  sdl2_dep,
   sdl2_ttf_dep,
   #  dependency('freetype2', version: '>=2.8.1'),
   #  freetype2_proj.get_variable('freetype2_dep'),
@@ -159,7 +158,7 @@ sources = [
   'src/libav/Packet.cc',
   'src/libav/Utils.cc',
   'src/logging/Logging.cc',
-  'src/sdl/SDLAudioOutput.cc',
+  #'src/sdl/SDLAudioOutput.cc',
   'src/sdl/SDLUtils.cc',
   'src/time/TimeUtils.cc',
   'src/qualitymetrics/QualityMetrics.cc',

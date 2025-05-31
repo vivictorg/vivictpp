@@ -4,7 +4,7 @@
 
 #include "ui/VideoTextures.hh"
 
-SDL_PixelFormatEnum getTexturePixelFormat(const vivictpp::libav::Frame &frame) {
+SDL_PixelFormat getTexturePixelFormat(const vivictpp::libav::Frame &frame) {
   if (!frame.empty() &&
       (AVPixelFormat)frame.avFrame()->format == AV_PIX_FMT_NV12) {
     return SDL_PIXELFORMAT_NV12;

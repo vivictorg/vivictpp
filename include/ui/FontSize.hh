@@ -24,9 +24,15 @@ public:
   static void setScaling(bool dpiScaling, float customScaleFactor) {
     float dpiScaleFactor = 1.0;
     if (dpiScaling) {
+      /*
+      https://github.com/libsdl-org/SDL/blob/main/docs/README-migration.md
+SDL_GetDisplayDPI() - not reliable across platforms, approximately replaced by multiplying SDL_GetWindowDisplayScale() times 160 on iPhone and Android, and 96 on other platforms.
+      //  SDL_GetWindowDisplayScale() 
       float dpi;
       SDL_GetDisplayDPI(0, &dpi, nullptr, nullptr);
       dpiScaleFactor = dpi / REFERENCE_DPI;
+      */
+      
     }
     scaleFactor = dpiScaleFactor * customScaleFactor;
     scalingEnabled = true;

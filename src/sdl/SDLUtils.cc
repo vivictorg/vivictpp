@@ -27,7 +27,7 @@ vivictpp::sdl::SDLInitializer::~SDLInitializer() {
 // vivictpp::sdl::SDLTexture::SDLTexture() {}
 
 vivictpp::sdl::SDLTexture::SDLTexture(SDL_Renderer *renderer, int w, int h,
-                                      SDL_PixelFormatEnum pixelFormat)
+                                      SDL_PixelFormat pixelFormat)
     : texturePtr(createTexture(renderer, w, h, pixelFormat)),
       pixelFormat(pixelFormat) {}
 
@@ -67,7 +67,7 @@ vivictpp::sdl::SDLRenderer vivictpp::sdl::createRenderer(SDL_Window *window,
 
 vivictpp::sdl::TexturePtr
 vivictpp::sdl::createTexture(SDL_Renderer *renderer, int w, int h,
-                             SDL_PixelFormatEnum pixelFormat) {
+                             SDL_PixelFormat pixelFormat) {
   auto texture = std::shared_ptr<SDL_Texture>(
       SDL_CreateTexture(renderer, pixelFormat, SDL_TEXTUREACCESS_STREAMING, w,
                         h),
