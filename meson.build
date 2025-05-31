@@ -89,8 +89,8 @@ test_deps = [
 ]
 
 incdir = include_directories('include',
-                             'imgui',
-                             'imgui/backends',
+                             'libs/imgui',
+                             'libs/imgui/backends',
                              'libs/ImGuiFileDialog',
                              'libs/tomlplusplus',
                              'libs/json',
@@ -101,13 +101,13 @@ git_hash = git_hash_cmd.stdout().strip()
 
 
 imgui_sources=[
-  'imgui/imgui_demo.cpp',
-  'imgui/imgui_widgets.cpp',
-  'imgui/imgui.cpp',
-  'imgui/imgui_draw.cpp',
-  'imgui/imgui_tables.cpp',
-  'imgui/backends/imgui_impl_sdl2.cpp',
-  'imgui/backends/imgui_impl_sdlrenderer2.cpp',
+  'libs/imgui/imgui_demo.cpp',
+  'libs/imgui/imgui_widgets.cpp',
+  'libs/imgui/imgui.cpp',
+  'libs/imgui/imgui_draw.cpp',
+  'libs/imgui/imgui_tables.cpp',
+  'libs/imgui/backends/imgui_impl_sdl2.cpp',
+  'libs/imgui/backends/imgui_impl_sdlrenderer2.cpp',
   'src/imgui/VivictPPImGui.cc',
   'src/imgui/Controls.cc',
   'src/imgui/VideoMetadataDisplay.cc',
