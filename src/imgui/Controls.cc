@@ -120,7 +120,7 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::Controls::draw(
       ImGui::GetWindowDrawList()->AddRect(
           {thumbnailPos.x - 1, thumbnailPos.y - 1}, {p2.x + 1, p2.y + 1},
           border);
-      ImGui::GetWindowDrawList()->AddImage((void *)(intptr_t)thumbnail.get(),
+      ImGui::GetWindowDrawList()->AddImage((ImTextureID)(intptr_t)thumbnail.get(),
                                            thumbnailPos, p2);
     }
     if (ImGui::IsItemActive()) {
