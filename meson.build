@@ -1,4 +1,5 @@
 project('vivict++', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'])
+add_project_arguments('-fPIC', language: ['c', 'cpp']) # Needed for SDL3
 
 cmake = import('cmake')
 
@@ -7,12 +8,20 @@ if meson.get_compiler('cpp').get_id() == 'gcc'
   extra_args += '-Wno-shadow'
 endif
 
+opt_var = cmake.subproject_options()
+opt_var.add_cmake_defines({'SDL3_BUILD_TESTS': 'OFF'})
+opt_var.add_cmake_defines({'SDL3_BUILD_EXAMPLES': 'OFF'})
+opt_var.add_cmake_defines({'POSITION_INDEPENDENT_CODE': 'ON'})
+opt_var.append_compile_args('c++', '-fPIC')
+opt_var.append_compile_args('c', '-fPIC')
+
 fmt_proj = subproject('fmt', default_options: ['warning_level=0', 'default_library=static'])  
 spdlog_proj = subproject('spdlog', default_options: 'warning_level=0')
 cli11_proj = subproject('cli11', default_options: 'warning_level=0')
 catch2_proj = subproject('catch2', default_options: 'warning_level=0')
 freetype2_proj = subproject('freetype2', default_options: 'warning_level=0')
 platformfolders_proj = subproject('platformfolders', default_options: 'warning_level=0')
+#sdl3_proj = subproject('sdl3', default_options: ['warning_level=0', 'default_library=static','b_staticpic=true'])
 
 if get_option('use_zlib_subproject')
   zlib_proj = subproject('zlib', default_options: ['warning_level=0', 'default_library=static'])
@@ -52,9 +61,9 @@ else
   opt_var.append_compile_args('c++', '-fPIC')
   opt_var.append_compile_args('c', '-fPIC')
 
-  sdl3_proj = cmake.subproject('SDL3', options: opt_var)
+ sdl3_proj = cmake.subproject('sdl3', options: opt_var)
 
-  message('CMake targets:\n - ' + '\n - '.join(sdl3_proj.target_list()))
+#  message('CMake targets:\n - ' + '\n - '.join(sdl3_proj.target_list()))
   sdl3_dep = sdl3_proj.dependency('SDL3-shared')
 
 
@@ -72,6 +81,7 @@ endif
 deps = [
   zlib_dep,
   sdl3_dep,
+  #sdl3_proj.get_variable('sdl3_dep'),
   #  dependency('freetype2', version: '>=2.8.1'),
   #  freetype2_proj.get_variable('freetype2_dep'),
   dependency('threads'),
