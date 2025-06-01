@@ -12,7 +12,9 @@ jobs:
       - name: Add wix toolset to path
         run: |
           echo "c:\Program Files (x86)\Wix Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Restore cached dependencies
         id: cache-dependencies-restore
         uses: actions/cache/restore@v3
