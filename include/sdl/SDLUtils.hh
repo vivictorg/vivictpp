@@ -64,7 +64,7 @@ typedef std::unique_ptr<SDL_Renderer, std::function<void(SDL_Renderer *)>>
 
 SDLWindow createWindow(int width, int height, int flags = SDL_WINDOW_RESIZABLE);
 
-SDLRenderer createRenderer(SDL_Window *window, int flags = 0);
+SDLRenderer createRenderer(SDL_Window *window);
 
 TexturePtr
 createTexture(SDL_Renderer *renderer, int w, int h,

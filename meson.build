@@ -58,15 +58,6 @@ else
   sdl3_dep = sdl3_proj.dependency('SDL3-shared')
 
 
-  if get_option('use_sdl2_subproject')
-    sdl2_proj = subproject('sdl2', default_options: ['warning_level=0', 'test=false', 'default_library=static'])
-    sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
-    sdl2_ttf_proj = subproject('sdl2_ttf', default_options: ['warning_level=0', 'default_library=static'])
-    sdl2_ttf_dep = sdl2_ttf_proj.get_variable('sdl2_ttf_dep')
-  else
-    sdl2_dep = dependency('sdl2', fallback: ['sdl2', 'sdl2_dep'])
-    sdl2_ttf_dep = dependency('sdl2_ttf', fallback: ['sdl2_ttf', 'sdl2_ttf_dep'])
-  endif
 
   libavformat_dep = dependency('libavformat')
   libavcodec_dep = dependency('libavcodec')
@@ -81,7 +72,6 @@ endif
 deps = [
   zlib_dep,
   sdl3_dep,
-  sdl2_ttf_dep,
   #  dependency('freetype2', version: '>=2.8.1'),
   #  freetype2_proj.get_variable('freetype2_dep'),
   dependency('threads'),
@@ -120,8 +110,8 @@ imgui_sources=[
   'libs/imgui/imgui.cpp',
   'libs/imgui/imgui_draw.cpp',
   'libs/imgui/imgui_tables.cpp',
-  'libs/imgui/backends/imgui_impl_sdl2.cpp',
-  'libs/imgui/backends/imgui_impl_sdlrenderer2.cpp',
+  'libs/imgui/backends/imgui_impl_sdl3.cpp',
+  'libs/imgui/backends/imgui_impl_sdlrenderer3.cpp',
   'src/imgui/VivictPPImGui.cc',
   'src/imgui/Controls.cc',
   'src/imgui/VideoMetadataDisplay.cc',

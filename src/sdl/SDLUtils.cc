@@ -60,6 +60,7 @@ vivictpp::sdl::SDLRenderer vivictpp::sdl::createRenderer(SDL_Window *window) {
   if (!renderer) {
     throw SDLException("Failed to create renderer");
   }
+  SDL_SetRenderVSync(renderer.get(), 1);
   return renderer;
 }
 

@@ -7,8 +7,8 @@
 #include "imgui.h"
 #include "imgui/Events.hh"
 #include "imgui/Fonts.hh"
-#include "imgui_impl_sdl2.h"
-#include "imgui_impl_sdlrenderer2.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlrenderer3.h"
 #include "platform_folders.h"
 #include "ui/FontSize.hh"
 #include <filesystem>
@@ -67,8 +67,8 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
   }
 
   // Setup Platform/Renderer backends
-  ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
-  ImGui_ImplSDLRenderer2_Init(renderer);
+  ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+  ImGui_ImplSDLRenderer3_Init(renderer);
   // Dont't scale fonts in relation to dpi if we are scaling the renderer
   vivictpp::ui::FontSize::setScaling(!scaleRenderer &&
                                          !settings.disableFontAutoScaling,
@@ -78,7 +78,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
 
 void vivictpp::imgui::ImGuiSDL::updateFontSettings(const Settings &settings) {
   ImGui::GetIO().Fonts->Clear();
-  ImGui_ImplSDLRenderer2_DestroyFontsTexture();
+  ImGui_ImplSDLRenderer3_DestroyFontsTexture();
   vivictpp::ui::FontSize::setScaling(!scaleRenderer &&
                                          !settings.disableFontAutoScaling,
                                      settings.baseFontSize / 13.0f);
@@ -86,15 +86,15 @@ void vivictpp::imgui::ImGuiSDL::updateFontSettings(const Settings &settings) {
 }
 
 vivictpp::imgui::ImGuiSDL::~ImGuiSDL() {
-  ImGui_ImplSDLRenderer2_Shutdown();
-  ImGui_ImplSDL2_Shutdown();
+  ImGui_ImplSDLRenderer3_Shutdown();
+  ImGui_ImplSDL3_Shutdown();
   ImPlot::DestroyContext();
   ImGui::DestroyContext();
 }
 
 void vivictpp::imgui::ImGuiSDL::newFrame() {
-  ImGui_ImplSDLRenderer2_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
+  ImGui_ImplSDLRenderer3_NewFrame();
+  ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
 }
 
@@ -104,7 +104,7 @@ void vivictpp::imgui::ImGuiSDL::render() {
       renderer, (Uint8)(CLEAR_COLOR.x * 255), (Uint8)(CLEAR_COLOR.y * 255),
       (Uint8)(CLEAR_COLOR.z * 255), (Uint8)(CLEAR_COLOR.w * 255));
   SDL_RenderClear(renderer);
-  ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
+  ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
   SDL_RenderPresent(renderer);
   ImGui::EndFrame();
 }
@@ -145,8 +145,7 @@ bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {
 }
 
 bool vivictpp::imgui::ImGuiSDL::isWindowClose(SDL_Event &event) {
-  return event.type == SDL_WINDOWEVENT &&
-         event.window.event == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
+  return event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&
          event.window.windowID == SDL_GetWindowID(window);
 }
 
@@ -156,12 +155,11 @@ vivictpp::imgui::ImGuiSDL::handleEvents() {
   std::vector<std::shared_ptr<vivictpp::imgui::Event>> events;
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
-    ImGui_ImplSDL2_ProcessEvent(&event);
+    ImGui_ImplSDL3_ProcessEvent(&event);
     if (event.type == SDL_EVENT_QUIT || isWindowClose(event)) {
       events.push_back(std::make_shared<vivictpp::imgui::Quit>());
       return events;
-    } else if (event.type == SDL_WINDOWEVENT &&
-               event.window.event == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+    } else if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
       windowWidth = event.window.data1;
       windowHeight = event.window.data2;
       events.push_back(std::make_shared<vivictpp::imgui::WindowSizeChange>());
@@ -173,7 +171,7 @@ vivictpp::imgui::ImGuiSDL::handleEvents() {
       SDL_KeyboardEvent kbe = event.key;
       SDL_Keymod modState = SDL_GetModState();
       events.push_back(std::make_shared<vivictpp::imgui::KeyEvent>(
-          std::string(SDL_GetKeyName(kbe.keysym.sym)),
+          std::string(SDL_GetKeyName(kbe.key)),
           !!(modState & SDL_KMOD_SHIFT), !!(modState & SDL_KMOD_CTRL),
           !!(modState & SDL_KMOD_ALT)));
     }
