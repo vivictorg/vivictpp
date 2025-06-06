@@ -115,7 +115,7 @@ void vivictpp::imgui::ImGuiSDL::updateTextures(
 }
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
-  int displayIndex = SDL_GetWindowDisplayIndex(window);
+  int displayIndex = SDL_GetDisplayForWindow(window);
   auto displayMode = SDL_GetCurrentDisplayMode(displayIndex);
   if (displayMode == nullptr) {
     throw new vivictpp::sdl::SDLException("Failed to get display mode");
@@ -125,7 +125,7 @@ void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
     throw new vivictpp::sdl::SDLException("Failed to get window size");
   }
   int newW = std::min(displayMode->w, std::max(w,videoTextures.nativeResolution.w));
-  int newH = std::min(displayMode >h, std::max(h, 20 +videoTextures.nativeResolution.h));
+  int newH = std::min(displayMode->h, std::max(h, 20 +videoTextures.nativeResolution.h));
   if (newW > w || newH > h) {
     if (!SDL_SetWindowSize(window, newW, newH)) {
       spdlog::error("Failed to set window size");
