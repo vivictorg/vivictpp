@@ -116,9 +116,15 @@ void vivictpp::imgui::ImGuiSDL::updateTextures(
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
   SDL_DisplayMode DM;
-  SDL_GetCurrentDisplayMode(0, &DM);
-  SDL_SetWindowSize(window, std::min(DM.w, videoTextures.nativeResolution.w),
-                    std::min(DM.h, 20 + videoTextures.nativeResolution.h));
+  int displayIndex = SDL_GetWindowDisplayIndex(window);
+  SDL_GetCurrentDisplayMode(displayIndex, &DM);
+  int w,h;
+  SDL_GetWindowSize(window, &w, &h);
+  int newW = std::min(DM.w, std::max(w,videoTextures.nativeResolution.w));
+  int newH = std::min(DM.h, std::max(h, 20 +videoTextures.nativeResolution.h));
+  if (newW > w || newH > h) {
+    SDL_SetWindowSize(window, newW, newH);
+  }
 }
 
 bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {
