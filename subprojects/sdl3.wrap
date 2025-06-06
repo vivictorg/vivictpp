@@ -8,4 +8,4 @@ source_hash = b7e7dc05011b88c69170fe18935487b2559276955e49113f8c1b6b72c9b79c1f
 method = cmake
 
 [provide]
-SDL3-shared-3.2.14 = sdl3_dep
+sdl3 = SDL3_shared_dep

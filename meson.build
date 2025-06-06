@@ -61,11 +61,23 @@ else
   opt_var.append_compile_args('c++', '-fPIC')
   opt_var.append_compile_args('c', '-fPIC')
 
- sdl3_proj = cmake.subproject('sdl3', options: opt_var)
+sdl3_proj = cmake.subproject('sdl3', options: opt_var)
 
+#binary_dir = sdl3_dep.get_variable('SDL3_BINARY_DIR')
+#message('binary_dir: ' + binary_dir)
+#sdl3_dep.get_variable('', apa: 'bepa')
 #  message('CMake targets:\n - ' + '\n - '.join(sdl3_proj.target_list()))
   sdl3_dep = sdl3_proj.dependency('SDL3-shared')
 
+  
+#  sdl3_ttf_options = cmake.subproject_options()
+#  sdl3_ttf_options.add_cmake_defines({'SDL3_DIR': '/home/gustav/gitrepos/vivictorg/vivictpp/build-sdl3/subprojects/SDL3-3.2.14/__CMake_build'})
+  #sdl3_ttf_options.add_cmake_defines({'SDL3_DIR': meson.project_build_root() + '/subprojects/SDL3-3.2.14/__CMake_build'})
+#  cmake_args: '-DSDL3_DIR=build-sdl3/subprojects/SDL3-3.2.14/__CMake_build/')
+#  sdl3_ttf_project = cmake.subproject('sdl3_ttf', options: sdl3_ttf_options)
+  #sdl3_ttf_dep = sdl3_ttf_project.dependency('SDL3_ttf_shared')
+  sdl3_ttf_proj = subproject('sdl3_ttf', default_options: 'warning_level=0')
+  sdl3_ttf_dep = sdl3_ttf_proj.get_variable('sdl3_ttf_dep')
 
 
   libavformat_dep = dependency('libavformat')
@@ -81,6 +93,7 @@ endif
 deps = [
   zlib_dep,
   sdl3_dep,
+  sdl3_ttf_dep,
   #sdl3_proj.get_variable('sdl3_dep'),
   #  dependency('freetype2', version: '>=2.8.1'),
   #  freetype2_proj.get_variable('freetype2_dep'),
