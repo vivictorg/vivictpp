@@ -179,7 +179,11 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(
     case '0':
       return {vivictpp::imgui::ZoomReset};
     case 'F':
+    if (keyEvent.alt) {
+      return {vivictpp::imgui::ToggleFitToScreen};
+    } else {
       return {vivictpp::imgui::ToggleFullscreen};
+    }
     case 'T':
       return {vivictpp::imgui::ToggleDisplayTime};
       break;

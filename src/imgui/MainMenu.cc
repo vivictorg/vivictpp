@@ -61,6 +61,9 @@ vivictpp::imgui::MainMenu::draw(const PlaybackState &playbackState,
       if (ImGui::MenuItem("Display Plot", "P", displayState.displayPlot)) {
         actions.push_back({ActionType::ToggleDisplayPlot});
       }
+      if (ImGui::MenuItem("Fit to screen", "Alt-F", displayState.fitToScreen)) {
+        actions.push_back({ActionType::ToggleFitToScreen});
+      }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Playback")) {
