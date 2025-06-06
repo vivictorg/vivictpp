@@ -134,8 +134,12 @@ void VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextures,
     ImVec2 drawPos = {pad.x + leftPad.x - scrollX, pad.y + leftPad.y - scrollY}; // cursorPos;
     ImVec2 uvMin(0, 0);
 
-    ImVec2 uvMax(std::clamp((scrollX + splitX - pad.x - leftPad.x) / leftScaledSize.x, 0.0f, 1.0f), 1);
-    ImVec2 p2(std::min(splitX, drawPos.x + leftScaledSize.x), drawPos.y + leftScaledSize.y);
+    ImVec2 uvMax(1, 1);
+    ImVec2 p2(drawPos.x + leftScaledSize.x, drawPos.y + leftScaledSize.y);
+    if (!displayState.splitScreenDisabled) {
+      p2.x = std::min(splitX, drawPos.x + leftScaledSize.x);
+      uvMax.x =std::clamp((scrollX + splitX - pad.x - leftPad.x) / leftScaledSize.x, 0.0f, 1.0f);
+    }
     ImGui::GetWindowDrawList()->AddImage(
         (ImTextureID)(intptr_t)videoTextures.leftTexture.get(), drawPos,
         p2 , uvMin, uvMax);
