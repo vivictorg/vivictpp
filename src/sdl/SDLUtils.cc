@@ -12,7 +12,7 @@ vivictpp::sdl::SDLInitializer::SDLInitializer(bool enableAudio) {
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
     uint32_t flags =
         SDL_INIT_VIDEO | (enableAudio ? SDL_INIT_AUDIO : 0);
-    if (SDL_Init(flags)) {
+    if (!SDL_Init(flags)) {
       throw SDLException("Failed to initialize SDL");
     }
   }
