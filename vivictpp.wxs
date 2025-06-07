@@ -32,34 +32,34 @@
             <File Id="VivictPPExe" KeyPath="yes" Source="build/vivictpp.exe"></File>
 	  </Component>
 	  <Component Id="Libavdevice">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/avdevice-61.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/avdevice-61.dll"></File>
 	    	  </Component>
 	  <Component Id="Libavfilter">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/avfilter-10.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/avfilter-10.dll"></File>
 	  </Component>
 	  <Component Id="Libavcodec">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/avcodec-61.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/avcodec-61.dll"></File>
 	  </Component>
 	  <Component Id="Libavutil">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/avutil-59.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/avutil-59.dll"></File>
 	  </Component>
 	  <Component Id="Libswresample">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/swresample-5.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/swresample-5.dll"></File>
 	  </Component>
 	  <Component Id="Libavformat">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/avformat-61.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/avformat-61.dll"></File>
 	  </Component>
 	  <Component Id="Libswscale">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/swscale-8.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/swscale-8.dll"></File>
 	  </Component>
 	  <Component Id="Libpostproc">
-            <File KeyPath="yes" Source="winlibs/ffmpeg-7.0.2-full_build-shared/bin/postproc-58.dll"></File>
+            <File KeyPath="yes" Source="winlibs/ffmpeg/bin/postproc-58.dll"></File>
 	  </Component>
-	  <Component Id="Sdl2">
-            <File KeyPath="yes" Source="winlibs/SDL2-2.26.5/lib/x64/SDL2.dll"></File>
+	  <Component Id="Sdl3">
+            <File KeyPath="yes" Source="winlibs/SDL3/lib/x64/SDL3.dll"></File>
 	  </Component>
-	  <Component Id="Sdl2_ttf">
-            <File KeyPath="yes" Source="winlibs/SDL2_ttf-2.20.2/lib/x64/SDL2_ttf.dll"></File>
+	  <Component Id="Sdl3_ttf">
+            <File KeyPath="yes" Source="winlibs/SDL3_ttf/lib/x64/SDL3_ttf.dll"></File>
 	  </Component>
 	  <Component Id="Licenseinfo">
             <File KeyPath="yes" Source="license-info.txt"></File>
@@ -79,8 +79,8 @@
       <ComponentRef Id="Libavformat" />
       <ComponentRef Id="Libswscale" />
       <ComponentRef Id="Libpostproc" />
-      <ComponentRef Id="Sdl2" />
-      <ComponentRef Id="Sdl2_ttf" />
+      <ComponentRef Id="Sdl3" />
+      <ComponentRef Id="Sdl3_ttf" />
       <ComponentRef Id="Licenseinfo" />
     </Feature>
 

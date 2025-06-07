@@ -26,12 +26,15 @@ jobs:
         if: steps.cache-dependencies-restore.outputs.cache-hit != 'true'
         run: |
           mkdir winlibs
-          curl https://libsdl.org/release/SDL2-devel-2.26.5-VC.zip -o SDL2-devel-2.26.5-VC.zip
-          7z x SDL2-devel-2.26.5-VC.zip -owinlibs
-          curl https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.20.2-VC.zip -o SDL2_ttf-devel-2.20.2-VC.zip
-          7z x SDL2_ttf-devel-2.20.2-VC.zip -owinlibs
+          curl -L https://github.com/libsdl-org/SDL/releases/download/release-3.2.16/SDL3-devel-3.2.16-VC.zip -o SDL3-devel-3.2.16-VC.zip
+          7z x SDL3-devel-3.2.16-VC.zip -owinlibs
+          ren winlibs\SDL3-3.2.16 winlibs\SDL3
+          curl -L https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-devel-3.2.2-VC.zip -o SDL3_ttf-devel-3.2.2-VC.zip
+          7z x SDL3_ttf-devel-3.2.2-VC.zip -owinlibs
+          ren winlibs\SDL3_ttf-3.2.2 winlibs\SDL3_ttf
           curl -L https://github.com/GyanD/codexffmpeg/releases/download/7.0.2/ffmpeg-7.0.2-full_build-shared.7z -o ffmpeg-7.0.2-full_build-shared.7z
           7z x ffmpeg-7.0.2-full_build-shared.7z -owinlibs
+          ren winlibs\ffmpeg-7.0.2-full_build-shared winlibs\ffmpeg
       - name: Cache dependencies
         id: cache-dependencies-save
         if: steps.cache-dependencies-restore.outputs.cache-hit != 'true'
@@ -45,5 +48,5 @@ jobs:
         uses: BSFishy/meson-build@v1.0.3
         with:
           action: build
-          meson-version: 0.63.1
+          meson-version: 1.8.1
           setup-options: -Dbuildtype=release

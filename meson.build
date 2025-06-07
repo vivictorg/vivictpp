@@ -38,16 +38,16 @@ if build_machine.system() == 'windows'
 
   cc = meson.get_compiler('cpp')
 
-  sdl2_dir = meson.project_source_root() / 'winlibs' / 'SDL2-2.26.5'
-  sdl2_dep = cc.find_library('sdl2', dirs: [sdl2_dir / 'lib' / 'x64'])
+  sdl3_dir = meson.project_source_root() / 'winlibs' / 'SDL3'
+  sdl3_dep = cc.find_library('sdl3', dirs: [sdl3_dir / 'lib' / 'x64'])
 
-  sdl2_ttf_dir = meson.project_source_root() / 'winlibs' / 'SDL2_ttf-2.20.2'
-  sdl2_ttf_dep = cc.find_library('sdl2_ttf', dirs: [sdl2_ttf_dir / 'lib' / 'x64'])
+  sdl3_ttf_dir = meson.project_source_root() / 'winlibs' / 'SDL3_ttf'
+  sdl3_ttf_dep = cc.find_library('sdl3_ttf', dirs: [sdl3_ttf_dir / 'lib' / 'x64'])
 
-  ffmpeg_dir = meson.project_source_root() / 'winlibs' / 'ffmpeg-7.0.2-full_build-shared'
+  ffmpeg_dir = meson.project_source_root() / 'winlibs' / 'ffmpeg'
   # get_option('ffmpeg_install_dir')
 
-  ffmpeg_inc = [ffmpeg_dir / 'include', sdl2_dir / 'include', sdl2_ttf_dir / 'include']
+  ffmpeg_inc = [ffmpeg_dir / 'include', sdl3_dir / 'include', sdl3_ttf_dir / 'include']
   libavformat_dep = cc.find_library('avformat', dirs : [ffmpeg_dir / 'lib'])
   libavcodec_dep = cc.find_library('avcodec', dirs : [ffmpeg_dir / 'lib'])
   libavutil_dep = cc.find_library('avutil', dirs : [ffmpeg_dir / 'lib'])
