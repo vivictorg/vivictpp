@@ -4,6 +4,7 @@
 
 #include "sdl/SDLUtils.hh"
 #include <SDL3/SDL_pixels.h>
+#include "logging/Logging.hh"
 
 std::atomic<int> vivictpp::sdl::SDLInitializer::instanceCount(0);
 
@@ -61,6 +62,15 @@ vivictpp::sdl::SDLRenderer vivictpp::sdl::createRenderer(SDL_Window *window) {
     throw SDLException("Failed to create renderer");
   }
   SDL_SetRenderVSync(renderer.get(), 1);
+
+  
+  SDL_PropertiesID props = SDL_GetRendererProperties(renderer.get());
+  SDL_PixelFormat *format = (SDL_PixelFormat *)SDL_GetPointerProperty(props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr);
+  while (format && *format != SDL_PIXELFORMAT_UNKNOWN) {
+    spdlog::info("Texture format: {}", SDL_GetPixelFormatName(*format));
+     format++;
+  }
+
   return renderer;
 }
 

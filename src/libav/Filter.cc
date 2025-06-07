@@ -142,8 +142,8 @@ void vivictpp::libav::VideoFilter::configure() {
   if (isHwAccelFormat(formatParameters.pixelFormat)) {
     if (formatParameters.pixelFormat == AV_PIX_FMT_CUDA &&
         avfilter_get_by_name("scale_cuda")) {
-      hwFilter = "scale_cuda=format=yuv420p";
-      hwDownloadFormat = AV_PIX_FMT_YUV420P;
+      hwFilter = "scale_cuda=format=p010";
+      hwDownloadFormat = AV_PIX_FMT_P010;
     } else if (formatParameters.pixelFormat == AV_PIX_FMT_VAAPI &&
                avfilter_get_by_name("scale_vaapi")) {
       hwFilter = "scale_vaapi=format=nv12";
@@ -167,7 +167,7 @@ void vivictpp::libav::VideoFilter::configure() {
     }
     if (hwDownloadFormat == AV_PIX_FMT_NV12 ||
         hwDownloadFormat == AV_PIX_FMT_P010) {
-      outputFormat = AV_PIX_FMT_NV12;
+      outputFormat = hwDownloadFormat;
     }
   }
 

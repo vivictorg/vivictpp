@@ -25,6 +25,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
     : sdlInitializer(false),
       windowPtr(vivictpp::sdl::createWindow(windowWidth, windowHeight,
                                             SDL_WINDOW_RESIZABLE |
+                                            SDL_WINDOW_OPENGL |
                                                 SDL_WINDOW_HIGH_PIXEL_DENSITY)),
       window(windowPtr.get()),
       rendererPtr(vivictpp::sdl::createRenderer(

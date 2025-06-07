@@ -189,6 +189,7 @@ void initSinks(const vivictpp::Settings &settings) {
   ringbufferSink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(
       settings.logBufferSize);
   sinks.push_back(ringbufferSink);
+  sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
   if (settings.logToFile) {
     auto fileSink =
         std::make_shared<spdlog::sinks::basic_file_sink_mt>(settings.logFile);

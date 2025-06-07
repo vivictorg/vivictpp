@@ -5,9 +5,13 @@
 #include "ui/VideoTextures.hh"
 
 SDL_PixelFormat getTexturePixelFormat(const vivictpp::libav::Frame &frame) {
-  if (!frame.empty() &&
-      (AVPixelFormat)frame.avFrame()->format == AV_PIX_FMT_NV12) {
-    return SDL_PIXELFORMAT_NV12;
+  if (!frame.empty()) {
+    if ((AVPixelFormat)frame.avFrame()->format == AV_PIX_FMT_NV12) {
+      return SDL_PIXELFORMAT_NV12;
+    } else if ((AVPixelFormat)frame.avFrame()->format == AV_PIX_FMT_P010) {
+      return SDL_PIXELFORMAT_P010;
+      //return SDL_PIXELFORMAT_NV12;
+    }
   }
   return SDL_PIXELFORMAT_YV12;
 }
