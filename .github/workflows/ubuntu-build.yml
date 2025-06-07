@@ -21,7 +21,7 @@ jobs:
         uses: BSFishy/meson-build@v1.0.3
         with:
           action: build
-          meson-version: 0.63.1
+          meson-version: 1.8.1
           setup-options: -Duse_sdl2_subproject=true
 #      - name: Run tests
 #        run: |
