@@ -196,7 +196,7 @@ void vivictpp::libav::VideoFilter::configure() {
     }
   }
   ret = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
-                            AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
+                            AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);          
   if (ret < 0) {
     throw std::runtime_error("cannot set output pixel format");
   }
@@ -209,7 +209,7 @@ void vivictpp::libav::VideoFilter::configure() {
                  av_get_pix_fmt_name(hwDownloadFormat) + ",";
   }
 
-  filterStr += std::string("format=") + av_get_pix_fmt_name(outputFormat);
+  filterStr += std::string("scale=sws_dither=none:dst_format=") + av_get_pix_fmt_name(outputFormat);
 
   if (!definition.empty()) {
     filterStr += std::string(",") + definition;
