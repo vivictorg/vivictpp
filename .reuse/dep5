@@ -124,4 +124,8 @@ Files: .clang-format .clang-format-ignore .clang-tidy
 Copyright: 2024 Gustav Grusell
 License: CC0-1.0
 
+Files: .gitmodules
+Copyright: 2025 Gustav Grusell
+License: CC0-1.0
+
 # Third-party files.
