@@ -20,12 +20,14 @@ private:
   std::shared_ptr<vivictpp::video::VideoIndex> rightVideoIndex;
 
 public:
-  PlotWindow(std::shared_ptr<vivictpp::video::VideoIndex> leftVideoIndex, std::shared_ptr<vivictpp::video::VideoIndex> rightVideoIndex)
+  PlotWindow(std::shared_ptr<vivictpp::video::VideoIndex> leftVideoIndex,
+             std::shared_ptr<vivictpp::video::VideoIndex> rightVideoIndex)
       : leftVideoIndex(leftVideoIndex), rightVideoIndex(rightVideoIndex) {}
   std::vector<Action> draw(const ui::DisplayState &displayState);
 
-  private:
-  std::vector<std::pair<std::string, std::string>> getSelectableQualityMetrics(const ui::DisplayState &displayState);
+private:
+  std::vector<std::pair<std::string, std::string>>
+  getSelectableQualityMetrics(const ui::DisplayState &displayState);
   void drawPtsMarker(const ui::DisplayState &displayState);
 };
 

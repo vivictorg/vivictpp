@@ -34,7 +34,8 @@ void vivictpp::qualitymetrics::QualityMetricsLoader::loadMetrics(
 void vivictpp::qualitymetrics::QualityMetricsLoader::autoloadMetrics(
     std::string sourceFile,
     vivictpp::qualitymetrics::QualityMetricsLoaderCallback callback) {
-       auto logger = vivictpp::logging::getOrCreateLogger("vivictpp::qualityMetrics::QualityMetrics");
+  auto logger = vivictpp::logging::getOrCreateLogger(
+      "vivictpp::qualityMetrics::QualityMetrics");
   logger->info("Autoloading metrics for source: {}", sourceFile);
   std::string jsonPath =
       std::filesystem::path(sourceFile).replace_extension().string() +
@@ -76,7 +77,8 @@ void vivictpp::qualitymetrics::QualityMetricsLoader::loadMetricsInternal(
 
 vivictpp::qualitymetrics::QualityMetrics::QualityMetrics(
     std::string metricsFile) {
-      std::vector<std::string> metricsToLoad{"vmaf", "vmaf_hd", "integer_motion", "integer_motion2"};
+  std::vector<std::string> metricsToLoad{"vmaf", "vmaf_hd", "integer_motion",
+                                         "integer_motion2"};
   if (endsWith(metricsFile, ".csv")) {
     metrics = parseCsvFile(metricsFile, metricsToLoad);
   } else if (endsWith(metricsFile, ".json")) {
@@ -88,7 +90,8 @@ vivictpp::qualitymetrics::QualityMetrics::QualityMetrics(
 
 std::map<std::string, std::vector<float>>
 parseJsonFile(std::string metricsFile, std::vector<std::string> metricNames) {
-  auto logger = vivictpp::logging::getOrCreateLogger("vivictpp::qualityMetrics::QualityMetrics");
+  auto logger = vivictpp::logging::getOrCreateLogger(
+      "vivictpp::qualityMetrics::QualityMetrics");
   std::map<std::string, std::vector<float>> metrics;
   std::ifstream infile(metricsFile);
   nlohmann::json json;
@@ -145,9 +148,9 @@ parseCsvFile(std::string logfile, std::vector<std::string> metrics) {
   std::getline(infile, line);
   std::map<std::string, int> headers;
   getCsvHeaders(line, headers);
-  
+
   std::vector<std::string> existingMetrics;
-  for (auto &metric: metrics) {
+  for (auto &metric : metrics) {
     if (headers.find(metric) != headers.end()) {
       existingMetrics.push_back(metric);
       result[metric] = std::vector<float>();

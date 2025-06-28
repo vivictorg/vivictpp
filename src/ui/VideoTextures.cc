@@ -18,7 +18,8 @@ bool isAspectRatio169(const Resolution &resolution) {
 
 // Native resolution is calculated as the resolution that can fit both videos
 // after the video with narrower aspect ratio has been padded to wider AR
-void vivictpp::ui::VideoTextures::calcNativeResolution(const vivictpp::ui::DisplayState &displayState) {
+void vivictpp::ui::VideoTextures::calcNativeResolution(
+    const vivictpp::ui::DisplayState &displayState) {
   Resolution leftDisplayResolution =
       displayState.leftVideoMetadata.displayResolution;
   if (displayState.rightVideoMetadata.empty()) {
@@ -26,7 +27,8 @@ void vivictpp::ui::VideoTextures::calcNativeResolution(const vivictpp::ui::Displ
     return;
   }
 
-  //AVRational displayAspectRatio{leftDisplayResolution.w, leftDisplayResolution.h};
+  // AVRational displayAspectRatio{leftDisplayResolution.w,
+  // leftDisplayResolution.h};
 
   Resolution rightDisplayResolution =
       displayState.rightVideoMetadata.displayResolution;
@@ -35,9 +37,9 @@ void vivictpp::ui::VideoTextures::calcNativeResolution(const vivictpp::ui::Displ
   if (isAspectRatio169(rightDisplayResolution) ||
       isAspectRatio169(leftDisplayResolution)) {
     nativeAspectRatio = {16, 9};
-  } else if (leftDisplayResolution.w * rightDisplayResolution.h > 
-      rightDisplayResolution.w * leftDisplayResolution.h) {
-        // if none of the videos is 16:9, prefer wider aspect ratio
+  } else if (leftDisplayResolution.w * rightDisplayResolution.h >
+             rightDisplayResolution.w * leftDisplayResolution.h) {
+    // if none of the videos is 16:9, prefer wider aspect ratio
     nativeAspectRatio = {leftDisplayResolution.w, leftDisplayResolution.h};
   } else {
     nativeAspectRatio = {rightDisplayResolution.w, rightDisplayResolution.h};
@@ -46,8 +48,10 @@ void vivictpp::ui::VideoTextures::calcNativeResolution(const vivictpp::ui::Displ
   // Now find the minimum resolution that can fit both videos after they
   // are padded to the display aspect ratio
 
-  Resolution leftPadded = leftDisplayResolution.padToAspectRatio(nativeAspectRatio);
-  Resolution rightPadded = rightDisplayResolution.padToAspectRatio(nativeAspectRatio);
+  Resolution leftPadded =
+      leftDisplayResolution.padToAspectRatio(nativeAspectRatio);
+  Resolution rightPadded =
+      rightDisplayResolution.padToAspectRatio(nativeAspectRatio);
 
   if (leftPadded.w >= rightPadded.w) {
     nativeResolution = leftPadded;

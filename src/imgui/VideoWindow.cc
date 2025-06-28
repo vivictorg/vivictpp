@@ -126,35 +126,47 @@ void VideoWindow::draw(vivictpp::ui::VideoTextures &videoTextures,
     }
     videoPos = pad;
 
-    ImVec2 leftScaledSize = resolutionToImVec2(displayState.leftVideoMetadata.displayResolution.scaleKeepingAspectRatio(scaledVideoSize.x, scaledVideoSize.y));
-    ImVec2 leftPad = {(scaledVideoSize.x - leftScaledSize.x)/2, (scaledVideoSize.y - leftScaledSize.y)/2};
+    ImVec2 leftScaledSize = resolutionToImVec2(
+        displayState.leftVideoMetadata.displayResolution
+            .scaleKeepingAspectRatio(scaledVideoSize.x, scaledVideoSize.y));
+    ImVec2 leftPad = {(scaledVideoSize.x - leftScaledSize.x) / 2,
+                      (scaledVideoSize.y - leftScaledSize.y) / 2};
 
     float splitX =
         std::clamp(ImGui::GetMousePos().x, pad.x, pad.x + scaledVideoSize.x);
-    ImVec2 drawPos = {pad.x + leftPad.x - scrollX, pad.y + leftPad.y - scrollY}; // cursorPos;
+    ImVec2 drawPos = {pad.x + leftPad.x - scrollX,
+                      pad.y + leftPad.y - scrollY}; // cursorPos;
     ImVec2 uvMin(0, 0);
 
     ImVec2 uvMax(1, 1);
     ImVec2 p2(drawPos.x + leftScaledSize.x, drawPos.y + leftScaledSize.y);
     if (!displayState.splitScreenDisabled) {
       p2.x = std::min(splitX, drawPos.x + leftScaledSize.x);
-      uvMax.x =std::clamp((scrollX + splitX - pad.x - leftPad.x) / leftScaledSize.x, 0.0f, 1.0f);
+      uvMax.x =
+          std::clamp((scrollX + splitX - pad.x - leftPad.x) / leftScaledSize.x,
+                     0.0f, 1.0f);
     }
     ImGui::GetWindowDrawList()->AddImage(
-        (ImTextureID)(intptr_t)videoTextures.leftTexture.get(), drawPos,
-        p2 , uvMin, uvMax);
+        (ImTextureID)(intptr_t)videoTextures.leftTexture.get(), drawPos, p2,
+        uvMin, uvMax);
 
     if (!displayState.splitScreenDisabled) {
-      ImVec2 rightScaledSize =  resolutionToImVec2(displayState.rightVideoMetadata.displayResolution.scaleKeepingAspectRatio(scaledVideoSize.x, scaledVideoSize.y));
-      ImVec2 rightPad = {(scaledVideoSize.x - rightScaledSize.x)/2, (scaledVideoSize.y - rightScaledSize.y)/2};
-      
+      ImVec2 rightScaledSize = resolutionToImVec2(
+          displayState.rightVideoMetadata.displayResolution
+              .scaleKeepingAspectRatio(scaledVideoSize.x, scaledVideoSize.y));
+      ImVec2 rightPad = {(scaledVideoSize.x - rightScaledSize.x) / 2,
+                         (scaledVideoSize.y - rightScaledSize.y) / 2};
+
       p2 = {pad.x + rightPad.x + rightScaledSize.x - scrollX,
-              pad.y + rightPad.y + rightScaledSize.y - scrollY};
-      drawPos.x = std::clamp(splitX, pad.x + rightPad.x - scrollX, pad.x + rightPad.x - scrollX + rightScaledSize.x);
+            pad.y + rightPad.y + rightScaledSize.y - scrollY};
+      drawPos.x = std::clamp(splitX, pad.x + rightPad.x - scrollX,
+                             pad.x + rightPad.x - scrollX + rightScaledSize.x);
       drawPos.y = pad.y + rightPad.y - scrollY;
-      uvMin.x = std::clamp((scrollX + splitX - pad.x - rightPad.x) / rightScaledSize.x, 0.0f, 1.0f);
+      uvMin.x = std::clamp((scrollX + splitX - pad.x - rightPad.x) /
+                               rightScaledSize.x,
+                           0.0f, 1.0f);
       uvMax.x = 1.0; //(scrollX + viewSize.x) / scaledVideoSize.x;
-      
+
       ImGui::GetWindowDrawList()->AddImage(
           (ImTextureID)(intptr_t)videoTextures.rightTexture.get(), drawPos, p2,
           uvMin, uvMax);

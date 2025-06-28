@@ -118,10 +118,10 @@ void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
   SDL_DisplayMode DM;
   int displayIndex = SDL_GetWindowDisplayIndex(window);
   SDL_GetCurrentDisplayMode(displayIndex, &DM);
-  int w,h;
+  int w, h;
   SDL_GetWindowSize(window, &w, &h);
-  int newW = std::min(DM.w, std::max(w,videoTextures.nativeResolution.w));
-  int newH = std::min(DM.h, std::max(h, 20 +videoTextures.nativeResolution.h));
+  int newW = std::min(DM.w, std::max(w, videoTextures.nativeResolution.w));
+  int newH = std::min(DM.h, std::max(h, 20 + videoTextures.nativeResolution.h));
   if (newW > w || newH > h) {
     SDL_SetWindowSize(window, newW, newH);
   }

@@ -34,7 +34,8 @@ void vivictpp::imgui::FileDialog::openRight(std::string currentFile) {
   openDialog("Choose Right Source File", currentFile);
 }
 
-void vivictpp::imgui::FileDialog::openDialog(std::string text, std::string currentFile) {
+void vivictpp::imgui::FileDialog::openDialog(std::string text,
+                                             std::string currentFile) {
   auto optionsPaneCallback = [this](const char *vFilter,
                                     IGFDUserDatas vUserDatas,
                                     bool *vCantContinue) {
@@ -43,9 +44,12 @@ void vivictpp::imgui::FileDialog::openDialog(std::string text, std::string curre
     (void)vCantContinue;
     this->optionsPane();
   };
-  std::string folder = currentFile.empty() ? this->folder + "/" : std::filesystem::path(currentFile).parent_path().string();
-  fileDialog.OpenDialog("ChooseFileDlgKey", text.c_str(), ".*", folder,
-                        "", optionsPaneCallback, 350, 1, nullptr);
+  std::string folder =
+      currentFile.empty()
+          ? this->folder + "/"
+          : std::filesystem::path(currentFile).parent_path().string();
+  fileDialog.OpenDialog("ChooseFileDlgKey", text.c_str(), ".*", folder, "",
+                        optionsPaneCallback, 350, 1, nullptr);
 }
 
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::FileDialog::draw() {

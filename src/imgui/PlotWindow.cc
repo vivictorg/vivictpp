@@ -151,9 +151,12 @@ vivictpp::imgui::PlotWindow::draw(const ui::DisplayState &displayState) {
       // ImPlot::GetInputMap().Fit = ImGuiMouseButton_Right;
       // ImPlot::GetInputMap().Menu = ImGuiMouseButton_Middle;
       static ImPlotRect rect;
-      ImPlot::SetupAxis(ImAxis_X1, nullptr, ImPlotAxisFlags_NoMenus | (autofitX ? ImPlotAxisFlags_AutoFit : 0));
+      ImPlot::SetupAxis(ImAxis_X1, nullptr,
+                        ImPlotAxisFlags_NoMenus |
+                            (autofitX ? ImPlotAxisFlags_AutoFit : 0));
       ImPlot::SetupAxis(ImAxis_Y1, nullptr,
-                        ImPlotAxisFlags_NoMenus | (autofitY ? ImPlotAxisFlags_AutoFit : 0));
+                        ImPlotAxisFlags_NoMenus |
+                            (autofitY ? ImPlotAxisFlags_AutoFit : 0));
       bool includeMs = rect.X.Max - rect.X.Min < 10;
       ImPlot::SetupAxisFormat(ImAxis_X1, formatTime, &includeMs);
       // bool isBitrate = plotType == PLOT_TYPE_BITRATEGOP;
