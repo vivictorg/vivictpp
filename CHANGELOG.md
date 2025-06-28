@@ -1,7 +1,7 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
-## 1.3.0-pre2
+## 1.3.0 - 2025-06-28
 ### Fix
 - Bug that made only part of video display when viewing single video
 - When opening a new file, window is not only resized if needed
@@ -9,10 +9,6 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 - Fit to screen can now be toggled through menu or keyboard shortcut
 ### Changed
 - Project now uses git submodules for some dependencies
-
-
-## 1.3.0-pre1
-### Changed
 - When videos have different aspect ratios, they are now padded instead of stretched
 
 ## 1.2.0 - 2025-05-29
