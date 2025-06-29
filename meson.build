@@ -47,7 +47,7 @@ if build_machine.system() == 'windows'
   ffmpeg_dir = meson.project_source_root() / 'winlibs' / 'ffmpeg'
   # get_option('ffmpeg_install_dir')
 
-  ffmpeg_inc = [ffmpeg_dir / 'include', sdl3_dir / 'include', sdl3_ttf_dir / 'include']
+  ffmpeg_inc = ['winlibs/ffmpeg/include', 'winlibs/SDL3/include', 'winlibs/SDL3_ttf/include']
   libavformat_dep = cc.find_library('avformat', dirs : [ffmpeg_dir / 'lib'])
   libavcodec_dep = cc.find_library('avcodec', dirs : [ffmpeg_dir / 'lib'])
   libavutil_dep = cc.find_library('avutil', dirs : [ffmpeg_dir / 'lib'])
