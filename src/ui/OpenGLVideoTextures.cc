@@ -216,7 +216,7 @@ bool vivictpp::ui::OpenGLVideoTextures::initTextures(const vivictpp::ui::Display
     if (videoMetadataVersion == displayState.videoMetadataVersion)
         return false;
     videoTextures.nativeResolution = getNativeResolution(displayState);
-    bool render10bit = true;
+    bool render10bit = false;
     leftTextureRenderer =
             vivictpp::ui::opengl::createTextureRenderer(displayState.leftVideoMetadata, GL_TEXTURE0, render10bit);
     videoTextures.leftTexture = static_cast<ImTextureID>((void*) leftTextureRenderer->getRenderedTextureId());
