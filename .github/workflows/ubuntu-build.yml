@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install libfreetype6-dev libavformat-dev libavfilter-dev libavcodec-dev libswscale-dev xvfb libglew-dev libgl1-mesa-glx libglu1-mesa-dev
+          sudo apt-get install libfreetype6-dev libavformat-dev libavfilter-dev libavcodec-dev libswscale-dev xvfb libglew-dev libgl-dev
       - name: Meson build
         uses: BSFishy/meson-build@v1.0.3
         with:
