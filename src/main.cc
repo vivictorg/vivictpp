@@ -17,6 +17,8 @@
 #include "Settings.hh"
 #include "VivictPPConfig.hh"
 #include "imgui/VivictPPImGui.hh"
+#include <SDL3/SDL.h>
+
 
 #ifdef _WIN32
 #include <windows.h>

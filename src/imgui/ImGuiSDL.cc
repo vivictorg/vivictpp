@@ -31,6 +31,27 @@ extern "C" {
 
 static ImVec4 CLEAR_COLOR = ImVec4(0.05f, 0.05f, 0.05f, 1.00f);
 
+void listDisplayModes() {
+  
+  int displayCount{0};
+  SDL_DisplayID *displays = SDL_GetDisplays(&displayCount);
+  std::cout << "DisplayCount: " << displayCount << "\n";
+  while (displayCount--) {
+    std::cout << "Display: " << *displays << "\n";
+      int count{0}; 
+    SDL_DisplayMode** modes;  
+    modes = SDL_GetFullscreenDisplayModes(*displays, &count); 
+    for (int i = 0; i < count; ++i) { 
+      SDL_DisplayMode* Mode = modes[i]; 
+      std::cout<< "\nModeIndex "  
+        << i << ": " << Mode->w << 'x' << Mode->h 
+        << " - " << SDL_GetPixelFormatName(Mode->format)  
+        << " - " << Mode->refresh_rate << "FPS";  
+    }
+    displays++;
+  } 
+}
+
 vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
     : sdlInitializer(false),
       // windowPtr(vivictpp::sdl::createWindow(windowWidth, windowHeight,
@@ -93,9 +114,10 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-  // SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 10);
-  // SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 10);
-  // SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 10);
+  SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 10);
+  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 10);
+  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 10);
+  SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 2);
   glDisable(GL_DITHER);
   // glGetIntegerv( GL_RED_BITS, &BitSize );
   SDL_WindowFlags window_flags =
@@ -120,7 +142,12 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
   ImGui::CreateContext();
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
-
+  listDisplayModes();
+  SDL_DisplayMode const *displayMode0 = SDL_GetCurrentDisplayMode(0);
+  SDL_DisplayMode const *displayMode1 = SDL_GetCurrentDisplayMode(1);
+ 
+  //SDL_SetWindowSize(window, displayMode0->w, displayMode0->h);
+  //SDL_SetWindowSize(window, displayMode.w, displayMode.h);
   //  ui::initIconTextures(renderer);
   /*
 

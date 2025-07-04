@@ -80,11 +80,14 @@ in vec2 UV;
 
 void main()
 {
-  vec2 pos = vec2(UV.x * 1920, UV.y * 800);
+// TODO: take texture dimensions as input
+  //vec2 pos = vec2(UV.x * 1920, UV.y * 800);
+  vec2 pos = vec2(UV.x * 3840, UV.y * 2160);
   vec2 p2 = vec2(pos.x / 2, pos.y / 2);
   // Why -0.0625 ?
   // Is it because of tv range?
   // From https://stackoverflow.com/questions/20317882/how-can-i-correctly-unpack-a-v210-video-frame-using-glsl
+  //scaleFactor = 32.0;
   float Y = scaleFactor * texture2DRect(s_texture_y, pos).r - 0.0625;
   float U = scaleFactor * texture2DRect(s_texture_u, p2).r - 0.5;
   float V = scaleFactor * texture2DRect(s_texture_v, p2).r - 0.5;
@@ -95,11 +98,20 @@ void main()
     1,  -0.344,  -0.714,
     1,   1.772,   0);
 */
+
+    // limited bt2020
+    mat3 colorMatrix = mat3(
+    1.1678f, 0.0000f, 1.6836f,
+    1.1678f, -0.1879f, -0.6523f,
+    1.1678f, 2.1481f, 0.0000f
+    );
+/*
 // matrix for 8 bit limited bt709
   mat3 colorMatrix = mat3(
     1.1644,   0,       1.7927,
     1.1644,  -0.2132,  -0.5329,
     1.1644,   2.1124,   0);
+    */
 //outColor = 1.0 * color*colorMatrix;
   outColor = vec4(1.0 * color*colorMatrix, 1.0);
 })";

@@ -57,7 +57,7 @@ vivictpp::ui::YuvRenderer::YuvRenderer(const VideoMetadata &videoMetadata,
     : inputResolution(videoMetadata.filteredResolution),
       renderedResolution(videoMetadata.filteredResolution.toDisplayResolution(
           videoMetadata.filteredSampleAspectRatio)),
-      render10bit(false) {
+      render10bit(true) {
   renderedTextureUnit = startTextureUnit + 3;
   initFrameBuffer();
   programId = vivictpp::ui::opengl::loadShaders(
@@ -98,7 +98,7 @@ void vivictpp::ui::YuvRenderer::render(glm::mat4 &MVP, GLuint vertexbuffer,
   // Clear the screen
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  float scaleFactor = render10bit ? 32. : 1.;
+  float scaleFactor = render10bit ? 1. : 1.;
   glUseProgram(programId);
 
   glUniform1i(idY, 0);
