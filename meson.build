@@ -57,6 +57,10 @@ if build_machine.system() == 'windows'
   libavutil_dep = cc.find_library('avutil', dirs : [ffmpeg_dir / 'lib'])
   libavfilter_dep = cc.find_library('avfilter', dirs : [ffmpeg_dir / 'lib'])
   libswscale_dep = cc.find_library('swscale', dirs : [ffmpeg_dir / 'lib'])
+
+  glew_dir = meson.project_source_root() / 'winlibs' / 'glew' 
+  glew_dep = cc.find_library('glew', dirs: [glew_dir / 'bin' / 'Release' / 'x64' ])
+  ffmpeg_inc += glew_dir / 'include' / 'GL'
 else
   opt_var = cmake.subproject_options()
   opt_var.add_cmake_defines({'SDL3_BUILD_TESTS': 'OFF'})
@@ -84,6 +88,8 @@ sdl3_proj = cmake.subproject('sdl3', options: opt_var)
   sdl3_ttf_dep = sdl3_ttf_proj.get_variable('sdl3_ttf_dep')
 
 
+  glew_dep = dependency('glew')
+
   libavformat_dep = dependency('libavformat')
   libavcodec_dep = dependency('libavcodec')
   libavutil_dep =  dependency('libavutil')
@@ -103,7 +109,7 @@ deps = [
   #  freetype2_proj.get_variable('freetype2_dep'),
   dependency('threads'),
   dependency('gl'),
-  dependency('glew'),
+  glew_dep,
   libavformat_dep,
   libavcodec_dep,
   libavutil_dep,

@@ -35,6 +35,9 @@ jobs:
           curl -L https://github.com/GyanD/codexffmpeg/releases/download/7.0.2/ffmpeg-7.0.2-full_build-shared.7z -o ffmpeg-7.0.2-full_build-shared.7z
           7z x ffmpeg-7.0.2-full_build-shared.7z -owinlibs
           ren winlibs\ffmpeg-7.0.2-full_build-shared ffmpeg
+          curl -L https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip -o glew-2.2.0-win32.zip
+          7z x glew-2.2.0-win32.zip -owinlibs
+          ren winlibs\glew-2.2.0 glew
       - name: Cache dependencies
         id: cache-dependencies-save
         if: steps.cache-dependencies-restore.outputs.cache-hit != 'true'
