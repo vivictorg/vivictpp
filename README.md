@@ -58,6 +58,8 @@ You can also download the installer from a prerelase if you want to try out the 
 
 ## Building
 
+Since version 1.3 Vivict++ uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). This means that before building the submodules needs to be checked out, either by running `git submodule update --init` or by cloning the repo with `git clone --recurse-submodules` .
+
 ### Ubuntu
 
 1. Install dependencies
