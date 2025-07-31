@@ -106,3 +106,27 @@ vivictpp::sdl::createHandCursor() {
   }
   return cursor;
 }
+
+void vivictpp::sdl::fitWindowToTextures(SDL_Window *window, Resolution targetResolution) {
+  int displayIndex = SDL_GetDisplayForWindow(window);
+  auto displayMode = SDL_GetCurrentDisplayMode(displayIndex);
+  if (displayMode == nullptr) {
+    throw new vivictpp::sdl::SDLException("Failed to get display mode");
+  }
+  int w, h;
+  if (!SDL_GetWindowSize(window, &w, &h)) {
+    throw new vivictpp::sdl::SDLException("Failed to get window size");
+  }
+  int newW = std::min(
+      displayMode->w,
+      std::max(w, targetResolution.w));
+  int newH = std::min(
+      displayMode->h,
+      std::max(h,
+               20 + targetResolution.h));
+  if (newW > w || newH > h) {
+    if (!SDL_SetWindowSize(window, newW, newH)) {
+      spdlog::error("Failed to set window size");
+    }
+  }
+}

@@ -123,7 +123,7 @@ vivictpp::imgui::ImGuiSDL::ImGuiSDL(const Settings &settings)
   SDL_WindowFlags window_flags =
       (SDL_WindowFlags)(SDL_WINDOW_OPENGL |
                         SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_ALLOW_HIGHDPI*/);
-  window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL3 example", 1280, 720,
+  window = SDL_CreateWindow("Vivict++", 1280, 720,
                             window_flags);
   windowPtr.reset(window);
   gl_context = SDL_GL_CreateContext(window);
@@ -241,27 +241,7 @@ void vivictpp::imgui::ImGuiSDL::updateTextures(
 }
 
 void vivictpp::imgui::ImGuiSDL::fitWindowToTextures() {
-  int displayIndex = SDL_GetDisplayForWindow(window);
-  auto displayMode = SDL_GetCurrentDisplayMode(displayIndex);
-  if (displayMode == nullptr) {
-    throw new vivictpp::sdl::SDLException("Failed to get display mode");
-  }
-  int w, h;
-  if (!SDL_GetWindowSize(window, &w, &h)) {
-    throw new vivictpp::sdl::SDLException("Failed to get window size");
-  }
-  int newW = std::min(
-      displayMode->w,
-      std::max(w, openGLVideoTextures.getVideoTextures().nativeResolution.w));
-  int newH = std::min(
-      displayMode->h,
-      std::max(h,
-               20 + openGLVideoTextures.getVideoTextures().nativeResolution.h));
-  if (newW > w || newH > h) {
-    if (!SDL_SetWindowSize(window, newW, newH)) {
-      spdlog::error("Failed to set window size");
-    }
-  }
+  vivictpp::sdl::fitWindowToTextures(window, openGLVideoTextures.getVideoTextures().nativeResolution);
 }
 
 bool vivictpp::imgui::ImGuiSDL::toggleFullscreen() {

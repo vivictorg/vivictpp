@@ -19,8 +19,7 @@ extern "C" {
 
 #include "libav/Frame.hh"
 
-namespace vivictpp {
-namespace sdl {
+namespace vivictpp::sdl {
 
 class SDLException : public std::runtime_error {
 public:
@@ -74,7 +73,8 @@ createHandCursor();
 std::unique_ptr<SDL_Cursor, std::function<void(SDL_Cursor *)>>
 createPanCursor();
 
-} // namespace sdl
-} // namespace vivictpp
+void fitWindowToTextures(SDL_Window *window, Resolution targetResolution);
+
+} // namespace vivictpp::sdl
 
 #endif // SDL_SDLUTILS_HH
