@@ -123,20 +123,41 @@ jobs:
     env:
       ARTIFACT_NAME: ${{ format('vivictpp-{0}-wininstaller', needs.release-info.outputs.vivictpp_fullversion) }}
       INSTALLER_NAME: ${{ format('vivictpp-{0}.msi', needs.release-info.outputs.vivictpp_fullversion) }}
+      VIVICTPP_FULLVERSION: ${{ needs.release-info.outputs.vivictpp_fullversion }}
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: recursive
       - uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
+      - name: Create source tarball with submodules
+        run: |
+          # Create a clean export directory
+          EXPORT_DIR="vivictpp-${VIVICTPP_FULLVERSION}"
+          mkdir -p "${EXPORT_DIR}"
+
+          # Archive the main repository and submodules
+          git archive --format=tar --prefix="${EXPORT_DIR}/" HEAD | tar -x
+
+          # Archive each submodule
+          git submodule foreach --recursive 'git archive --format=tar --prefix='"${EXPORT_DIR}"'/$displaypath/ HEAD | tar -x -C /'
+
+          # Create compressed archives
+          tar -czf "vivictpp-${VIVICTPP_FULLVERSION}-source.tar.gz" "${EXPORT_DIR}"
+          zip -r "vivictpp-${VIVICTPP_FULLVERSION}-source.zip" "${EXPORT_DIR}"
+
+          # Clean up
+          rm -rf "${EXPORT_DIR}"
       - name: list files
         run: |
-          ls -l *
+          ls -lh *.tar.gz *.zip *.msi 2>/dev/null || ls -lh
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: ${{ needs.release-info.outputs.releasetype != 'release' }}
           files: |
             ${{ env.INSTALLER_NAME }}
+            vivictpp-${{ env.VIVICTPP_FULLVERSION }}-source.tar.gz
+            vivictpp-${{ env.VIVICTPP_FULLVERSION }}-source.zip
             LICENSE
