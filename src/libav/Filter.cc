@@ -130,9 +130,6 @@ vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(
 
 void vivictpp::libav::VideoFilter::configure() {
   char args[1024];
-#if LIBAVUTIL_VERSION_MAJOR < 60
-  int ret;
-#endif
 
   graph.reset(avfilter_graph_alloc(), &freeFilterGraph);
 
@@ -202,13 +199,15 @@ void vivictpp::libav::VideoFilter::configure() {
   enum AVPixelFormat pix_fmts[] = {AV_PIX_FMT_NV12, AV_PIX_FMT_NONE};
   pix_fmts[0] = outputFormat;
 
+  vivictpp::libav::AVResult res;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  ret = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
-                            AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
+  if ((res = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
+                                  AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN))
+          .error()) {
 #pragma clang diagnostic pop
-  if (ret < 0) {
-    throw std::runtime_error("cannot set output pixel format");
+    throw std::runtime_error("cannot set output pixel format: " +
+                             res.getMessage());
   }
 #endif
 
