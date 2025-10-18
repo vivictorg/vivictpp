@@ -38,7 +38,7 @@ vivictpp::libav::Filter::Filter(std::string definition)
 
 void vivictpp::libav::Filter::configureGraph(std::string definition) {
   spdlog::info("Configuration filter graph: {}", definition);
-  int ret;
+  vivictpp::libav::AVResult ret;
   AVFilterInOut *inputs = avfilter_inout_alloc();
   AVFilterInOut *outputs = avfilter_inout_alloc();
 
@@ -53,13 +53,14 @@ void vivictpp::libav::Filter::configureGraph(std::string definition) {
   inputs->next = nullptr;
 
   if ((ret = avfilter_graph_parse_ptr(graph.get(), definition.c_str(), &inputs,
-                                      &outputs, NULL)) < 0) {
+                                      &outputs, NULL)).error()) {
     throw std::runtime_error(std::string("Failed to parse filter graph ") +
-                             definition);
+                             definition + ": " + ret.getMessage() );
   }
 
-  if ((ret = avfilter_graph_config(graph.get(), NULL)) < 0) {
-    throw std::runtime_error("Failed to config filter graph");
+  if ((ret = avfilter_graph_config(graph.get(), NULL)).error()) {
+    throw std::runtime_error("Failed to config filter graph: " +
+                             ret.getMessage());
   }
   avfilter_inout_free(&inputs);
   avfilter_inout_free(&outputs);
@@ -72,7 +73,7 @@ void vivictpp::libav::Filter::createFilter(AVFilterContext **filt_ctx,
   vivictpp::libav::AVResult ret = avfilter_graph_create_filter(
       filt_ctx, avfilter_get_by_name(filterName.c_str()), name.c_str(), args,
       opaque, graph.get());
-  if (!ret.success()) {
+  if (ret.error()) {
     char buffer[1024];
     snprintf(buffer, 1024, "Failed to create filter '%s' with args '%s': %s",
              filterName.c_str(), args, ret.getMessage().c_str());
