@@ -10,6 +10,7 @@
 #include <libavutil/pixfmt.h>
 #include <locale>
 #include <memory>
+#include <vector>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -129,7 +130,6 @@ vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(
 
 void vivictpp::libav::VideoFilter::configure() {
   char args[1024];
-  int ret;
 
   graph.reset(avfilter_graph_alloc(), &freeFilterGraph);
 
@@ -171,9 +171,6 @@ void vivictpp::libav::VideoFilter::configure() {
     }
   }
 
-  enum AVPixelFormat pix_fmts[] = {AV_PIX_FMT_NV12, AV_PIX_FMT_NONE};
-  pix_fmts[0] = outputFormat;
-
   snprintf(args, sizeof(args),
            "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
            formatParameters.width, formatParameters.height,
@@ -195,11 +192,24 @@ void vivictpp::libav::VideoFilter::configure() {
                                    res.getMessage());
     }
   }
-  ret = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
-                            AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
-  if (ret < 0) {
-    throw std::runtime_error("cannot set output pixel format");
+
+  // For FFmpeg < 8.0 (libavutil < 60), set pixel formats using the old API
+  // For FFmpeg >= 8.0, the format filter handles this automatically
+#if LIBAVUTIL_VERSION_MAJOR < 60
+  enum AVPixelFormat pix_fmts[] = {AV_PIX_FMT_NV12, AV_PIX_FMT_NONE};
+  pix_fmts[0] = outputFormat;
+
+  vivictpp::libav::AVResult res;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  if ((res = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
+                                  AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN))
+          .error()) {
+#pragma clang diagnostic pop
+    throw std::runtime_error("cannot set output pixel format: " +
+                             res.getMessage());
   }
+#endif
 
   if (!hwFilter.empty()) {
     filterStr = hwFilter + ",";
@@ -261,9 +271,12 @@ void vivictpp::libav::AudioFilter::configure(AVCodecContext *codecContext,
   createFilter(&bufferSrcCtx, "abuffer", "in", args, nullptr);
   createFilter(&bufferSinkCtx, "abuffersink", "out", nullptr, nullptr);
   vivictpp::libav::AVResult ret;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if ((ret = av_opt_set_int_list(bufferSinkCtx, "sample_fmts", sample_fmts,
                                  AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN))
           .error()) {
+#pragma clang diagnostic pop
     throw std::runtime_error("Failed to create audio filter: " +
                              ret.getMessage());
   }
