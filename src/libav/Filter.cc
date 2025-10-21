@@ -38,7 +38,6 @@ vivictpp::libav::Filter::Filter(std::string definition)
 
 void vivictpp::libav::Filter::configureGraph(std::string definition) {
   spdlog::info("Configuration filter graph: {}", definition);
-  vivictpp::libav::AVResult ret;
   AVFilterInOut *inputs = avfilter_inout_alloc();
   AVFilterInOut *outputs = avfilter_inout_alloc();
 
@@ -52,16 +51,13 @@ void vivictpp::libav::Filter::configureGraph(std::string definition) {
   inputs->pad_idx = 0;
   inputs->next = nullptr;
 
-  if ((ret = avfilter_graph_parse_ptr(graph.get(), definition.c_str(), &inputs,
-                                      &outputs, NULL)).error()) {
-    throw std::runtime_error(std::string("Failed to parse filter graph ") +
-                             definition + ": " + ret.getMessage() );
-  }
+  static_cast<AVResult>(avfilter_graph_parse_ptr(graph.get(),
+                                                 definition.c_str(), &inputs,
+                                                 &outputs, nullptr))
+      .throwOnError(std::string("Failed to parse filter graph ") + definition);
 
-  if ((ret = avfilter_graph_config(graph.get(), NULL)).error()) {
-    throw std::runtime_error("Failed to config filter graph: " +
-                             ret.getMessage());
-  }
+  static_cast<AVResult>(avfilter_graph_config(graph.get(), nullptr))
+      .throwOnError("Failed to config filter graph");
   avfilter_inout_free(&inputs);
   avfilter_inout_free(&outputs);
 }
@@ -115,6 +111,7 @@ vivictpp::libav::VideoFilter::VideoFilter(AVStream *videoStream,
 
 vivictpp::libav::Frame vivictpp::libav::VideoFilter::filterFrame(
     const vivictpp::libav::Frame &inFrame) {
+
   if (inFrame.avFrame()->format != formatParameters.pixelFormat ||
       reconfigure) {
     reconfigure = false;
@@ -172,44 +169,40 @@ void vivictpp::libav::VideoFilter::configure() {
     }
   }
 
-  snprintf(args, sizeof(args),
-           "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-           formatParameters.width, formatParameters.height,
-           formatParameters.pixelFormat, formatParameters.timeBase.num,
-           formatParameters.timeBase.den,
-           formatParameters.sampleAspectRatio.num,
-           formatParameters.sampleAspectRatio.den);
-
-  createFilter(&bufferSrcCtx, "buffer", "in", args, nullptr);
-  createFilter(&bufferSinkCtx, "buffersink", "out", nullptr, nullptr);
-  if (formatParameters.hwFramesContext) {
-    AVBufferSrcParameters *bufferSrcParameters =
-        av_buffersrc_parameters_alloc();
-    bufferSrcParameters->hw_frames_ctx = formatParameters.hwFramesContext;
-    vivictpp::libav::AVResult res =
-        av_buffersrc_parameters_set(bufferSrcCtx, bufferSrcParameters);
-    if (res.error()) {
-      throw new std::runtime_error("Failed to set buffersrc parameters " +
-                                   res.getMessage());
-    }
+  bufferSrcCtx = avfilter_graph_alloc_filter(
+      graph.get(), avfilter_get_by_name("buffer"), "in");
+  if (!bufferSrcCtx) {
+    throw std::runtime_error("Failed to alloc buffer src filter");
   }
+
+  AVBufferSrcParameters *bufferSrcParameters = av_buffersrc_parameters_alloc();
+  if (!bufferSrcParameters) {
+    throw std::runtime_error("Failed to alloc buffer src parameters");
+  }
+  bufferSrcParameters->hw_frames_ctx = formatParameters.hwFramesContext;
+  bufferSrcParameters->height = formatParameters.height;
+  bufferSrcParameters->width = formatParameters.width;
+  bufferSrcParameters->format = formatParameters.pixelFormat;
+  bufferSrcParameters->time_base = formatParameters.timeBase;
+  bufferSrcParameters->sample_aspect_ratio = formatParameters.sampleAspectRatio;
+  AVResult res = av_buffersrc_parameters_set(bufferSrcCtx, bufferSrcParameters);
+  av_free(bufferSrcParameters);
+  res.throwOnError("Failed to set buffersrc parameters");
+  static_cast<AVResult>(avfilter_init_dict(bufferSrcCtx, nullptr))
+      .throwOnError("Failed to init buffer src filter");
+  createFilter(&bufferSinkCtx, "buffersink", "out", nullptr, nullptr);
 
   // For FFmpeg < 8.0 (libavutil < 60), set pixel formats using the old API
   // For FFmpeg >= 8.0, the format filter handles this automatically
 #if LIBAVUTIL_VERSION_MAJOR < 60
   enum AVPixelFormat pix_fmts[] = {AV_PIX_FMT_NV12, AV_PIX_FMT_NONE};
   pix_fmts[0] = outputFormat;
-
-  vivictpp::libav::AVResult res;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  if ((res = av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
-                                  AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN))
-          .error()) {
+  static_cast<AVResult>(av_opt_set_int_list(bufferSinkCtx, "pix_fmts", pix_fmts,
+                                 AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN))
+          .throwOnError("cannot set output pixel format");
 #pragma clang diagnostic pop
-    throw std::runtime_error("cannot set output pixel format: " +
-                             res.getMessage());
-  }
 #endif
 
   if (!hwFilter.empty()) {
