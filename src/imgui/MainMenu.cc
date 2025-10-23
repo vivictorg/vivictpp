@@ -80,6 +80,16 @@ vivictpp::imgui::MainMenu::draw(const PlaybackState &playbackState,
       if (ImGui::MenuItem("Decrease speed", "[")) {
         actions.push_back({ActionType::PlaybackSpeedDecrease});
       }
+      ImGui::Separator();
+      const char *loopLabel = "A-B Loop (off)";
+      if (playbackState.abLoopState == 1) {
+        loopLabel = "A-B Loop (A set)";
+      } else if (playbackState.abLoopState == 2) {
+        loopLabel = "A-B Loop (active)";
+      }
+      if (ImGui::MenuItem(loopLabel, "Ctrl+L")) {
+        actions.push_back({ActionType::CycleABLoop});
+      }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help")) {

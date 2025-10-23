@@ -78,6 +78,7 @@ enum ActionType {
   ShowQualityFileDialogRight,
   OpenQualityFileLeft,
   OpenQualityFileRight,
+  CycleABLoop,
 };
 
 struct Action {

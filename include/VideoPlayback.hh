@@ -27,6 +27,9 @@ struct PlaybackState {
   int speedAdjust{0};
   int speedDen{1};
   int speedNum{1};
+  int abLoopState{0}; // 0=off, 1=A set, 2=A&B set and looping
+  vivictpp::time::Time loopPointA{vivictpp::time::NO_TIME};
+  vivictpp::time::Time loopPointB{vivictpp::time::NO_TIME};
 };
 
 class VideoPlayback {
@@ -100,6 +103,8 @@ public:
     }
     return value;
   }
+  void cycleABLoop();
+  bool checkABLoop();
   const PlaybackState &getPlaybackState() { return playbackState; }
 };
 

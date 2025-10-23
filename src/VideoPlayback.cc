@@ -90,6 +90,20 @@ void vivictpp::VideoPlayback::pause() { playbackState.playing = false; }
 void vivictpp::VideoPlayback::seek(vivictpp::time::Time seekPts,
                                    vivictpp::time::Time streamSeekOffset) {
   logger->debug("seek: pts={}", seekPts);
+
+  // Cancel A-B loop if seeking outside loop boundaries
+  if (playbackState.abLoopState == 2 &&
+      !vivictpp::time::isNoPts(playbackState.loopPointA) &&
+      !vivictpp::time::isNoPts(playbackState.loopPointB)) {
+    if (seekPts < playbackState.loopPointA ||
+        seekPts > playbackState.loopPointB) {
+      logger->info("A-B Loop: Seeking outside loop boundaries, cancelling loop");
+      playbackState.abLoopState = 0;
+      playbackState.loopPointA = vivictpp::time::NO_TIME;
+      playbackState.loopPointB = vivictpp::time::NO_TIME;
+    }
+  }
+
   seekPts = std::max(seekPts, videoInputs.minPts());
   if (videoInputs.hasMaxPts()) {
     seekPts = std::min(seekPts, videoInputs.maxPts());
@@ -237,4 +251,46 @@ void vivictpp::VideoPlayback::advanceFrame(vivictpp::time::Time nextPts) {
 
   videoInputs.step(playbackState.pts);
   //  logger->debug("After advance frame pts={}", videoInputs.);
+}
+
+void vivictpp::VideoPlayback::cycleABLoop() {
+  if (playbackState.abLoopState == 0) {
+    // Set point A to current position
+    playbackState.loopPointA = playbackState.pts;
+    playbackState.abLoopState = 1;
+    logger->info("A-B Loop: Point A set at {}", playbackState.loopPointA);
+  } else if (playbackState.abLoopState == 1) {
+    // Set point B to current position and activate loop
+    playbackState.loopPointB = playbackState.pts;
+    if (playbackState.loopPointB > playbackState.loopPointA) {
+      playbackState.abLoopState = 2;
+      logger->info("A-B Loop: Point B set at {}, loop activated",
+                   playbackState.loopPointB);
+    } else {
+      // B must be after A, reset to state 0
+      playbackState.abLoopState = 0;
+      playbackState.loopPointA = vivictpp::time::NO_TIME;
+      playbackState.loopPointB = vivictpp::time::NO_TIME;
+      logger->info("A-B Loop: Point B must be after point A, loop cancelled");
+    }
+  } else {
+    // Cancel loop
+    playbackState.abLoopState = 0;
+    playbackState.loopPointA = vivictpp::time::NO_TIME;
+    playbackState.loopPointB = vivictpp::time::NO_TIME;
+    logger->info("A-B Loop: Cancelled");
+  }
+}
+
+bool vivictpp::VideoPlayback::checkABLoop() {
+  if (playbackState.abLoopState == 2 &&
+      !vivictpp::time::isNoPts(playbackState.loopPointA) &&
+      !vivictpp::time::isNoPts(playbackState.loopPointB)) {
+    if (playbackState.pts >= playbackState.loopPointB) {
+      logger->debug("A-B Loop: Reached point B, seeking back to point A");
+      seek(playbackState.loopPointA);
+      return true;
+    }
+  }
+  return false;
 }

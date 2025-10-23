@@ -126,6 +126,7 @@ void vivictpp::imgui::VivictPPImGui::run() {
       if (videoPlayback.checkAdvanceFrame(tNextPresent)) {
         displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
         imGuiSDL.updateTextures(displayState);
+        videoPlayback.checkABLoop();
       }
       displayState.pts = videoPlayback.getPlaybackState().pts;
       displayState.isPlaying = videoPlayback.isPlaying();
@@ -220,6 +221,10 @@ vivictpp::imgui::Action vivictpp::imgui::VivictPPImGui::handleKeyEvent(
       else if (keyEvent.isCtrl())
         return {vivictpp::imgui::ShowQualityFileDialogLeft};
       return {vivictpp::imgui::ToggleDisplayPlot};
+    case 'L':
+      if (keyEvent.isCtrl())
+        return {vivictpp::imgui::CycleABLoop};
+      break;
     case 'S':
       if (keyEvent.ctrl && keyEvent.alt)
         return {vivictpp::imgui::ShowSettingsDialog};
@@ -382,6 +387,9 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
       break;
     case ActionType::OpenQualityFileRight:
       openQualityFile(action);
+      break;
+    case ActionType::CycleABLoop:
+      videoPlayback.cycleABLoop();
       break;
     default:;
     }
