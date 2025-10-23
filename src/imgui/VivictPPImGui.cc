@@ -32,6 +32,7 @@ vivictpp::imgui::VivictPPImGui::VivictPPImGui(
   if (displayState.splitScreenDisabled) {
     displayState.splitPercent = 100;
   }
+  displayState.fitToScreen = settings.fitToScreen;
   if (videoPlayback.getPlaybackState().ready) {
     displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
     displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
@@ -308,6 +309,8 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
       break;
     case ActionType::ToggleFitToScreen:
       displayState.fitToScreen = !displayState.fitToScreen;
+      settings.fitToScreen = displayState.fitToScreen;
+      vivictpp::saveSettings(settings);
       break;
     case ActionType::ToggleImGuiDemo:
       displayState.displayImGuiDemo = !displayState.displayImGuiDemo;
@@ -363,6 +366,7 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
       settings = settingsDialog.getSettings();
       vivictpp::saveSettings(settings);
       vivictpp::logging::setLogLevels(settings.logLevels);
+      displayState.fitToScreen = settings.fitToScreen;
       break;
     case ActionType::ShowLogs:
       displayState.displayLogs = !displayState.displayLogs;

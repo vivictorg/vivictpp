@@ -20,6 +20,7 @@ struct Settings {
   int logBufferSize{128};
   bool logToFile{false};
   bool autoloadMetrics{false};
+  bool fitToScreen{false};
   std::string logFile;
   std::map<std::string, std::string> logLevels{{"default", "info"}};
 };

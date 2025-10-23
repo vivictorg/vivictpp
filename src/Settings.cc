@@ -108,6 +108,7 @@ vivictpp::Settings vivictpp::loadSettings(std::filesystem::path filePath) {
     loadString(settings.logFile, toml, "logsettings.logfile");
     loadMap(settings.logLevels, toml, "loglevels");
     loadBool(settings.autoloadMetrics, toml, "metrics.autoload");
+    loadBool(settings.fitToScreen, toml, "ui.fittoscreen");
     return settings;
 
   } catch (const toml::parse_error &err) {
@@ -123,6 +124,7 @@ toml::table settingsToToml(const vivictpp::Settings &settings) {
   toml::table logSettings;
   toml::table logLevels;
   toml::table metricSettings;
+  toml::table uiSettings;
   fontSettings.insert("basefontsize", settings.baseFontSize);
   fontSettings.insert("disableautoscaling", settings.disableFontAutoScaling);
   decoding.insert("enabledHwAccels", toTomlArray(settings.hwAccels));
@@ -135,11 +137,13 @@ toml::table settingsToToml(const vivictpp::Settings &settings) {
     logLevels.insert(e.first, e.second);
   }
   metricSettings.insert("autoload", settings.autoloadMetrics);
+  uiSettings.insert("fittoscreen", settings.fitToScreen);
   tbl.insert("fontsettings", fontSettings);
   tbl.insert("decoding", decoding);
   tbl.insert("logsettings", logSettings);
   tbl.insert("loglevels", logLevels);
   tbl.insert("metrics", metricSettings);
+  tbl.insert("ui", uiSettings);
   return tbl;
 }
 
@@ -158,5 +162,7 @@ bool vivictpp::operator==(const vivictpp::Settings &lhs,
          lhs.preferredDecoders == rhs.preferredDecoders &&
          lhs.logBufferSize == rhs.logBufferSize &&
          lhs.logToFile == rhs.logToFile && lhs.logFile == rhs.logFile &&
-         lhs.logLevels == rhs.logLevels;
+         lhs.logLevels == rhs.logLevels &&
+         lhs.autoloadMetrics == rhs.autoloadMetrics &&
+         lhs.fitToScreen == rhs.fitToScreen;
 }
