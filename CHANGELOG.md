@@ -1,6 +1,10 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## 1.3.1 - 2025-10-23
+### Fix
+- Fixes for ffmpeg 8.0
+
 ## 1.3.0 - 2025-06-28
 ### Fix
 - Bug that made only part of video display when viewing single video
