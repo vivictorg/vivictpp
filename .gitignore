@@ -19,3 +19,5 @@ winexec
 .buildenv
 .idea
 .vscode
+.claude
+.serena
