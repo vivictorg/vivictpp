@@ -4,7 +4,7 @@
 
 #define SDL_MAIN_HANDLED
 
-#include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -49,6 +49,17 @@ int main(int argc, char **argv) {
     for (auto sourceConfig : vivictPPConfig.sourceConfigs) {
       spdlog::debug("Source: path={} filters={}", sourceConfig.path,
                     sourceConfig.filter);
+    }
+
+    // Validate that all input files exist and are accessible
+    for (const auto &sourceConfig : vivictPPConfig.sourceConfigs) {
+      if (!std::filesystem::exists(sourceConfig.path)) {
+        std::cerr << "Error: Cannot open input file: " << sourceConfig.path
+                  << std::endl;
+        std::cerr << "Please check that the file exists and is readable."
+                  << std::endl;
+        return 1;
+      }
     }
 
     vivictpp::imgui::VivictPPImGui vivictPPImGui(vivictPPConfig);
