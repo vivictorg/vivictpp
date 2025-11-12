@@ -6,6 +6,7 @@
 #define VIVICTPP_IMGUI_VIVICTPPIMGUI_HH_
 
 #include "Settings.hh"
+#include "SourceConfig.hh"
 #include "VideoPlayback.hh"
 #include "VideoWindow.hh"
 #include "VivictPPConfig.hh"
@@ -54,6 +55,7 @@ private:
       newLeftQualityMetrics;
   std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>
       newRightQualityMetrics;
+  std::vector<SourceConfig> sourceConfigs;
 
 private:
   Action handleKeyEvent(const KeyEvent &keyEvent);

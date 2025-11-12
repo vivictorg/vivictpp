@@ -68,7 +68,7 @@ struct DisplayState {
   bool displayTime{true};
   bool displayMetadata{true};
   bool displayPlot{false};
-  bool splitScreenDisabled{false};
+  bool splitScreenDisabled{true};
   bool fitToScreen{false};
   bool isPlaying{false};
   vivictpp::time::Time pts{0};

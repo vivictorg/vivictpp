@@ -66,7 +66,7 @@ private:
   void initPlaybackState();
 
 public:
-  VideoPlayback(const std::vector<SourceConfig> &sourceConfigs);
+  VideoPlayback();
   void setLeftSource(const SourceConfig &source);
   void setRightSource(const SourceConfig &source);
   void togglePlaying();

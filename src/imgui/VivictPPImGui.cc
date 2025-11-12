@@ -25,45 +25,12 @@
 vivictpp::imgui::VivictPPImGui::VivictPPImGui(
     const VivictPPConfig &vivictPPConfig)
     : settings(vivictPPConfig.settings), imGuiSDL(settings),
-      videoPlayback(vivictPPConfig.sourceConfigs), settingsDialog(settings),
+      fileDialog(vivictPPConfig.settings),
+      settingsDialog(settings),
       plotWindow(videoPlayback.getVideoInputs().getLeftVideoIndex(),
-                 videoPlayback.getVideoInputs().getRightVideoIndex()) {
-  displayState.splitScreenDisabled = vivictPPConfig.sourceConfigs.size() < 2;
-  if (displayState.splitScreenDisabled) {
-    displayState.splitPercent = 100;
-  }
+                 videoPlayback.getVideoInputs().getRightVideoIndex()),
+      sourceConfigs(vivictPPConfig.sourceConfigs) {
   displayState.fitToScreen = settings.fitToScreen;
-  if (videoPlayback.getPlaybackState().ready) {
-    displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
-    displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
-    displayState.updateDecoderMetadata(
-        videoPlayback.getVideoInputs().decoderMetadata());
-    imGuiSDL.updateThumbnails(
-        videoPlayback.getVideoInputs().getLeftVideoIndex());
-    imGuiSDL.updateTextures(displayState);
-    imGuiSDL.fitWindowToTextures();
-  }
-  if (vivictPPConfig.sourceConfigs.size() > 0) {
-    leftQualityMetricsLoader.autoloadMetrics(
-        vivictPPConfig.sourceConfigs[0].path,
-        [this](
-            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
-            std::shared_ptr<std::exception> error) {
-          this->loadMetricsCallback(
-              metrics, error, vivictpp::imgui::ActionType::OpenQualityFileLeft);
-        });
-  }
-  if (vivictPPConfig.sourceConfigs.size() > 1) {
-    rightQualityMetricsLoader.autoloadMetrics(
-        vivictPPConfig.sourceConfigs[1].path,
-        [this](
-            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
-            std::shared_ptr<std::exception> error) {
-          this->loadMetricsCallback(
-              metrics, error,
-              vivictpp::imgui::ActionType::OpenQualityFileRight);
-        });
-  }
 }
 
 void drawSplash() {
@@ -93,6 +60,43 @@ void drawSplash() {
 }
 
 void vivictpp::imgui::VivictPPImGui::run() {
+  // Load initial sources from command-line if provided
+  if (sourceConfigs.size() >= 1) {
+    videoPlayback.setLeftSource(sourceConfigs[0]);
+    leftQualityMetricsLoader.autoloadMetrics(
+        sourceConfigs[0].path,
+        [this](
+            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+            std::shared_ptr<std::exception> error) {
+          this->loadMetricsCallback(
+              metrics, error, vivictpp::imgui::ActionType::OpenQualityFileLeft);
+        });
+  }
+  if (sourceConfigs.size() >= 2) {
+    videoPlayback.setRightSource(sourceConfigs[1]);
+    rightQualityMetricsLoader.autoloadMetrics(
+        sourceConfigs[1].path,
+        [this](
+            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+            std::shared_ptr<std::exception> error) {
+          this->loadMetricsCallback(
+              metrics, error,
+              vivictpp::imgui::ActionType::OpenQualityFileRight);
+        });
+    displayState.splitScreenDisabled = false;
+  }
+
+  // Update display state after loading sources
+  if (videoPlayback.getPlaybackState().ready) {
+    displayState.updateFrames(videoPlayback.getVideoInputs().firstFrames());
+    displayState.updateMetadata(videoPlayback.getVideoInputs().metadata());
+    displayState.updateDecoderMetadata(
+        videoPlayback.getVideoInputs().decoderMetadata());
+    imGuiSDL.updateThumbnails(
+        videoPlayback.getVideoInputs().getLeftVideoIndex());
+    imGuiSDL.updateTextures(displayState);
+    imGuiSDL.fitWindowToTextures();
+  }
 
   while (!done) {
     std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> newValue =

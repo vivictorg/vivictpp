@@ -32,20 +32,9 @@ void vivictpp::VideoPlayback::SeekState::sync() {
   std::lock_guard<std::mutex> lg(m);
 }
 
-vivictpp::VideoPlayback::VideoPlayback(
-    const std::vector<SourceConfig> &sourceConfigs)
+vivictpp::VideoPlayback::VideoPlayback()
     : videoInputs(),
-      logger(vivictpp::logging::getOrCreateLogger("vivictpp::VideoPlayback")) {
-  if (sourceConfigs.size() >= 1) {
-    videoInputs.openLeft(sourceConfigs[0]);
-  }
-  if (sourceConfigs.size() >= 2) {
-    videoInputs.openRight(sourceConfigs[1]);
-  }
-  if (!sourceConfigs.empty()) {
-    initPlaybackState();
-  }
-}
+      logger(vivictpp::logging::getOrCreateLogger("vivictpp::VideoPlayback")) {}
 
 void vivictpp::VideoPlayback::initPlaybackState() {
   frameDuration = videoInputs.frameDuration();

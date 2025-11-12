@@ -7,6 +7,8 @@
 
 #include "Events.hh"
 #include "ImGuiFileDialog.h"
+#include "Settings.hh"
+#include "SourceConfig.hh"
 #include "libav/HwAccelUtils.hh"
 #include "libav/Utils.hh"
 #include "platform_folders.h"
@@ -18,6 +20,7 @@ enum class LeftRight { Left, Right };
 class FileDialog {
 private:
   ImGuiFileDialog fileDialog;
+  const Settings &settings;
   LeftRight leftRight{LeftRight::Left};
   std::string folder{sago::getVideoFolder()};
   std::vector<std::string> hwAccelOptions;
@@ -32,8 +35,8 @@ private:
   void optionsPane();
 
 public:
-  FileDialog()
-      : hwAccelOptions({"auto", "none"}), preferredDecoderOptions({"auto"}),
+  explicit FileDialog(const Settings &settings)
+      : settings(settings), hwAccelOptions({"auto", "none"}), preferredDecoderOptions({"auto"}),
         currentHwAccelOption(hwAccelOptions[0]),
         currentDecoderOption(preferredDecoderOptions[0]) {
     for (auto &hwAccel : vivictpp::libav::allHwAccelFormats()) {
@@ -55,6 +58,8 @@ public:
   const std::string filter() { return std::string(filterStr); }
 
   const std::string formatOptions() { return std::string(formatOptionsStr); }
+
+  SourceConfig getSourceConfig();
 
   std::vector<Action> draw();
 };

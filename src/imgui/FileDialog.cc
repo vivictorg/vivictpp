@@ -52,6 +52,24 @@ void vivictpp::imgui::FileDialog::openDialog(std::string text,
                         optionsPaneCallback, 350, 1, nullptr);
 }
 
+SourceConfig vivictpp::imgui::FileDialog::getSourceConfig() {
+  std::vector<std::string> hwAccels;
+  if (selectedHwAccel() == "auto") {
+    hwAccels = settings.hwAccels;
+  } else if (selectedHwAccel() != "none") {
+    hwAccels.push_back(selectedHwAccel());
+  }
+  std::vector<std::string> preferredDecoders;
+  if (selectedDecoder() == "auto") {
+    preferredDecoders = settings.preferredDecoders;
+  } else {
+    preferredDecoders.push_back(selectedDecoder());
+  }
+  SourceConfig sourceConfig = {fileDialog.GetFilePathName(), hwAccels, preferredDecoders,
+                               filter(), formatOptions()};
+  return sourceConfig;
+}
+
 std::vector<vivictpp::imgui::Action> vivictpp::imgui::FileDialog::draw() {
   std::vector<Action> actions;
   if (fileDialog.Display("ChooseFileDlgKey", 0, {400, 300})) {
