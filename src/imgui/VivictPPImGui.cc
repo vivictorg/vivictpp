@@ -392,6 +392,12 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
     case ActionType::OpenQualityFileRight:
       openQualityFile(action);
       break;
+    case ActionType::AutoloadLeftMetrics:
+      autoloadQualityFile(action);
+      break;
+    case ActionType::AutoloadRightMetrics:
+      autoloadQualityFile(action);
+      break;
     case ActionType::CycleABLoop:
       videoPlayback.cycleABLoop();
       break;
@@ -449,6 +455,21 @@ void vivictpp::imgui::VivictPPImGui::openQualityFile(
   }
 }
 
+void vivictpp::imgui::VivictPPImGui::autoloadQualityFile(
+    const vivictpp::imgui::Action &action) {
+  auto callback =
+      [this, action](
+          std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
+          std::shared_ptr<std::exception> error) {
+        this->loadMetricsCallback(metrics, error, action);
+      };
+  if (action.type == ActionType::AutoloadLeftMetrics) {
+    leftQualityMetricsLoader.autoloadMetrics(action.file, callback);
+  } else if (action.type == ActionType::AutoloadRightMetrics) {
+    rightQualityMetricsLoader.autoloadMetrics(action.file, callback);
+  }
+}
+
 void vivictpp::imgui::VivictPPImGui::loadMetricsCallback(
     std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
     std::shared_ptr<std::exception> error, vivictpp::imgui::Action action) {
@@ -456,9 +477,11 @@ void vivictpp::imgui::VivictPPImGui::loadMetricsCallback(
     this->logger->error("Error loading quality file: {}", error->what());
     return;
   }
-  if (action.type == ActionType::OpenQualityFileLeft) {
+  if (action.type == ActionType::OpenQualityFileLeft ||
+      action.type == ActionType::AutoloadLeftMetrics) {
     std::atomic_store(&newLeftQualityMetrics, metrics);
-  } else if (action.type == ActionType::OpenQualityFileRight) {
+  } else if (action.type == ActionType::OpenQualityFileRight ||
+             action.type == ActionType::AutoloadRightMetrics) {
     std::atomic_store(&newRightQualityMetrics, metrics);
   }
 }

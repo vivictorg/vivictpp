@@ -31,25 +31,34 @@ void vivictpp::qualitymetrics::QualityMetricsLoader::loadMetrics(
       &QualityMetricsLoader::loadMetricsInternal, this, metricsFile, callback);
 }
 
-void vivictpp::qualitymetrics::QualityMetricsLoader::autoloadMetrics(
-    std::string sourceFile,
-    vivictpp::qualitymetrics::QualityMetricsLoaderCallback callback) {
-  auto logger = vivictpp::logging::getOrCreateLogger(
-      "vivictpp::qualityMetrics::QualityMetrics");
-  logger->info("Autoloading metrics for source: {}", sourceFile);
+std::string vivictpp::qualitymetrics::QualityMetricsLoader::findMetricsFile(
+    std::string sourceFile) {
   std::string jsonPath =
       std::filesystem::path(sourceFile).replace_extension().string() +
       "_vmaf.json";
   logger->info("Checking for json file: {}", jsonPath);
   if (std::filesystem::exists(jsonPath)) {
-    return loadMetrics(jsonPath, callback);
+    return jsonPath;
   }
   std::string csvPath =
       std::filesystem::path(sourceFile).replace_extension().string() +
       "_vmaf.csv";
   logger->info("Checking for csv file: {}", csvPath);
   if (std::filesystem::exists(csvPath)) {
-    return loadMetrics(csvPath, callback);
+    return csvPath;
+  }
+  return "";
+}
+
+void vivictpp::qualitymetrics::QualityMetricsLoader::autoloadMetrics(
+    std::string sourceFile,
+    vivictpp::qualitymetrics::QualityMetricsLoaderCallback callback) {
+  auto logger = vivictpp::logging::getOrCreateLogger(
+      "vivictpp::qualityMetrics::QualityMetrics");
+  logger->info("Autoloading metrics for source: {}", sourceFile);
+  std::string metricsFile = findMetricsFile(sourceFile);
+  if (!metricsFile.empty()) {
+    return loadMetrics(metricsFile, callback);
   }
   logger->info("No metrics found for source: {}", sourceFile);
 }

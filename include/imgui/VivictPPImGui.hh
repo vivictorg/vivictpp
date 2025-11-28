@@ -64,6 +64,7 @@ private:
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
   void openFile(const vivictpp::imgui::Action &action);
   void openQualityFile(const vivictpp::imgui::Action &action);
+  void autoloadQualityFile(const vivictpp::imgui::Action &action);
   void loadMetricsCallback(
       std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
       std::shared_ptr<std::exception> error, vivictpp::imgui::Action action);

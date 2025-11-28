@@ -43,6 +43,7 @@ private:
   void loadMetricsInternal(std::string metricsFile,
                            QualityMetricsLoaderCallback callback);
   void stopLoaderThread();
+  std::string findMetricsFile(std::string sourceFile);
 
 private:
   QualityMetricsLoaderCallback callback;
