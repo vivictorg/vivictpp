@@ -64,21 +64,19 @@ void vivictpp::imgui::VivictPPImGui::run() {
   std::vector<vivictpp::imgui::Action> initialActions;
   if (sourceConfigs.size() >= 1) {
     initialActions.push_back(vivictpp::imgui::Action(
-        vivictpp::imgui::ActionType::OpenFileLeft, 0, {0, 0},
-        sourceConfigs[0].path));
+        vivictpp::imgui::ActionType::OpenFileLeft, sourceConfigs[0]));
     if (settings.autoloadMetrics) {
       initialActions.push_back(vivictpp::imgui::Action(
-          vivictpp::imgui::ActionType::AutoloadLeftMetrics, 0, {0, 0},
+          vivictpp::imgui::ActionType::AutoloadLeftMetrics,
           sourceConfigs[0].path));
     }
   }
   if (sourceConfigs.size() >= 2) {
     initialActions.push_back(vivictpp::imgui::Action(
-        vivictpp::imgui::ActionType::OpenFileRight, 0, {0, 0},
-        sourceConfigs[1].path));
+        vivictpp::imgui::ActionType::OpenFileRight, sourceConfigs[1]));
     if (settings.autoloadMetrics) {
       initialActions.push_back(vivictpp::imgui::Action(
-          vivictpp::imgui::ActionType::AutoloadRightMetrics, 0, {0, 0},
+          vivictpp::imgui::ActionType::AutoloadRightMetrics,
           sourceConfigs[1].path));
     }
   }
@@ -300,10 +298,10 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
                                displayState.zoom);
       break;
     case ActionType::Seek:
-      videoPlayback.seek(action.seek);
+      videoPlayback.seek(action.getSeekData().time);
       break;
     case ActionType::SeekRelative:
-      videoPlayback.seekRelative(action.seek);
+      videoPlayback.seekRelative(action.getSeekData().time);
       break;
     case ActionType::StepForward:
       videoPlayback.seekRelativeFrame(1);
@@ -332,7 +330,7 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
       displayState.displayPlot = !displayState.displayPlot;
       break;
     case ActionType::Scroll:
-      videoWindow.onScroll(action.scroll);
+      videoWindow.onScroll(action.getScrollData().delta);
       break;
     case ActionType::PlaybackSpeedIncrease:
       videoPlayback.adjustPlaybackSpeed(1);
@@ -406,32 +404,7 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
 
 void vivictpp::imgui::VivictPPImGui::openFile(
     const vivictpp::imgui::Action &action) {
-  // Check if this file matches a command-line sourceConfig
-  SourceConfig *cmdLineConfig = nullptr;
-  for (auto &config : sourceConfigs) {
-    if (config.path == action.file) {
-      cmdLineConfig = &config;
-      break;
-    }
-  }
-
-  SourceConfig sourceConfig = cmdLineConfig ? *cmdLineConfig : [this, &action]() {
-    // Construct from file dialog settings
-    std::vector<std::string> hwAccels;
-    if (fileDialog.selectedHwAccel() == "auto") {
-      hwAccels = settings.hwAccels;
-    } else if (fileDialog.selectedHwAccel() != "none") {
-      hwAccels.push_back(fileDialog.selectedHwAccel());
-    }
-    std::vector<std::string> preferredDecoders;
-    if (fileDialog.selectedDecoder() == "auto") {
-      preferredDecoders = settings.preferredDecoders;
-    } else {
-      preferredDecoders.push_back(fileDialog.selectedDecoder());
-    }
-    return SourceConfig{action.file, hwAccels, preferredDecoders,
-                        fileDialog.filter(), fileDialog.formatOptions()};
-  }();
+  const auto &sourceConfig = action.getSourceConfigData().config;
 
   if (action.type == ActionType::OpenFileLeft) {
     videoPlayback.setLeftSource(sourceConfig);
@@ -453,6 +426,8 @@ void vivictpp::imgui::VivictPPImGui::openFile(
 
 void vivictpp::imgui::VivictPPImGui::openQualityFile(
     const vivictpp::imgui::Action &action) {
+  const auto &filePath = action.getFileData().path;
+
   auto callback =
       [this, action](
           std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
@@ -460,24 +435,24 @@ void vivictpp::imgui::VivictPPImGui::openQualityFile(
         this->loadMetricsCallback(metrics, error, action);
       };
   if (action.type == ActionType::OpenQualityFileLeft) {
-    leftQualityMetricsLoader.loadMetrics(action.file, callback);
+    leftQualityMetricsLoader.loadMetrics(filePath, callback);
   } else if (action.type == ActionType::OpenQualityFileRight) {
-    rightQualityMetricsLoader.loadMetrics(action.file, callback);
+    rightQualityMetricsLoader.loadMetrics(filePath, callback);
   }
 }
 
 void vivictpp::imgui::VivictPPImGui::autoloadQualityFile(
     const vivictpp::imgui::Action &action) {
-  auto callback =
-      [this, action](
-          std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
-          std::shared_ptr<std::exception> error) {
-        this->loadMetricsCallback(metrics, error, action);
-      };
+  const auto &filePath = qualitymetrics::QualityMetricsLoader::findMetricsFile(
+    action.getFileData().path);
+  if (filePath.empty()) {
+    return;
+  }
+
   if (action.type == ActionType::AutoloadLeftMetrics) {
-    leftQualityMetricsLoader.autoloadMetrics(action.file, callback);
+    openQualityFile(Action(OpenQualityFileLeft, filePath));
   } else if (action.type == ActionType::AutoloadRightMetrics) {
-    rightQualityMetricsLoader.autoloadMetrics(action.file, callback);
+    openQualityFile(Action(OpenQualityFileRight, filePath));
   }
 }
 

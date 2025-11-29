@@ -36,14 +36,12 @@ public:
   ~QualityMetricsLoader() { stopLoaderThread(); }
   void loadMetrics(std::string metricsFile,
                    QualityMetricsLoaderCallback callback);
-  void autoloadMetrics(std::string sourceFile,
-                       QualityMetricsLoaderCallback callback);
-
+  static std::string findMetricsFile(std::string sourceFile);
 private:
   void loadMetricsInternal(std::string metricsFile,
                            QualityMetricsLoaderCallback callback);
   void stopLoaderThread();
-  std::string findMetricsFile(std::string sourceFile);
+
 
 private:
   QualityMetricsLoaderCallback callback;

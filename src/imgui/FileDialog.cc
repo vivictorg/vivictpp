@@ -75,19 +75,19 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::FileDialog::draw() {
   if (fileDialog.Display("ChooseFileDlgKey", 0, {400, 300})) {
     // action if OK
     if (fileDialog.IsOk()) {
-      std::string filePathName = fileDialog.GetFilePathName();
       folder = fileDialog.GetCurrentPath();
+      SourceConfig sourceConfig = getSourceConfig();
       ActionType actionType = leftRight == LeftRight::Left
                                   ? ActionType::OpenFileLeft
                                   : ActionType::OpenFileRight;
-      actions.push_back({actionType, 0, {0, 0}, filePathName});
+      actions.push_back(Action(actionType, sourceConfig));
 
       // Add autoload metrics action if enabled in settings
       if (settings.autoloadMetrics) {
         ActionType metricsActionType = leftRight == LeftRight::Left
                                            ? ActionType::AutoloadLeftMetrics
                                            : ActionType::AutoloadRightMetrics;
-        actions.push_back({metricsActionType, 0, {0, 0}, filePathName});
+        actions.push_back(Action(metricsActionType, sourceConfig.path));
       }
     }
 

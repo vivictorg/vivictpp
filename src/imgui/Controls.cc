@@ -247,7 +247,7 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::Controls::draw(
     };
     if (ImGui::IsMouseDragging(0)) {
       ImVec2 mouseDelta = ImGui::GetIO().MouseDelta;
-      actions.push_back({Scroll, 0, mouseDelta});
+      actions.push_back(Action(Scroll, mouseDelta));
       wasDragging = true;
     }
   }

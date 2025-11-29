@@ -5,10 +5,12 @@
 #ifndef VIVICTPP_IMGUI_EVENTS_HH_
 #define VIVICTPP_IMGUI_EVENTS_HH_
 
+#include "SourceConfig.hh"
 #include "imgui.h"
 #include "time/Time.hh"
 #include <memory>
 #include <string>
+#include <variant>
 
 namespace vivictpp::imgui {
 
@@ -83,14 +85,52 @@ enum ActionType {
   CycleABLoop,
 };
 
+// Action data types
+struct NoData {};
+struct SeekData {
+  vivictpp::time::Time time;
+};
+struct ScrollData {
+  ImVec2 delta;
+};
+struct FileData {
+  std::string path;
+};
+struct SourceConfigData {
+  SourceConfig config;
+};
+
 struct Action {
-  Action(ActionType type, vivictpp::time::Time seek = 0, ImVec2 scroll = {0, 0},
-         std::string file = "")
-      : type(type), seek(seek), scroll(scroll), file(file){};
   ActionType type;
-  vivictpp::time::Time seek;
-  ImVec2 scroll;
-  std::string file;
+  std::variant<NoData, SeekData, ScrollData, FileData, SourceConfigData> data;
+
+  // Constructors for different action types
+  Action(ActionType t) : type(t), data(NoData{}) {}
+
+  Action(ActionType t, vivictpp::time::Time seekTime)
+      : type(t), data(SeekData{seekTime}) {}
+
+  Action(ActionType t, ImVec2 scrollDelta)
+      : type(t), data(ScrollData{scrollDelta}) {}
+
+  Action(ActionType t, std::string filePath)
+      : type(t), data(FileData{std::move(filePath)}) {}
+
+  Action(ActionType t, SourceConfig sourceConfig)
+      : type(t), data(SourceConfigData{std::move(sourceConfig)}) {}
+
+  // Helper methods for type-safe access
+  const SeekData &getSeekData() const { return std::get<SeekData>(data); }
+
+  const ScrollData &getScrollData() const {
+    return std::get<ScrollData>(data);
+  }
+
+  const FileData &getFileData() const { return std::get<FileData>(data); }
+
+  const SourceConfigData &getSourceConfigData() const {
+    return std::get<SourceConfigData>(data);
+  }
 };
 
 } // namespace vivictpp::imgui

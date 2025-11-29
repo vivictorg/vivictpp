@@ -33,6 +33,8 @@ void vivictpp::qualitymetrics::QualityMetricsLoader::loadMetrics(
 
 std::string vivictpp::qualitymetrics::QualityMetricsLoader::findMetricsFile(
     std::string sourceFile) {
+  auto logger = vivictpp::logging::getOrCreateLogger(
+      "vivictpp::qualitymetrics::QualityMetricsLoader");
   std::string jsonPath =
       std::filesystem::path(sourceFile).replace_extension().string() +
       "_vmaf.json";
@@ -48,19 +50,6 @@ std::string vivictpp::qualitymetrics::QualityMetricsLoader::findMetricsFile(
     return csvPath;
   }
   return "";
-}
-
-void vivictpp::qualitymetrics::QualityMetricsLoader::autoloadMetrics(
-    std::string sourceFile,
-    vivictpp::qualitymetrics::QualityMetricsLoaderCallback callback) {
-  auto logger = vivictpp::logging::getOrCreateLogger(
-      "vivictpp::qualityMetrics::QualityMetrics");
-  logger->info("Autoloading metrics for source: {}", sourceFile);
-  std::string metricsFile = findMetricsFile(sourceFile);
-  if (!metricsFile.empty()) {
-    return loadMetrics(metricsFile, callback);
-  }
-  logger->info("No metrics found for source: {}", sourceFile);
 }
 
 void vivictpp::qualitymetrics::QualityMetricsLoader::stopLoaderThread() {

@@ -38,7 +38,7 @@ vivictpp::imgui::QualityFileDialog::draw() {
       ActionType actionType = leftRight == LeftRight::Left
                                   ? ActionType::OpenQualityFileLeft
                                   : ActionType::OpenQualityFileRight;
-      actions.push_back({actionType, 0, {0, 0}, filePathName});
+      actions.push_back(Action(actionType, filePathName));
     }
 
     // close
