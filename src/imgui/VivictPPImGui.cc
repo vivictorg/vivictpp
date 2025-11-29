@@ -61,30 +61,28 @@ void drawSplash() {
 
 void vivictpp::imgui::VivictPPImGui::run() {
   // Load initial sources from command-line if provided
+  std::vector<vivictpp::imgui::Action> initialActions;
   if (sourceConfigs.size() >= 1) {
-    videoPlayback.setLeftSource(sourceConfigs[0]);
-    leftQualityMetricsLoader.autoloadMetrics(
-        sourceConfigs[0].path,
-        [this](
-            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
-            std::shared_ptr<std::exception> error) {
-          this->loadMetricsCallback(
-              metrics, error, vivictpp::imgui::ActionType::OpenQualityFileLeft);
-        });
+    initialActions.push_back(vivictpp::imgui::Action(
+        vivictpp::imgui::ActionType::OpenFileLeft, 0, {0, 0},
+        sourceConfigs[0].path));
+    if (settings.autoloadMetrics) {
+      initialActions.push_back(vivictpp::imgui::Action(
+          vivictpp::imgui::ActionType::AutoloadLeftMetrics, 0, {0, 0},
+          sourceConfigs[0].path));
+    }
   }
   if (sourceConfigs.size() >= 2) {
-    videoPlayback.setRightSource(sourceConfigs[1]);
-    rightQualityMetricsLoader.autoloadMetrics(
-        sourceConfigs[1].path,
-        [this](
-            std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
-            std::shared_ptr<std::exception> error) {
-          this->loadMetricsCallback(
-              metrics, error,
-              vivictpp::imgui::ActionType::OpenQualityFileRight);
-        });
-    displayState.splitScreenDisabled = false;
+    initialActions.push_back(vivictpp::imgui::Action(
+        vivictpp::imgui::ActionType::OpenFileRight, 0, {0, 0},
+        sourceConfigs[1].path));
+    if (settings.autoloadMetrics) {
+      initialActions.push_back(vivictpp::imgui::Action(
+          vivictpp::imgui::ActionType::AutoloadRightMetrics, 0, {0, 0},
+          sourceConfigs[1].path));
+    }
   }
+  handleActions(initialActions);
 
   // Update display state after loading sources
   if (videoPlayback.getPlaybackState().ready) {
@@ -408,20 +406,33 @@ void vivictpp::imgui::VivictPPImGui::handleActions(
 
 void vivictpp::imgui::VivictPPImGui::openFile(
     const vivictpp::imgui::Action &action) {
-  std::vector<std::string> hwAccels;
-  if (fileDialog.selectedHwAccel() == "auto") {
-    hwAccels = settings.hwAccels;
-  } else if (fileDialog.selectedHwAccel() != "none") {
-    hwAccels.push_back(fileDialog.selectedHwAccel());
+  // Check if this file matches a command-line sourceConfig
+  SourceConfig *cmdLineConfig = nullptr;
+  for (auto &config : sourceConfigs) {
+    if (config.path == action.file) {
+      cmdLineConfig = &config;
+      break;
+    }
   }
-  std::vector<std::string> preferredDecoders;
-  if (fileDialog.selectedDecoder() == "auto") {
-    preferredDecoders = settings.preferredDecoders;
-  } else {
-    preferredDecoders.push_back(fileDialog.selectedDecoder());
-  }
-  SourceConfig sourceConfig = {action.file, hwAccels, preferredDecoders,
-                               fileDialog.filter(), fileDialog.formatOptions()};
+
+  SourceConfig sourceConfig = cmdLineConfig ? *cmdLineConfig : [this, &action]() {
+    // Construct from file dialog settings
+    std::vector<std::string> hwAccels;
+    if (fileDialog.selectedHwAccel() == "auto") {
+      hwAccels = settings.hwAccels;
+    } else if (fileDialog.selectedHwAccel() != "none") {
+      hwAccels.push_back(fileDialog.selectedHwAccel());
+    }
+    std::vector<std::string> preferredDecoders;
+    if (fileDialog.selectedDecoder() == "auto") {
+      preferredDecoders = settings.preferredDecoders;
+    } else {
+      preferredDecoders.push_back(fileDialog.selectedDecoder());
+    }
+    return SourceConfig{action.file, hwAccels, preferredDecoders,
+                        fileDialog.filter(), fileDialog.formatOptions()};
+  }();
+
   if (action.type == ActionType::OpenFileLeft) {
     videoPlayback.setLeftSource(sourceConfig);
   } else {
