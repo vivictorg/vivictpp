@@ -110,6 +110,7 @@ imgui_sources=[
   'libs/imgui/backends/imgui_impl_sdlrenderer2.cpp',
   'src/imgui/VivictPPImGui.cc',
   'src/imgui/Controls.cc',
+  'src/imgui/ErrorDialog.cc',
   'src/imgui/VideoMetadataDisplay.cc',
   'src/imgui/ImGuiSDL.cc',
   'src/imgui/Fonts.cc',
@@ -130,6 +131,7 @@ imgui_sources=[
 
 sources = [
   'src/AVSync.cc',
+  'src/ErrorQueue.cc',
   'src/OptParser.cc',
   'src/Resolution.cc',
   'src/Settings.cc',

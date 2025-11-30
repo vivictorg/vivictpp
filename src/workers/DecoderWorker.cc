@@ -32,9 +32,10 @@ vivictpp::libav::Filter *createFilter(AVStream *stream,
 
 vivictpp::workers::DecoderWorker::DecoderWorker(
     AVStream *stream, std::string customFilter,
-    vivictpp::libav::DecoderOptions decoderOptions, int frameBufferSize,
-    int packetQueueSize)
-    : InputWorker(packetQueueSize, "vivictpp::workers::DecoderWorker"),
+    vivictpp::libav::DecoderOptions decoderOptions,
+    vivictpp::ErrorQueue &errorQueue, int frameBufferSize, int packetQueueSize)
+    : InputWorker(packetQueueSize, "vivictpp::workers::DecoderWorker",
+                  errorQueue),
       streamIndex(stream->index), stream(stream), frameBuffer(frameBufferSize),
       decoder(new vivictpp::libav::Decoder(stream->codecpar, decoderOptions)),
       filter(createFilter(stream, decoder->getCodecContext(), customFilter)),

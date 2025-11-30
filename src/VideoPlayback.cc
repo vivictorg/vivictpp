@@ -32,8 +32,8 @@ void vivictpp::VideoPlayback::SeekState::sync() {
   std::lock_guard<std::mutex> lg(m);
 }
 
-vivictpp::VideoPlayback::VideoPlayback()
-    : videoInputs(),
+vivictpp::VideoPlayback::VideoPlayback(vivictpp::ErrorQueue &errorQueue)
+    : errorQueue(errorQueue), videoInputs(errorQueue),
       logger(vivictpp::logging::getOrCreateLogger("vivictpp::VideoPlayback")) {}
 
 void vivictpp::VideoPlayback::initPlaybackState() {

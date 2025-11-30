@@ -80,8 +80,6 @@ enum ActionType {
   ShowQualityFileDialogRight,
   OpenQualityFileLeft,
   OpenQualityFileRight,
-  AutoloadLeftMetrics,
-  AutoloadRightMetrics,
   CycleABLoop,
 };
 

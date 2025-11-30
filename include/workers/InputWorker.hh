@@ -5,6 +5,7 @@
 #ifndef WORKERS_INPUTWORKER_HH
 #define WORKERS_INPUTWORKER_HH
 
+#include "ErrorQueue.hh"
 #include "workers/VideoInputMessage.hh"
 #include <chrono>
 #include <memory>
@@ -22,7 +23,7 @@ enum class InputWorkerState { INACTIVE, ACTIVE, SEEKING, STOPPED };
 template <class T> class InputWorker {
 
 public:
-  InputWorker(int queueDataLimit, std::string);
+  InputWorker(int queueDataLimit, std::string, vivictpp::ErrorQueue &errorQueue);
   virtual ~InputWorker();
 
   void sendCommand(vivictpp::workers::Command *cmd);
@@ -53,16 +54,19 @@ protected:
   vivictpp::logging::Logger seeklog;
   InputWorkerState state;
   vivictpp::workers::Queue<T> messageQueue;
+  vivictpp::ErrorQueue &errorQueue;
 
 private:
   std::unique_ptr<std::thread> thread;
 };
 
 template <class T>
-InputWorker<T>::InputWorker(int queueDataLimit, std::string name)
+InputWorker<T>::InputWorker(int queueDataLimit, std::string name,
+                            vivictpp::ErrorQueue &errorQueue)
     : logger(vivictpp::logging::getOrCreateLogger(name)),
       seeklog(vivictpp::logging::getOrCreateLogger("vivictpp::seeklog")),
-      state(InputWorkerState::INACTIVE), messageQueue(queueDataLimit) {}
+      state(InputWorkerState::INACTIVE), messageQueue(queueDataLimit),
+      errorQueue(errorQueue) {}
 
 template <class T> InputWorker<T>::~InputWorker() {}
 
@@ -150,14 +154,20 @@ template <class T> void InputWorker<T>::pollMessageQueue() {
 }
 
 template <class T> void InputWorker<T>::run() {
-  while (state == InputWorkerState::INACTIVE) {
-    if (messageQueue.waitForCommand(std::chrono::milliseconds(100))) {
+  try {
+    while (state == InputWorkerState::INACTIVE) {
+      if (messageQueue.waitForCommand(std::chrono::milliseconds(100))) {
+        pollMessageQueue();
+      }
+    }
+    while (state != InputWorkerState::STOPPED) {
+      doWork();
       pollMessageQueue();
     }
-  }
-  while (state != InputWorkerState::STOPPED) {
-    doWork();
-    pollMessageQueue();
+  } catch (const std::exception &e) {
+    logger->error("Worker thread failed: {}", e.what());
+    errorQueue.addError(std::string("Worker thread error: ") + e.what(),
+                        "InputWorker");
   }
 }
 

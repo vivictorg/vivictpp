@@ -5,6 +5,7 @@
 #ifndef VIVICTPP_IMGUI_VIVICTPPIMGUI_HH_
 #define VIVICTPP_IMGUI_VIVICTPPIMGUI_HH_
 
+#include "ErrorQueue.hh"
 #include "Settings.hh"
 #include "SourceConfig.hh"
 #include "VideoPlayback.hh"
@@ -12,6 +13,7 @@
 #include "VivictPPConfig.hh"
 #include "imgui.h"
 #include "imgui/Controls.hh"
+#include "imgui/ErrorDialog.hh"
 #include "imgui/Events.hh"
 #include "imgui/FileDialog.hh"
 #include "imgui/ImGuiSDL.hh"
@@ -37,6 +39,7 @@ public:
 class VivictPPImGui {
 private:
   Settings settings;
+  vivictpp::ErrorQueue errorQueue; // Must be FIRST - used by other members!
   ImGuiSDL imGuiSDL;
   VideoPlayback videoPlayback;
   bool done{false};
@@ -55,6 +58,7 @@ private:
       newLeftQualityMetrics;
   std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics>
       newRightQualityMetrics;
+  ErrorDialog errorDialog;
   std::vector<SourceConfig> sourceConfigs;
 
 private:
@@ -62,9 +66,8 @@ private:
   std::vector<Action>
   handleEvents(std::vector<std::shared_ptr<vivictpp::imgui::Event>> events);
   void handleActions(std::vector<vivictpp::imgui::Action> actions);
-  void openFile(const vivictpp::imgui::Action &action);
+  bool openFile(const vivictpp::imgui::Action &action);
   void openQualityFile(const vivictpp::imgui::Action &action);
-  void autoloadQualityFile(const vivictpp::imgui::Action &action);
   void loadMetricsCallback(
       std::shared_ptr<vivictpp::qualitymetrics::QualityMetrics> metrics,
       std::shared_ptr<std::exception> error, vivictpp::imgui::Action action);

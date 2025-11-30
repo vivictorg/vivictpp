@@ -5,6 +5,7 @@
 #ifndef VIVICTPP_VIDEOPLAYBACK_HH_
 #define VIVICTPP_VIDEOPLAYBACK_HH_
 
+#include "ErrorQueue.hh"
 #include "VivictPPConfig.hh"
 #include "time/Time.hh"
 #include "time/TimeUtils.hh"
@@ -52,6 +53,7 @@ private:
     void sync();
   };
 
+  vivictpp::ErrorQueue &errorQueue;
   VideoInputs videoInputs;
   SeekState seekState;
   vivictpp::time::Time playbackStartPts{0};
@@ -66,7 +68,7 @@ private:
   void initPlaybackState();
 
 public:
-  VideoPlayback();
+  explicit VideoPlayback(vivictpp::ErrorQueue &errorQueue);
   void setLeftSource(const SourceConfig &source);
   void setRightSource(const SourceConfig &source);
   void togglePlaying();

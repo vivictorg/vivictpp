@@ -81,14 +81,6 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::FileDialog::draw() {
                                   ? ActionType::OpenFileLeft
                                   : ActionType::OpenFileRight;
       actions.push_back(Action(actionType, sourceConfig));
-
-      // Add autoload metrics action if enabled in settings
-      if (settings.autoloadMetrics) {
-        ActionType metricsActionType = leftRight == LeftRight::Left
-                                           ? ActionType::AutoloadLeftMetrics
-                                           : ActionType::AutoloadRightMetrics;
-        actions.push_back(Action(metricsActionType, sourceConfig.path));
-      }
     }
 
     // close

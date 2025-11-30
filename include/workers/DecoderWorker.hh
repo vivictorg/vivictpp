@@ -26,9 +26,10 @@ namespace workers {
 
 class DecoderWorker : public InputWorker<vivictpp::libav::Packet> {
 public:
-  DecoderWorker(AVStream *stream, std::string customFilter = "",
-                vivictpp::libav::DecoderOptions decoderOptions = {},
-                int frameBufferSize = 50, int packetQueueSize = 256);
+  DecoderWorker(AVStream *stream, std::string customFilter,
+                vivictpp::libav::DecoderOptions decoderOptions,
+                vivictpp::ErrorQueue &errorQueue, int frameBufferSize = 50,
+                int packetQueueSize = 256);
   virtual ~DecoderWorker();
   void seek(vivictpp::time::Time pos, vivictpp::SeekCallback callback);
   AVStream *getStream() { return stream; };

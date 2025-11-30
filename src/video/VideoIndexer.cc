@@ -130,53 +130,58 @@ void vivictpp::video::VideoIndexer::prepareIndex(
 void vivictpp::video::VideoIndexer::prepareIndexInternal(
     const std::string &inputFile, const std::string &formatOptions,
     const bool generateThumbnails) {
-  int64_t t0 = vivictpp::time::relativeTimeMicros();
-  vivictpp::libav::FormatHandler formatHandler(inputFile, formatOptions);
-  if (formatHandler.getVideoStreams().empty()) {
-    // throw std::runtime_error("No video streams found in input file");
-    logger->warn("Indexing failed, No video streams found in input file");
-  }
-  index->clear();
-  std::set<int> activeStreams({formatHandler.getVideoStreams()[0]->index});
-  formatHandler.setActiveStreams(activeStreams);
+  try {
+    int64_t t0 = vivictpp::time::relativeTimeMicros();
+    vivictpp::libav::FormatHandler formatHandler(inputFile, formatOptions);
+    if (formatHandler.getVideoStreams().empty()) {
+      // throw std::runtime_error("No video streams found in input file");
+      logger->warn("Indexing failed, No video streams found in input file");
+      return;
+    }
+    index->clear();
+    std::set<int> activeStreams({formatHandler.getVideoStreams()[0]->index});
+    formatHandler.setActiveStreams(activeStreams);
 
-  std::unique_ptr<ThumbnailDecoder> thumbnailDecoder;
-  if (generateThumbnails) {
-    thumbnailDecoder = std::make_unique<ThumbnailDecoder>(
-        formatHandler.getVideoStreams()[0], maxThumbnailSize);
-  }
+    std::unique_ptr<ThumbnailDecoder> thumbnailDecoder;
+    if (generateThumbnails) {
+      thumbnailDecoder = std::make_unique<ThumbnailDecoder>(
+          formatHandler.getVideoStreams()[0], maxThumbnailSize);
+    }
 
-  vivictpp::time::Time lastPts = vivictpp::time::NO_TIME;
-  vivictpp::time::Time duration = formatHandler.formatContext->duration;
-  AVRational streamTimeBase = formatHandler.getVideoStreams()[0]->time_base;
-  // Try to get around 100 thumbnails, with at least 5s interval
-  vivictpp::time::Time thumbnailInterval = std::max(
-      duration / maxThumbnails, vivictpp::time::seconds(minThumbnailInterval));
+    vivictpp::time::Time lastPts = vivictpp::time::NO_TIME;
+    vivictpp::time::Time duration = formatHandler.formatContext->duration;
+    AVRational streamTimeBase = formatHandler.getVideoStreams()[0]->time_base;
+    // Try to get around 100 thumbnails, with at least 5s interval
+    vivictpp::time::Time thumbnailInterval = std::max(
+        duration / maxThumbnails, vivictpp::time::seconds(minThumbnailInterval));
 
-  while (!formatHandler.eof() && !stopIndexing) {
-    AVPacket *packet = formatHandler.nextPacket();
-    if (packet != nullptr) {
-      vivictpp::time::Time pts = av_rescale_q(packet->pts, streamTimeBase,
-                                              vivictpp::time::TIME_BASE_Q);
-      bool keyFrame = packet->flags & AV_PKT_FLAG_KEY;
-      index->addFrameData({pts, packet->size, keyFrame});
-      if (keyFrame && generateThumbnails &&
-          (lastPts == vivictpp::time::NO_TIME ||
-           pts - lastPts >= thumbnailInterval)) {
-        lastPts = pts;
-        for (auto frame : thumbnailDecoder->decode(packet)) {
-          if (!frame.empty()) {
-            index->addThumbnail(Thumbnail(pts, frame));
-            break;
+    while (!formatHandler.eof() && !stopIndexing) {
+      AVPacket *packet = formatHandler.nextPacket();
+      if (packet != nullptr) {
+        vivictpp::time::Time pts = av_rescale_q(packet->pts, streamTimeBase,
+                                                vivictpp::time::TIME_BASE_Q);
+        bool keyFrame = packet->flags & AV_PKT_FLAG_KEY;
+        index->addFrameData({pts, packet->size, keyFrame});
+        if (keyFrame && generateThumbnails &&
+            (lastPts == vivictpp::time::NO_TIME ||
+             pts - lastPts >= thumbnailInterval)) {
+          lastPts = pts;
+          for (auto frame : thumbnailDecoder->decode(packet)) {
+            if (!frame.empty()) {
+              index->addThumbnail(Thumbnail(pts, frame));
+              break;
+            }
           }
         }
+        av_packet_unref(packet);
       }
-      av_packet_unref(packet);
     }
+    index->finalizeIndex();
+    int64_t t1 = vivictpp::time::relativeTimeMicros();
+    logger->debug("Found {} keyframes, generated {} thumbnails",
+                  index->getKeyFrames().size(), index->getThumbnails().size());
+    logger->debug("Indexing took {} ms", (t1 - t0) / 1000);
+  } catch (const std::exception &e) {
+    logger->error("Indexing thread failed: {}", e.what());
   }
-  index->finalizeIndex();
-  int64_t t1 = vivictpp::time::relativeTimeMicros();
-  logger->debug("Found {} keyframes, generated {} thumbnails",
-                index->getKeyFrames().size(), index->getThumbnails().size());
-  logger->debug("Indexing took {} ms", (t1 - t0) / 1000);
 }

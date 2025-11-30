@@ -6,6 +6,7 @@
 #ifndef VIDEOINPUTS_HH_
 #define VIDEOINPUTS_HH_
 
+#include "ErrorQueue.hh"
 #include "libav/DecoderMetadata.hh"
 #include "time/Time.hh"
 extern "C" {
@@ -65,10 +66,11 @@ private:
   }
   SeekState seekState;
   // vivictpp::video::VideoIndexer videoIndexer;
+  vivictpp::ErrorQueue &errorQueue;
   vivictpp::logging::Logger logger;
 
 public:
-  explicit VideoInputs();
+  explicit VideoInputs(vivictpp::ErrorQueue &errorQueue);
   void openLeft(const SourceConfig &sourceConfig);
   void openRight(const SourceConfig &sourceConfig);
   bool hasLeftSource() { return !!leftInput.packetWorker; }

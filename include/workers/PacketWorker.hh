@@ -20,7 +20,8 @@ namespace workers {
 
 class PacketWorker : public InputWorker<int> {
 public:
-  PacketWorker(std::string source, std::string format = "");
+  PacketWorker(std::string source, std::string format,
+               vivictpp::ErrorQueue &errorQueue);
   virtual ~PacketWorker();
   void addDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
   void removeDecoderWorker(const std::shared_ptr<DecoderWorker> &decoderWorker);
