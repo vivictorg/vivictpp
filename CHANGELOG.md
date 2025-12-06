@@ -1,6 +1,12 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## 1.3.2 - 2025-12-06
+### Added
+- A-B loop for repeating playback between two points
+- Error dialog to display and handle errors in the UI
+- Fit to screen setting is now persisted in application settings
+
 ## 1.3.1 - 2025-10-23
 ### Fix
 - Fixes for ffmpeg 8.0
