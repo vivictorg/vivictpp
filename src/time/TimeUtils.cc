@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "time/TimeUtils.hh"
+#include <cinttypes>
 #include <libavutil/rational.h>
 
 extern "C" {
@@ -22,24 +23,29 @@ int64_t vivictpp::time::toMicros(double seconds) {
 int64_t vivictpp::time::toMillis(int64_t micros) { return micros / 1000; }
 
 std::string vivictpp::time::formatTime(double pts, bool includeMillis) {
-  int millis = static_cast<int>(pts * 1000);
-  int hours = millis / (3600000);
+  bool isNegative = pts < 0;
+  double absPts = isNegative ? -pts : pts;
+  int64_t millis = static_cast<int64_t>(absPts * 1000);
+  int64_t hours = millis / (3600000);
   int minutes = (millis / 60000) % 60;
   int seconds = (millis / 1000) % 60;
-  millis = millis % 1000;
+  int millisPart = millis % 1000;
   char buff[32];
   if (includeMillis) {
     if (hours > 0) {
-      snprintf(buff, 32, "%02d:%02d:%02d.%03d", hours, minutes, seconds,
-               millis);
+      snprintf(buff, 32, "%s%02" PRId64 ":%02d:%02d.%03d", isNegative ? "-" : "",
+               hours, minutes, seconds, millisPart);
     } else {
-      snprintf(buff, 32, "%02d:%02d.%03d", minutes, seconds, millis);
+      snprintf(buff, 32, "%s%02d:%02d.%03d", isNegative ? "-" : "",
+               minutes, seconds, millisPart);
     }
   } else {
     if (hours > 0) {
-      snprintf(buff, 32, "%02d:%02d:%02d", hours, minutes, seconds);
+      snprintf(buff, 32, "%s%02" PRId64 ":%02d:%02d", isNegative ? "-" : "",
+               hours, minutes, seconds);
     } else {
-      snprintf(buff, 32, "%02d:%02d", minutes, seconds);
+      snprintf(buff, 32, "%s%02d:%02d", isNegative ? "-" : "",
+               minutes, seconds);
     }
   }
   std::string result(buff);

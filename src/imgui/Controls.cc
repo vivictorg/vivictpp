@@ -147,7 +147,21 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::Controls::draw(
     ImGui::PopStyleVar();
 
     if (displayState.displayTime) {
-      std::string timeStr = vivictpp::time::formatTime(displayState.pts);
+      std::string timeStr;
+      if (displayState.leftFrameOffset != 0 &&
+          displayState.leftVideoMetadata.frameRate > 0) {
+        // Calculate left video time with offset
+        vivictpp::time::Time leftPtsOffset =
+            displayState.leftFrameOffset *
+            (vivictpp::time::TIME_BASE /
+             displayState.leftVideoMetadata.frameRate);
+        vivictpp::time::Time leftTime = displayState.pts + leftPtsOffset;
+        vivictpp::time::Time rightTime = displayState.pts;
+        timeStr = vivictpp::time::formatTime(leftTime, true) + " / " +
+                  vivictpp::time::formatTime(rightTime, true);
+      } else {
+        timeStr = vivictpp::time::formatTime(displayState.pts);
+      }
       ImVec2 textSize = ImGui::CalcTextSize(timeStr.c_str());
       int pad = 2;
       float y0 = 10;
