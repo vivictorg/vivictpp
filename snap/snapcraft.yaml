@@ -139,7 +139,7 @@ parts:
       - libxext6
       - libxfixes3
       - zlib1g
-    source: https://ffmpeg.org/releases/ffmpeg-5.1.2.tar.gz
+    source: https://ffmpeg.org/releases/ffmpeg-8.0.tar.gz
     plugin: autotools
     autotools-configure-parameters:
       - --enable-gpl
