@@ -31,6 +31,9 @@ std::vector<vivictpp::imgui::Action> vivictpp::imgui::Controls::draw(
 
   const ImGuiViewport *viewport = ImGui::GetMainViewport();
   ImVec2 work_size = viewport->WorkSize;
+  if (work_size.x <= 0 || work_size.y <= 0) {
+    return {};
+  }
   ImVec2 work_pos = viewport->WorkPos;
   ImVec2 window_pos, window_pos_pivot;
   window_pos.x = work_pos.x + work_size.x / 2;
