@@ -93,6 +93,10 @@ vivictpp::imgui::ImGuiSDL::~ImGuiSDL() {
 }
 
 void vivictpp::imgui::ImGuiSDL::newFrame() {
+  bool wantTextInput = ImGui::GetIO().WantTextInput;
+  if (wantTextInput != (SDL_IsTextInputActive() == SDL_TRUE)) {
+    wantTextInput ? SDL_StartTextInput() : SDL_StopTextInput();
+  }
   ImGui_ImplSDLRenderer2_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
